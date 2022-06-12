@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.Emo" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">@color/purple_700</item>
+    </style>
+
+    <style name="Theme.Emo.Home">
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowBackground">@drawable/home_window_bg</item>
+    </style>
+</resources>
