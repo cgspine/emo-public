@@ -17,10 +17,9 @@
 <resources>
 
     <style name="Theme.Emo" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="android:statusBarColor">#4D000000</item>
-    </style>
-
-    <style name="Theme.Emo.Main">
-        <item name="android:windowBackground">@drawable/launch_window_bg</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">?attr/isLightTheme</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightNavigationBar">?attr/isLightTheme</item>
     </style>
 </resources>
