@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">emo</string>
+    <string name="component">Component</string>
+    <string name="util">Util</string>
 </resources>

@@ -21,30 +21,31 @@ import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import cn.qhplus.emo.ui.EmoApp
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-class EmoActivity: ComponentActivity() {
+class MainActivity: ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        WindowCompat.getInsetsController(window, window.decorView).run {
-            show(WindowInsetsCompat.Type.statusBars() or WindowInsetsCompat.Type.navigationBars())
-        }
-        window.statusBarColor = Color.TRANSPARENT
-        window.navigationBarColor = Color.TRANSPARENT
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
             window.navigationBarDividerColor = Color.TRANSPARENT
             window.attributes.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
         }
-        window.setBackgroundDrawable(null)
         setContent {
             EmoApp(calculateWindowSizeClass(this))
+        }
+        lifecycleScope.launch {
+            delay(100)
+            window.setBackgroundDrawableResource(android.R.color.transparent)
         }
     }
 }

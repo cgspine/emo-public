@@ -14,38 +14,49 @@
  * limitations under the License.
  */
 package cn.qhplus.emo.ui
-
+import android.util.Log
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.consumedWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import cn.qhplus.emo.theme.EmoTheme
+import com.google.accompanist.navigation.animation.AnimatedNavHost
+import com.google.accompanist.navigation.animation.composable
+import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun EmoApp(windowSizeClass: WindowSizeClass){
     EmoTheme {
-        val navController = rememberNavController()
         Surface(
             color = MaterialTheme.colorScheme.background,
             modifier = Modifier.fillMaxSize()
         ) {
+            val navController = rememberAnimatedNavController()
+            AnimatedNavHost(
+                navController = navController,
+                startDestination = "${RouteConst.ROUTE_HOME}/{${RouteConst.PARAM_TAB}}"
+            ) {
 
-        }
-
-        NavHost(
-            navController = navController,
-            startDestination = "index"
-        ){
-            composable("index"){
-                IndexPage(navController)
+                composable(
+                    "${RouteConst.ROUTE_HOME}/{${RouteConst.PARAM_TAB}}"
+                ) { backStack ->
+                    HomePage(
+                        navController,
+                        backStack.arguments?.getString(RouteConst.PARAM_TAB)
+                            ?: RouteConst.ROUTE_HOME_COMPONENT
+                    )
+                }
             }
         }
     }

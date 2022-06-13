@@ -47,7 +47,7 @@ android {
             excludes.add("/META-INF/{AL2.0,LGPL2.1}")
         }
     }
-    namespace = "com.qhplus.emo"
+    namespace = "cn.qhplus.emo"
 }
 
 dependencies {
@@ -60,5 +60,5 @@ dependencies {
     implementation(libs.androidx.window.manager)
     implementation(libs.material3)
 
-    implementation(libs.androidx.navigation.compose)
+    implementation(libs.accompanist.navigation)
 }
