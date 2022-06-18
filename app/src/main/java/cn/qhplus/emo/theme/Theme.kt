@@ -13,11 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package cn.qhplus.emo.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -41,7 +46,6 @@ private val LightColorScheme = lightColorScheme(
     onErrorContainer = Red10
 )
 
-
 private val DarkColorScheme = darkColorScheme(
     primary = Blue80,
     onPrimary = Blue20,
@@ -60,7 +64,6 @@ private val DarkColorScheme = darkColorScheme(
     errorContainer = Red30,
     onErrorContainer = Red90
 )
-
 
 @Composable
 fun EmoTheme(

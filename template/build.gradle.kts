@@ -1,6 +1,6 @@
 plugins {
     id("emo.android.library")
-    id("emo.android.library.compose")
+    id("emo.spotless")
 }
 
 version = "0.0.1"

@@ -1,12 +1,12 @@
-package cn.qhplus.emo.template
+package cn.qhplus.emo.ui.core
 
 
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.runner.AndroidJUnit4
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Test
 import org.junit.runner.RunWith
 
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -19,6 +19,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("cn.wolt.blurhashkt.test", appContext.packageName)
+        assertEquals("cn.qhplus.emo", appContext.packageName)
     }
 }

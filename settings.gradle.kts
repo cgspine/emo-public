@@ -14,6 +14,7 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "emo"
+include(":core")
 include(":ui-core")
 include(":app")
 
