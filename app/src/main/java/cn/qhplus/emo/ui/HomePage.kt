@@ -17,19 +17,20 @@
 package cn.qhplus.emo.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.consumedWindowInsets
-import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Grid3x3
 import androidx.compose.material.icons.filled.Widgets
@@ -54,6 +55,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import cn.qhplus.emo.R
+import cn.qhplus.emo.ui.core.TopBarWithLazyListScrollState
 
 data class HomeDestination(
     val route: String,
@@ -149,30 +151,60 @@ fun HomePage(navController: NavHostController, tab: String) {
 
 @Composable
 fun ComponentPage(navController: NavHostController) {
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxSize()
-            .windowInsetsPadding(
-                WindowInsets.statusBars
-                    .union(WindowInsets.displayCutout)
-                    .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
-            )
     ) {
-        Text(text = "Component")
+        val scrollState = rememberLazyListState()
+        TopBarWithLazyListScrollState(
+            scrollState,
+            title = "Components"
+        )
+        LazyColumn(
+            state = scrollState,
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .background(MaterialTheme.colorScheme.background),
+            contentPadding = PaddingValues(top = 8.dp)
+        ) {
+            item {
+                CommonItem("Modal") {
+                    navController.navigate(RouteConst.ROUTE_MODAL)
+                }
+            }
+        }
     }
 }
 
 @Composable
 fun UtilPage(navController: NavHostController) {
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxSize()
-            .windowInsetsPadding(
-                WindowInsets.statusBars
-                    .union(WindowInsets.displayCutout)
-                    .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
-            )
     ) {
-        Text(text = "Util")
+        val scrollState = rememberLazyListState()
+        TopBarWithLazyListScrollState(
+            scrollState,
+            title = "Util"
+        )
+        LazyColumn(
+            state = scrollState,
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .background(MaterialTheme.colorScheme.background),
+            contentPadding = PaddingValues(top = 8.dp)
+        ) {
+            item {
+                CommonItem("Click") {
+                }
+            }
+
+            item {
+                CommonItem("Separator") {
+                }
+            }
+        }
     }
 }

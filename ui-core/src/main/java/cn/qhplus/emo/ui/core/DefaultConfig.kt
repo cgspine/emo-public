@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-package cn.qhplus.emo.ui
+package cn.qhplus.emo.ui.core
 
-object RouteConst {
-    const val ROUTE_HOME = "home"
-    const val ROUTE_HOME_COMPONENT = "component"
-    const val ROUTE_HOME_UTIL = "util"
-    const val ROUTE_MODAL = "modal"
+import androidx.compose.ui.unit.dp
 
-    const val PARAM_TAB = "tab"
-}
+const val emoTopBarZIndex = 32f
+val emoTopBarHeight = 48.dp
+val emoScrollAlphaChangeMaxOffset = 20.dp

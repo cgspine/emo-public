@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package cn.qhplus.emo.ui
+package cn.qhplus.emo.ui.core.helper
 
-object RouteConst {
-    const val ROUTE_HOME = "home"
-    const val ROUTE_HOME_COMPONENT = "component"
-    const val ROUTE_HOME_UTIL = "util"
-    const val ROUTE_MODAL = "modal"
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 
-    const val PARAM_TAB = "tab"
+@Composable
+fun OnePx(): Dp {
+    return (1 / LocalDensity.current.density).dp
 }
