@@ -14,8 +14,23 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<resources>
-    <string name="app_name">emo</string>
-    <string name="component">Component</string>
-    <string name="helper">Helper</string>
-</resources>
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@android:color/transparent">
+
+    <scale
+        android:duration="300"
+        android:fromXScale="1.0"
+        android:fromYScale="1.0"
+        android:interpolator="@android:interpolator/decelerate_quad"
+        android:pivotX="50%"
+        android:pivotY="50%"
+        android:toXScale="0.8"
+        android:toYScale="0.8" />
+
+    <alpha
+        android:duration="300"
+        android:fromAlpha="1.0"
+        android:interpolator="@android:interpolator/decelerate_quad"
+        android:toAlpha="0.0" />
+
+</set>

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package cn.qhplus.emo.ui
+package cn.qhplus.emo.ui.page
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -22,17 +22,26 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import cn.qhplus.emo.ui.core.TopBarBackIconItem
+import cn.qhplus.emo.ui.core.TopBarItem
 import cn.qhplus.emo.ui.core.TopBarWithLazyListScrollState
 
 @Composable
-fun ModalPage(navController: NavHostController) {
+fun SimpleListPage(
+    navController: NavHostController,
+    title: CharSequence,
+    topBarLeftItems: List<TopBarItem> = emptyList(),
+    topBarRightItems: List<TopBarItem> = emptyList(),
+    content: LazyListScope.(NavHostController) -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -40,12 +49,9 @@ fun ModalPage(navController: NavHostController) {
         val scrollState = rememberLazyListState()
         TopBarWithLazyListScrollState(
             scrollState,
-            title = "Modal",
-            leftItems = listOf(
-                TopBarBackIconItem(tint = MaterialTheme.colorScheme.onPrimary) {
-                    navController.popBackStack()
-                }
-            )
+            title = title,
+            leftItems = topBarLeftItems,
+            rightItems = topBarRightItems
         )
         LazyColumn(
             state = scrollState,
@@ -53,17 +59,31 @@ fun ModalPage(navController: NavHostController) {
                 .fillMaxWidth()
                 .weight(1f)
                 .background(MaterialTheme.colorScheme.background),
-            contentPadding = PaddingValues(top = 8.dp)
-        ) {
-            item {
-                CommonItem("Dialog") {
-                }
+            contentPadding = PaddingValues(top = 8.dp),
+            content = {
+                content(navController)
             }
-
-            item {
-                CommonItem("Toast") {
-                }
-            }
-        }
+        )
     }
+}
+
+@Composable
+fun OnlyBackListPage(
+    navController: NavHostController,
+    title: CharSequence,
+    content: LazyListScope.(NavHostController) -> Unit
+) {
+    val topBarIconColor = MaterialTheme.colorScheme.onPrimary
+    SimpleListPage(
+        navController = navController,
+        title = title,
+        topBarLeftItems = remember(topBarIconColor) {
+            listOf(
+                TopBarBackIconItem(tint = topBarIconColor) {
+                    navController.popBackStack()
+                }
+            )
+        },
+        content = content
+    )
 }

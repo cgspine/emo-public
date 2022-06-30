@@ -14,16 +14,20 @@
  * limitations under the License.
  */
 
-package cn.qhplus.emo
+package cn.qhplus.emo.photo.util
 
-import android.app.Application
-import coil.ImageLoader
-import coil.ImageLoaderFactory
+import android.content.Context
+import android.os.Build
+import android.util.Size
+import android.view.WindowManager
 
-class EmoApp : Application(), ImageLoaderFactory {
-    override fun newImageLoader(): ImageLoader {
-        return ImageLoader.Builder(applicationContext)
-            .crossfade(true)
-            .build()
+fun Context.getWindowSize(): Size {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        val wm = getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        val windowMetrics = wm.currentWindowMetrics
+        Size(windowMetrics.bounds.width(), windowMetrics.bounds.height())
+    } else {
+        val displayMetrics = resources.displayMetrics
+        Size(displayMetrics.widthPixels, displayMetrics.heightPixels)
     }
 }

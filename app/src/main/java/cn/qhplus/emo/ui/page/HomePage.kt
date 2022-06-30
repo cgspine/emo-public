@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package cn.qhplus.emo.ui
+package cn.qhplus.emo.ui.page
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -55,6 +55,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import cn.qhplus.emo.R
+import cn.qhplus.emo.ui.CommonItem
+import cn.qhplus.emo.ui.RouteConst
 import cn.qhplus.emo.ui.core.TopBarWithLazyListScrollState
 
 data class HomeDestination(
@@ -76,12 +78,12 @@ val HOME_DESTINATIONS = listOf(
         }
     ),
     HomeDestination(
-        route = RouteConst.ROUTE_HOME_UTIL,
+        route = RouteConst.ROUTE_HOME_HELPER,
         selectedIcon = Icons.Filled.Grid3x3,
         unselectedIcon = Icons.Outlined.Grid3x3,
-        iconTextId = R.string.util,
+        iconTextId = R.string.helper,
         content = {
-            UtilPage(it)
+            HelperPage(it)
         }
     )
 )
@@ -138,8 +140,8 @@ fun HomePage(navController: NavHostController, tab: String) {
                 .consumedWindowInsets(padding)
         ) {
             when (currentTab.value) {
-                RouteConst.ROUTE_HOME_UTIL -> {
-                    UtilPage(navController)
+                RouteConst.ROUTE_HOME_HELPER -> {
+                    HelperPage(navController)
                 }
                 else -> {
                     ComponentPage(navController)
@@ -173,12 +175,18 @@ fun ComponentPage(navController: NavHostController) {
                     navController.navigate(RouteConst.ROUTE_MODAL)
                 }
             }
+
+            item {
+                CommonItem("Photo") {
+                    navController.navigate(RouteConst.ROUTE_PHOTO)
+                }
+            }
         }
     }
 }
 
 @Composable
-fun UtilPage(navController: NavHostController) {
+fun HelperPage(navController: NavHostController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -186,7 +194,7 @@ fun UtilPage(navController: NavHostController) {
         val scrollState = rememberLazyListState()
         TopBarWithLazyListScrollState(
             scrollState,
-            title = "Util"
+            title = "Helper"
         )
         LazyColumn(
             state = scrollState,

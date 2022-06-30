@@ -1,4 +1,4 @@
-package cn.qhplus.emo.ui.core
+package cn.qhplus.emo.template
 
 
 import androidx.test.platform.app.InstrumentationRegistry

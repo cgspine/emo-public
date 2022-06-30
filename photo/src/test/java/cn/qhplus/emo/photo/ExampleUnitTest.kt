@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-package cn.qhplus.emo
+package cn.qhplus.emo.photo
 
-import android.app.Application
-import coil.ImageLoader
-import coil.ImageLoaderFactory
+import org.junit.Assert.assertEquals
+import org.junit.Test
 
-class EmoApp : Application(), ImageLoaderFactory {
-    override fun newImageLoader(): ImageLoader {
-        return ImageLoader.Builder(applicationContext)
-            .crossfade(true)
-            .build()
+/**
+ * Example local unit test, which will execute on the development machine (host).
+ *
+ * See [testing documentation](http://d.android.cn/tools/testing).
+ */
+class ExampleUnitTest {
+    @Test
+    fun addition_isCorrect() {
+        assertEquals(4, 2 + 2)
     }
 }

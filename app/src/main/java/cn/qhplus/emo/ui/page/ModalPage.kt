@@ -14,16 +14,26 @@
  * limitations under the License.
  */
 
-package cn.qhplus.emo
+package cn.qhplus.emo.ui.page
 
-import android.app.Application
-import coil.ImageLoader
-import coil.ImageLoaderFactory
+import androidx.compose.runtime.Composable
+import androidx.navigation.NavHostController
+import cn.qhplus.emo.ui.CommonItem
 
-class EmoApp : Application(), ImageLoaderFactory {
-    override fun newImageLoader(): ImageLoader {
-        return ImageLoader.Builder(applicationContext)
-            .crossfade(true)
-            .build()
+@Composable
+fun ModalPage(navController: NavHostController) {
+    OnlyBackListPage(
+        navController = navController,
+        title = "Modal"
+    ) {
+        item {
+            CommonItem("Dialog") {
+            }
+        }
+
+        item {
+            CommonItem("Toast") {
+            }
+        }
     }
 }

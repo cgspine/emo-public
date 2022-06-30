@@ -14,8 +14,11 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<resources>
-    <string name="app_name">emo</string>
-    <string name="component">Component</string>
-    <string name="helper">Helper</string>
-</resources>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="cn.qhplus.emo.photo">
+    <application>
+        <activity
+            android:name=".activity.PhotoViewerActivity"
+            android:theme="@style/PhotoViewer"/>
+    </application>
+</manifest>

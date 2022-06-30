@@ -15,7 +15,8 @@
      limitations under the License.
 -->
 <resources>
-    <string name="app_name">emo</string>
-    <string name="component">Component</string>
-    <string name="helper">Helper</string>
+    <style name="PhotoViewer" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
 </resources>

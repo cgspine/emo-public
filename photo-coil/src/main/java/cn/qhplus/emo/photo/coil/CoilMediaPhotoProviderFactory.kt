@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package cn.qhplus.emo
+package cn.qhplus.emo.photo.coil
 
-import android.app.Application
-import coil.ImageLoader
-import coil.ImageLoaderFactory
+import cn.qhplus.emo.photo.data.MediaModel
+import cn.qhplus.emo.photo.data.MediaPhotoProviderFactory
+import cn.qhplus.emo.photo.data.PhotoProvider
 
-class EmoApp : Application(), ImageLoaderFactory {
-    override fun newImageLoader(): ImageLoader {
-        return ImageLoader.Builder(applicationContext)
-            .crossfade(true)
-            .build()
+class CoilMediaPhotoProviderFactory : MediaPhotoProviderFactory {
+
+    override fun factory(model: MediaModel): PhotoProvider {
+        return CoilPhotoProvider(uri = model.uri, ratio = model.ratio())
     }
 }

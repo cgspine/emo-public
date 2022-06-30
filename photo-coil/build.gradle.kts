@@ -13,17 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+plugins {
+    id("emo.android.library")
+    id("emo.android.library.compose")
+    id("emo.spotless")
+}
 
-package cn.qhplus.emo
+version = libs.versions.emoPhoto
 
-import android.app.Application
-import coil.ImageLoader
-import coil.ImageLoaderFactory
-
-class EmoApp : Application(), ImageLoaderFactory {
-    override fun newImageLoader(): ImageLoader {
-        return ImageLoader.Builder(applicationContext)
-            .crossfade(true)
-            .build()
+android {
+    buildTypes {
+        getByName("release") {
+            isMinifyEnabled = false
+            proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
+        }
     }
+}
+dependencies {
+    implementation(libs.androidx.core.ktx)
+    api(project(":photo"))
+    api(libs.coil.kt.compose)
 }

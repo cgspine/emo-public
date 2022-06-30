@@ -35,6 +35,10 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDeepLink
 import androidx.navigation.NavGraphBuilder
 import cn.qhplus.emo.theme.EmoTheme
+import cn.qhplus.emo.ui.page.HomePage
+import cn.qhplus.emo.ui.page.ModalPage
+import cn.qhplus.emo.ui.page.PhotoPage
+import cn.qhplus.emo.ui.page.PhotoViewerPage
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
@@ -69,6 +73,18 @@ fun EmoApp(windowSizeClass: WindowSizeClass) {
                     RouteConst.ROUTE_MODAL
                 ) {
                     ModalPage(navController)
+                }
+
+                slideComposable(
+                    RouteConst.ROUTE_PHOTO
+                ) {
+                    PhotoPage(navController)
+                }
+
+                slideComposable(
+                    RouteConst.ROUTE_PHOTO_VIEWER
+                ) {
+                    PhotoViewerPage(navController)
                 }
             }
         }
