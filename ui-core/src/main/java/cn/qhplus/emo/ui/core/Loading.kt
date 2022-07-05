@@ -34,10 +34,11 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun Loading(
+    modifier: Modifier = Modifier,
     size: Dp = 32.dp,
     duration: Int = 600,
     lineCount: Int = 12,
-    lineColor: Color = Color.LightGray,
+    lineColor: Color = Color.LightGray
 ) {
     val transition = rememberInfiniteTransition()
     val degree = 360f / lineCount
@@ -47,7 +48,7 @@ fun Loading(
         typeConverter = Int.VectorConverter,
         animationSpec = infiniteRepeatable(tween(duration, 0, LinearEasing))
     )
-    Canvas(modifier = Modifier.size(size)) {
+    Canvas(modifier = modifier.size(size)) {
         rotate(rotate.value * degree, center) {
             for (i in 0 until lineCount) {
                 rotate(degree * i, center) {

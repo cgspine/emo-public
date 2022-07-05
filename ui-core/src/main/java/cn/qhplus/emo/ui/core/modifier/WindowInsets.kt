@@ -19,6 +19,7 @@ package cn.qhplus.emo.ui.core.modifier
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.union
@@ -36,5 +37,15 @@ fun Modifier.windowInsetsCommonTopPadding() = composed(
         WindowInsets.statusBars
             .union(WindowInsets.displayCutout)
             .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
+    )
+}
+
+fun Modifier.windowInsetsCommonNavPadding() = composed(
+    inspectorInfo = debugInspectorInfo {
+        name = "windowInsetsCommonNavPadding"
+    }
+) {
+    windowInsetsPadding(
+        WindowInsets.navigationBars.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
     )
 }

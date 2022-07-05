@@ -38,6 +38,7 @@ import cn.qhplus.emo.theme.EmoTheme
 import cn.qhplus.emo.ui.page.HomePage
 import cn.qhplus.emo.ui.page.ModalPage
 import cn.qhplus.emo.ui.page.PhotoPage
+import cn.qhplus.emo.ui.page.PhotoPickerPage
 import cn.qhplus.emo.ui.page.PhotoViewerPage
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
@@ -85,6 +86,12 @@ fun EmoApp(windowSizeClass: WindowSizeClass) {
                     RouteConst.ROUTE_PHOTO_VIEWER
                 ) {
                     PhotoViewerPage(navController)
+                }
+
+                slideComposable(
+                    RouteConst.ROUTE_PHOTO_PICKER
+                ) {
+                    PhotoPickerPage(navController)
                 }
             }
         }

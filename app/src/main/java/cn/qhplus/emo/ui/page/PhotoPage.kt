@@ -16,14 +16,27 @@
 
 package cn.qhplus.emo.ui.page
 
+import android.app.Activity.RESULT_OK
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.navigation.NavHostController
+import cn.qhplus.emo.photo.activity.PhotoPickResult
+import cn.qhplus.emo.photo.activity.PhotoPickerActivity
+import cn.qhplus.emo.photo.activity.getPhotoPickResult
+import cn.qhplus.emo.photo.coil.CoilMediaPhotoProviderFactory
 import cn.qhplus.emo.photo.coil.CoilPhotoProvider
 import cn.qhplus.emo.photo.ui.PhotoThumbnailWithViewer
 import cn.qhplus.emo.ui.CommonItem
@@ -43,6 +56,7 @@ fun PhotoPage(navController: NavHostController) {
 
         item {
             CommonItem("Photo Picker") {
+                navController.navigate(RouteConst.ROUTE_PHOTO_PICKER)
             }
         }
     }
@@ -247,6 +261,65 @@ fun PhotoViewerPage(navController: NavHostController) {
                         ),
                     )
                 )
+            }
+        }
+    }
+}
+
+@Composable
+fun PhotoPickerPage(navController: NavHostController) {
+
+    val pickResult = remember {
+        mutableStateOf<PhotoPickResult?>(null)
+    }
+
+    val pickLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()){
+        if (it.resultCode == RESULT_OK) {
+            it.data?.getPhotoPickResult()?.let { ret ->
+                pickResult.value = ret
+            }
+        }
+    }
+
+    OnlyBackListPage(
+        navController = navController,
+        title = "Photo Viewer"
+    ) {
+        item(key = "pick-photo") {
+            val context = LocalContext.current
+            CommonItem("Pick Photo") {
+                pickLauncher.launch(
+                    PhotoPickerActivity.intentOf(
+                        context,
+                        CoilMediaPhotoProviderFactory::class.java,
+                        pickedItems = arrayListOf<Uri>().apply { pickResult.value?.list?.mapTo(this) { it.uri } }
+                    )
+                )
+            }
+        }
+
+        val result = pickResult.value
+        if(result != null && result.list.isNotEmpty()){
+            item(key = result.list.map { it.id }.joinToString(",")) {
+                val images = remember(pickResult) {
+                    result.list.map {
+                        CoilPhotoProvider(
+                            it.uri,
+                            ratio = it.ratio()
+                        )
+                    }
+                }
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 20.dp)
+                ) {
+                    Text(text = "原图：${result.isOriginOpen}")
+
+                    PhotoThumbnailWithViewer(
+                        images = images
+                    )
+                }
             }
         }
     }

@@ -52,6 +52,7 @@ import cn.qhplus.emo.photo.data.PhotoResult
 import cn.qhplus.emo.photo.data.PhotoShot
 import cn.qhplus.emo.photo.ui.viewer.LocalPhotoViewerConfig
 import cn.qhplus.emo.photo.util.getWindowSize
+import cn.qhplus.emo.ui.core.ex.findActivity
 
 const val SINGLE_HIGH_IMAGE_MINI_SCREEN_HEIGHT_RATIO = -1F
 
@@ -123,17 +124,7 @@ fun PhotoThumbnailWithViewer(
     PhotoThumbnail(images, config) { list, index ->
         val intent = PhotoViewerActivity.intentOf(context, targetActivity, list, index)
         context.startActivity(intent)
-        context.findActivity()?.overridePendingTransition(0, 0)
     }
-}
-
-internal fun Context.findActivity(): Activity? {
-    var context = this
-    while (context is ContextWrapper) {
-        if (context is Activity) return context
-        context = context.baseContext
-    }
-    return null
 }
 
 @Composable

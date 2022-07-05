@@ -23,6 +23,7 @@ object RouteConst {
     const val ROUTE_MODAL = "modal"
     const val ROUTE_PHOTO = "photo"
     const val ROUTE_PHOTO_VIEWER = "photoViewer"
+    const val ROUTE_PHOTO_PICKER = "photoPicker"
 
     const val PARAM_TAB = "tab"
 }

@@ -16,9 +16,15 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="cn.qhplus.emo.photo">
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application>
         <activity
             android:name=".activity.PhotoViewerActivity"
             android:theme="@style/PhotoViewer"/>
+
+        <activity android:name=".activity.PhotoPickerActivity"/>
     </application>
 </manifest>

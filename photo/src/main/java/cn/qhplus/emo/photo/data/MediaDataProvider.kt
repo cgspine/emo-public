@@ -32,6 +32,7 @@ import kotlinx.coroutines.withContext
 
 const val MediaPhotoBucketAllId = "___all___"
 const val MediaPhotoBucketAllName = "最近项目"
+const val MediaPhotoBucketSelectedId = "___selected___"
 
 open class MediaModel(
     val id: Long,

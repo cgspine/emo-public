@@ -122,6 +122,19 @@ open class PhotoViewerActivity : ComponentActivity() {
         setContent {
             PageContent()
         }
+
+        if(shouldTransitionPhoto()){
+            overridePendingTransition(0, 0)
+        }else{
+            overridePendingTransition(R.anim.scale_enter, 0)
+        }
+    }
+
+    override fun finish() {
+        super.finish()
+        if(!shouldTransitionPhoto()){
+            overridePendingTransition(0, R.anim.scale_exit)
+        }
     }
 
     @Composable
