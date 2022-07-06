@@ -1,3 +1,19 @@
+/*
+ * Copyright 2022 emo Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package cn.qhplus.emo.photo.ui.picker
 
 import androidx.compose.animation.core.animateFloat
@@ -7,7 +23,13 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -48,7 +70,7 @@ class PhotoPickerBucketTopBarItem(
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
-                    enabled = true,
+                    enabled = true
                 ) {
                     onClick()
                 }
@@ -115,12 +137,15 @@ fun PhotoPickerBucketToggleArrow(
                 .height(4.dp)
                 .rotate(rotate.value)
         ) {
-
-            drawPath(Path().apply {
-                moveTo(0f, 0f)
-                lineTo(size.width / 2, size.height)
-                lineTo(size.width, 0f)
-            }, iconColor, style = Stroke(strokeWidth))
+            drawPath(
+                Path().apply {
+                    moveTo(0f, 0f)
+                    lineTo(size.width / 2, size.height)
+                    lineTo(size.width, 0f)
+                },
+                iconColor,
+                style = Stroke(strokeWidth)
+            )
         }
     }
 }

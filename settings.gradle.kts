@@ -15,6 +15,7 @@ dependencyResolutionManagement {
 }
 rootProject.name = "emo"
 include(":core")
+include(":fs")
 include(":ui-core")
 include(":photo")
 include(":photo-coil")

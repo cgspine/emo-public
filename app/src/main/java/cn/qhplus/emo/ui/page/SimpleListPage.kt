@@ -58,7 +58,7 @@ fun SimpleListPage(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
-                .background(MaterialTheme.colorScheme.background),
+                .background(MaterialTheme.colorScheme.surface),
             contentPadding = PaddingValues(top = 8.dp),
             content = {
                 content(navController)

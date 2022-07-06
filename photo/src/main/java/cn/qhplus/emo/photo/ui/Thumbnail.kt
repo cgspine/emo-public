@@ -16,9 +16,6 @@
 
 package cn.qhplus.emo.photo.ui
 
-import android.app.Activity
-import android.content.Context
-import android.content.ContextWrapper
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -51,8 +48,7 @@ import cn.qhplus.emo.photo.data.PhotoProvider
 import cn.qhplus.emo.photo.data.PhotoResult
 import cn.qhplus.emo.photo.data.PhotoShot
 import cn.qhplus.emo.photo.ui.viewer.LocalPhotoViewerConfig
-import cn.qhplus.emo.photo.util.getWindowSize
-import cn.qhplus.emo.ui.core.ex.findActivity
+import cn.qhplus.emo.ui.core.ex.getWindowSize
 
 const val SINGLE_HIGH_IMAGE_MINI_SCREEN_HEIGHT_RATIO = -1F
 
@@ -79,7 +75,7 @@ private fun PhotoThumbnailItem(
     isContainerDimenExactly: Boolean,
     onLayout: (offset: Offset, size: IntSize) -> Unit,
     onPhotoLoaded: (PhotoResult) -> Unit,
-    click: (() -> Unit)?,
+    click: (() -> Unit)?
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed = interactionSource.collectIsPressedAsState()
@@ -88,7 +84,6 @@ private fun PhotoThumbnailItem(
             .width(width)
             .height(height)
             .let {
-
                 if (click != null) {
                     it
                         .clickable(interactionSource, null) {
@@ -287,9 +282,9 @@ fun PhotoThumbnail(
         } else {
             Column(modifier = Modifier.fillMaxWidth()) {
                 for (
-                    i in 0 until (images.size / 3 + if (images.size % 3 > 0) 1 else 0).coerceAtMost(
-                        3
-                    )
+                i in 0 until (images.size / 3 + if (images.size % 3 > 0) 1 else 0).coerceAtMost(
+                    3
+                )
                 ) {
                     if (i > 0) {
                         Spacer(modifier = Modifier.height(config.verGap))

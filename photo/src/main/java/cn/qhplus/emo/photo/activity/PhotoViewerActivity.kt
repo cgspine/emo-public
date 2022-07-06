@@ -34,27 +34,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import cn.qhplus.emo.core.EmoLog
 import cn.qhplus.emo.photo.R
 import cn.qhplus.emo.photo.data.PhotoShot
 import cn.qhplus.emo.photo.data.PhotoShotDelivery
-import cn.qhplus.emo.photo.data.PhotoShotRecover
 import cn.qhplus.emo.photo.data.PhotoViewerData
-import cn.qhplus.emo.photo.data.lossPhotoShot
 import cn.qhplus.emo.photo.ui.viewer.PhotoPageCtrl
 import cn.qhplus.emo.photo.ui.viewer.PhotoViewerArg
 import cn.qhplus.emo.photo.ui.viewer.PhotoViewerScaffold
+import cn.qhplus.emo.photo.vm.PhotoViewerViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-
-private const val PHOTO_CURRENT_INDEX = "emo_photo_current_index"
-private const val PHOTO_SHOT_DELIVERY_KEY = "emo_photo_shot_delivery"
-private const val PHOTO_COUNT = "emo_photo_count"
-private const val PHOTO_META_KEY_PREFIX = "emo_photo_meta_"
-private const val PHOTO_RECOVER_CLASS_KEY_PREFIX = "emo_photo_recover_cls_"
 
 open class PhotoViewerActivity : ComponentActivity() {
 
@@ -68,17 +59,17 @@ open class PhotoViewerActivity : ComponentActivity() {
         ): Intent {
             val data = PhotoViewerData(list, index)
             val intent = Intent(context, cls)
-            intent.putExtra(PHOTO_SHOT_DELIVERY_KEY, PhotoShotDelivery.put(data))
-            intent.putExtra(PHOTO_CURRENT_INDEX, index)
-            intent.putExtra(PHOTO_COUNT, list.size)
+            intent.putExtra(PhotoViewerViewModel.PHOTO_SHOT_DELIVERY_KEY, PhotoShotDelivery.put(data))
+            intent.putExtra(PhotoViewerViewModel.PHOTO_CURRENT_INDEX, index)
+            intent.putExtra(PhotoViewerViewModel.PHOTO_COUNT, list.size)
             if (list.size < 250) {
                 list.forEachIndexed { i, shot ->
                     val meta = shot.photoProvider.meta()
                     val recoverCls = shot.photoProvider.recoverCls()
                     if (meta != null && recoverCls != null) {
-                        intent.putExtra("${PHOTO_META_KEY_PREFIX}$i", meta)
+                        intent.putExtra("${PhotoViewerViewModel.PHOTO_META_KEY_PREFIX}$i", meta)
                         intent.putExtra(
-                            "${PHOTO_RECOVER_CLASS_KEY_PREFIX}$i",
+                            "${PhotoViewerViewModel.PHOTO_RECOVER_CLASS_KEY_PREFIX}$i",
                             recoverCls.name
                         )
                     }
@@ -123,16 +114,16 @@ open class PhotoViewerActivity : ComponentActivity() {
             PageContent()
         }
 
-        if(shouldTransitionPhoto()){
+        if (shouldTransitionPhoto()) {
             overridePendingTransition(0, 0)
-        }else{
+        } else {
             overridePendingTransition(R.anim.scale_enter, 0)
         }
     }
 
     override fun finish() {
         super.finish()
-        if(!shouldTransitionPhoto()){
+        if (!shouldTransitionPhoto()) {
             overridePendingTransition(0, R.anim.scale_exit)
         }
     }
@@ -197,50 +188,6 @@ open class PhotoViewerActivity : ComponentActivity() {
             finish()
             overridePendingTransition(0, R.anim.scale_exit)
         }
-    }
-}
-
-class PhotoViewerViewModel(state: SavedStateHandle) : ViewModel() {
-
-    private val enterIndex = state.get<Int>(PHOTO_CURRENT_INDEX) ?: 0
-    val data: PhotoViewerData?
-
-    private val transitionDeliverKey = state.get<Long>(PHOTO_SHOT_DELIVERY_KEY) ?: -1
-
-    init {
-        val transitionDeliverData = PhotoShotDelivery.getAndRemove(transitionDeliverKey)
-        data = if (transitionDeliverData != null) {
-            transitionDeliverData
-        } else {
-            val count = state.get<Int>(PHOTO_COUNT) ?: 0
-            if (count > 0) {
-                val list = arrayListOf<PhotoShot>()
-                for (i in 0 until count) {
-                    try {
-                        val meta = state.get<Bundle>("${PHOTO_META_KEY_PREFIX}$i")
-                        val clsName =
-                            state.get<String>("${PHOTO_RECOVER_CLASS_KEY_PREFIX}$i")
-                        if (meta == null || clsName.isNullOrBlank()) {
-                            list.add(lossPhotoShot)
-                        } else {
-                            val cls = Class.forName(clsName)
-                            val recover = cls.newInstance() as PhotoShotRecover
-                            list.add(recover.recover(meta) ?: lossPhotoShot)
-                        }
-                    } catch (e: Throwable) {
-                        list.add(lossPhotoShot)
-                    }
-                }
-                PhotoViewerData(list, enterIndex)
-            } else {
-                null
-            }
-        }
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        PhotoShotDelivery.remove(transitionDeliverKey)
     }
 }
 

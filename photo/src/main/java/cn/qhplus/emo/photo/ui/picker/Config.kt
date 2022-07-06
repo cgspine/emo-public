@@ -1,3 +1,19 @@
+/*
+ * Copyright 2022 emo Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package cn.qhplus.emo.photo.ui.picker
 
 import androidx.compose.runtime.Composable
@@ -88,7 +104,7 @@ class PhotoPickerConfig(
     val graffitiPaintStrokeWidth: Dp = 5.dp,
     val mosaicPaintStrokeWidth: Dp = 20.dp,
 
-    val textEditMaskColor:Color = Color.Black.copy(0.5f),
+    val textEditMaskColor: Color = Color.Black.copy(0.5f),
     val textEditColorOptions: List<ColorEditPaint> = listOf(
         ColorEditPaint(Color.White),
         ColorEditPaint(Color.Black),
@@ -103,7 +119,7 @@ class PhotoPickerConfig(
     val textCursorColor: Color = primaryColor,
 
     val editLayerDeleteAreaNormalBgColor: Color = Color.Black.copy(alpha = 0.3f),
-    val editLayerDeleteAreaNormalFocusColor: Color = Color.Red.copy(alpha = 0.6f),
+    val editLayerDeleteAreaNormalFocusColor: Color = Color.Red.copy(alpha = 0.6f)
 )
 
 val DefaultPhotoPickerConfig by lazy { PhotoPickerConfig() }

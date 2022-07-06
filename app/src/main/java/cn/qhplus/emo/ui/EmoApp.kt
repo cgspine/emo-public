@@ -24,8 +24,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideIn
 import androidx.compose.animation.slideOut
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -37,6 +35,7 @@ import androidx.navigation.NavGraphBuilder
 import cn.qhplus.emo.theme.EmoTheme
 import cn.qhplus.emo.ui.page.HomePage
 import cn.qhplus.emo.ui.page.ModalPage
+import cn.qhplus.emo.ui.page.PhotoClipperPage
 import cn.qhplus.emo.ui.page.PhotoPage
 import cn.qhplus.emo.ui.page.PhotoPickerPage
 import cn.qhplus.emo.ui.page.PhotoViewerPage
@@ -48,51 +47,53 @@ import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 @Composable
 fun EmoApp(windowSizeClass: WindowSizeClass) {
     EmoTheme {
-        Surface(
-            color = MaterialTheme.colorScheme.surface,
-            modifier = Modifier.fillMaxSize()
+        val navController = rememberAnimatedNavController()
+        AnimatedNavHost(
+            navController = navController,
+            modifier = Modifier.fillMaxSize(),
+            startDestination = "${RouteConst.ROUTE_HOME}/{${RouteConst.PARAM_TAB}}"
         ) {
-            val navController = rememberAnimatedNavController()
-            AnimatedNavHost(
-                navController = navController,
-                startDestination = "${RouteConst.ROUTE_HOME}/{${RouteConst.PARAM_TAB}}"
+
+            composable(
+                "${RouteConst.ROUTE_HOME}/{${RouteConst.PARAM_TAB}}",
+                exitTransition = slideOutLeft,
+                popEnterTransition = slideInLeft
+            ) { backStack ->
+                HomePage(
+                    navController,
+                    backStack.arguments?.getString(RouteConst.PARAM_TAB)
+                        ?: RouteConst.ROUTE_HOME_COMPONENT
+                )
+            }
+
+            slideComposable(
+                RouteConst.ROUTE_MODAL
             ) {
+                ModalPage(navController)
+            }
 
-                composable(
-                    "${RouteConst.ROUTE_HOME}/{${RouteConst.PARAM_TAB}}",
-                    exitTransition = slideOutLeft,
-                    popEnterTransition = slideInLeft
-                ) { backStack ->
-                    HomePage(
-                        navController,
-                        backStack.arguments?.getString(RouteConst.PARAM_TAB)
-                            ?: RouteConst.ROUTE_HOME_COMPONENT
-                    )
-                }
+            slideComposable(
+                RouteConst.ROUTE_PHOTO
+            ) {
+                PhotoPage(navController)
+            }
 
-                slideComposable(
-                    RouteConst.ROUTE_MODAL
-                ) {
-                    ModalPage(navController)
-                }
+            slideComposable(
+                RouteConst.ROUTE_PHOTO_VIEWER
+            ) {
+                PhotoViewerPage(navController)
+            }
 
-                slideComposable(
-                    RouteConst.ROUTE_PHOTO
-                ) {
-                    PhotoPage(navController)
-                }
+            slideComposable(
+                RouteConst.ROUTE_PHOTO_PICKER
+            ) {
+                PhotoPickerPage(navController)
+            }
 
-                slideComposable(
-                    RouteConst.ROUTE_PHOTO_VIEWER
-                ) {
-                    PhotoViewerPage(navController)
-                }
-
-                slideComposable(
-                    RouteConst.ROUTE_PHOTO_PICKER
-                ) {
-                    PhotoPickerPage(navController)
-                }
+            slideComposable(
+                RouteConst.ROUTE_PHOTO_CLIPPER
+            ) {
+                PhotoClipperPage(navController)
             }
         }
     }

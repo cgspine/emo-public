@@ -32,6 +32,7 @@ android {
 dependencies {
     implementation(libs.androidx.core.ktx)
     api(project(":ui-core"))
+    api(project(":fs"))
     implementation(libs.androidx.activity.compose)
     implementation(libs.accompanist.navigation)
     implementation(libs.accompanist.pager)

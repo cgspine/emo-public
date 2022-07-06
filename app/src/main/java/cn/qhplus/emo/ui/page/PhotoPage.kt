@@ -26,21 +26,27 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.navigation.NavHostController
+import cn.qhplus.emo.photo.activity.PhotoClipperActivity
+import cn.qhplus.emo.photo.activity.PhotoClipperResult
 import cn.qhplus.emo.photo.activity.PhotoPickResult
 import cn.qhplus.emo.photo.activity.PhotoPickerActivity
+import cn.qhplus.emo.photo.activity.getPhotoClipperResult
 import cn.qhplus.emo.photo.activity.getPhotoPickResult
 import cn.qhplus.emo.photo.coil.CoilMediaPhotoProviderFactory
 import cn.qhplus.emo.photo.coil.CoilPhotoProvider
 import cn.qhplus.emo.photo.ui.PhotoThumbnailWithViewer
 import cn.qhplus.emo.ui.CommonItem
 import cn.qhplus.emo.ui.RouteConst
+import coil.compose.AsyncImage
 
 @Composable
 fun PhotoPage(navController: NavHostController) {
@@ -57,6 +63,12 @@ fun PhotoPage(navController: NavHostController) {
         item {
             CommonItem("Photo Picker") {
                 navController.navigate(RouteConst.ROUTE_PHOTO_PICKER)
+            }
+        }
+
+        item {
+            CommonItem("Photo Clipper") {
+                navController.navigate(RouteConst.ROUTE_PHOTO_CLIPPER)
             }
         }
     }
@@ -273,7 +285,7 @@ fun PhotoPickerPage(navController: NavHostController) {
         mutableStateOf<PhotoPickResult?>(null)
     }
 
-    val pickLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()){
+    val pickLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == RESULT_OK) {
             it.data?.getPhotoPickResult()?.let { ret ->
                 pickResult.value = ret
@@ -299,7 +311,7 @@ fun PhotoPickerPage(navController: NavHostController) {
         }
 
         val result = pickResult.value
-        if(result != null && result.list.isNotEmpty()){
+        if (result != null && result.list.isNotEmpty()) {
             item(key = result.list.map { it.id }.joinToString(",")) {
                 val images = remember(pickResult) {
                     result.list.map {
@@ -320,6 +332,48 @@ fun PhotoPickerPage(navController: NavHostController) {
                         images = images
                     )
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun PhotoClipperPage(navController: NavHostController) {
+    val clipperResult = remember {
+        mutableStateOf<PhotoClipperResult?>(null)
+    }
+
+    val pickLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        if (it.resultCode == RESULT_OK) {
+            it.data?.getPhotoClipperResult()?.let { ret ->
+                clipperResult.value = ret
+            }
+        }
+    }
+
+    OnlyBackListPage(
+        navController = navController,
+        title = "Photo Clipper"
+    ) {
+        item(key = "clipper-photo") {
+            val context = LocalContext.current
+            CommonItem("Clip Photo") {
+                pickLauncher.launch(
+                    PhotoClipperActivity.intentOf(
+                        context,
+                        CoilPhotoProvider(
+                            "https://weread-picture-1258476243.file.myqcloud.com/9979/31y68oGufDGL3zQ6TT.jpg".toUri(),
+                            ratio = 0f
+                        )
+                    )
+                )
+            }
+        }
+
+        val result = clipperResult.value
+        if (result != null) {
+            item(key = result.uri.toString()) {
+                AsyncImage(model = result.uri, contentDescription = "")
             }
         }
     }

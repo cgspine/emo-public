@@ -27,9 +27,6 @@ import android.graphics.drawable.Drawable
 import android.os.Build
 import android.util.LruCache
 import androidx.compose.ui.unit.IntSize
-import java.io.InputStream
-import kotlin.math.max
-import kotlin.math.min
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -37,6 +34,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import java.io.InputStream
+import kotlin.math.max
+import kotlin.math.min
 
 class BitmapRegions(val width: Int, val height: Int, val list: List<BitmapRegionProvider>)
 
@@ -97,7 +97,7 @@ fun loadLongImageThumbnail(
     ins: InputStream,
     preferredSize: IntSize,
     options: BitmapFactory.Options,
-    fit: Boolean = false,
+    fit: Boolean = false
 ): Bitmap? {
     return loadLongImage(ins, preferredSize, options, fit) { regionDecoder ->
         val w = regionDecoder.width
@@ -157,7 +157,8 @@ fun loadLongImage(
                 }
                 ret.add(
                     BitmapRegionProvider(
-                        w, bottom - finalTop,
+                        w,
+                        bottom - finalTop,
                         if (caches.canCache()) {
                             CacheBitmapRegionLoader(loader, caches)
                         } else {

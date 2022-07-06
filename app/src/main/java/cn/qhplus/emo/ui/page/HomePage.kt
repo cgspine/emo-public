@@ -20,15 +20,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.consumedWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
@@ -58,6 +53,7 @@ import cn.qhplus.emo.R
 import cn.qhplus.emo.ui.CommonItem
 import cn.qhplus.emo.ui.RouteConst
 import cn.qhplus.emo.ui.core.TopBarWithLazyListScrollState
+import cn.qhplus.emo.ui.core.modifier.windowInsetsCommonNavPadding
 
 data class HomeDestination(
     val route: String,
@@ -104,11 +100,7 @@ fun HomePage(navController: NavHostController, tab: String) {
                 modifier = Modifier
                     .shadow(16.dp)
                     .background(MaterialTheme.colorScheme.surface)
-                    .windowInsetsPadding(
-                        WindowInsets.safeDrawing.only(
-                            WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom
-                        )
-                    ),
+                    .windowInsetsCommonNavPadding(),
                 tonalElevation = 0.dp
             ) {
                 HOME_DESTINATIONS.forEach { destination ->

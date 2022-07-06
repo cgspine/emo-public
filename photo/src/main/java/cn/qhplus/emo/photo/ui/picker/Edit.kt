@@ -1,4 +1,21 @@
+/*
+ * Copyright 2022 emo Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package cn.qhplus.emo.photo.ui.picker
+
 import android.graphics.drawable.Drawable
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
@@ -11,17 +28,53 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.forEachGesture
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.union
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.DisposableEffectResult
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.neverEqualPolicy
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.consumeDownChange
 import androidx.compose.ui.input.pointer.consumePositionChange
 import androidx.compose.ui.input.pointer.pointerInput
@@ -42,10 +95,10 @@ import androidx.constraintlayout.compose.Visibility
 import androidx.core.graphics.drawable.toBitmap
 import androidx.navigation.NavHostController
 import cn.qhplus.emo.photo.data.MediaPhotoBucketAllId
-import cn.qhplus.emo.ui.core.R
 import cn.qhplus.emo.photo.data.MediaPhotoVO
 import cn.qhplus.emo.photo.ui.GesturePhoto
 import cn.qhplus.emo.photo.vm.PhotoPickerViewModel
+import cn.qhplus.emo.ui.core.R
 import cn.qhplus.emo.ui.core.helper.OnePx
 import cn.qhplus.emo.ui.core.modifier.windowInsetsCommonNavPadding
 import cn.qhplus.emo.ui.core.modifier.windowInsetsCommonTopPadding
@@ -73,11 +126,11 @@ internal data class PickerPhotoLayoutInfo(val scale: Float, val rect: Rect)
 fun PhotoPickerEditPage(
     navController: NavHostController,
     viewModel: PhotoPickerViewModel,
-    id: Long,
-){
+    id: Long
+) {
     val systemUiController = rememberSystemUiController()
     SideEffect {
-        if(systemUiController.isSystemBarsVisible){
+        if (systemUiController.isSystemBarsVisible) {
             systemUiController.isSystemBarsVisible = false
         }
     }
@@ -87,18 +140,17 @@ fun PhotoPickerEditPage(
             ?.list
             ?.find { it.model.id == id }
     }
-    if(item != null){
-        PhotoPickerEditContent(item){
+    if (item != null) {
+        PhotoPickerEditContent(item) {
             navController.popBackStack()
         }
     }
 }
 
-
 @Composable
 fun PhotoPickerEditContent(
     data: MediaPhotoVO,
-    onBack: () -> Unit,
+    onBack: () -> Unit
 ) {
     val sceneState = remember(data) {
         mutableStateOf<PickerEditScene>(PickerEditSceneNormal)
@@ -138,7 +190,6 @@ fun PhotoPickerEditContent(
                 false
             },
             onTapExit = {
-
             },
             onPress = {
                 textEditLayers.forEach {
@@ -200,7 +251,6 @@ fun PhotoPickerEditContent(
                     paintEditLayers.add(it)
                 },
                 onEnsureClick = {
-
                 },
                 onRevoke = {
                     paintEditLayers.removeLastOrNull()
@@ -246,7 +296,6 @@ fun PhotoPickerEditContent(
                     }
                 )
             }
-
         }
     }
 }
@@ -266,7 +315,6 @@ private fun PhotoPickerEditPaintScreen(
     onEnsureClick: () -> Unit,
     onRevoke: () -> Unit
 ) {
-
     val paintEditOptions = LocalPhotoPickerConfig.current.editPaintOptions
     var paintEditCurrentIndex by remember {
         mutableStateOf(4)
@@ -281,18 +329,19 @@ private fun PhotoPickerEditPaintScreen(
     }
 
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {
-
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .constrainAs(createRef()) {
-                width = Dimension.fillToConstraints
-                height = Dimension.fillToConstraints
-                visibility = if (paintState) Visibility.Visible else Visibility.Gone
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-                top.linkTo(parent.top)
-                bottom.linkTo(parent.bottom)
-            }) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .constrainAs(createRef()) {
+                    width = Dimension.fillToConstraints
+                    height = Dimension.fillToConstraints
+                    visibility = if (paintState) Visibility.Visible else Visibility.Gone
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                    top.linkTo(parent.top)
+                    bottom.linkTo(parent.bottom)
+                }
+        ) {
             PhotoPaintCanvas(
                 paintEditOptions[paintEditCurrentIndex],
                 photoInfo,
@@ -485,50 +534,52 @@ private fun PhotoPickerEditTextScreen(
         focusRequester.requestFocus()
     }
 
-    ConstraintLayout(modifier = Modifier
-        .fillMaxSize()
-        .background(config.textEditMaskColor)
-        .clickable(
-            interactionSource = remember {
-                MutableInteractionSource()
-            },
-            indication = null
-        ) {
-            if (input.text.isNotBlank()) {
-                if (editLayer != null) {
-                    onFinishTextLayer(
-                        editLayer, TextEditLayer(
-                            input.text,
-                            editLayer.fontSize,
-                            editLayer.center,
-                            usedColor,
-                            usedReverse,
-                            editLayer.offsetFlow,
-                            editLayer.scaleFlow,
-                            editLayer.rotationFlow
+    ConstraintLayout(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(config.textEditMaskColor)
+            .clickable(
+                interactionSource = remember {
+                    MutableInteractionSource()
+                },
+                indication = null
+            ) {
+                if (input.text.isNotBlank()) {
+                    if (editLayer != null) {
+                        onFinishTextLayer(
+                            editLayer,
+                            TextEditLayer(
+                                input.text,
+                                editLayer.fontSize,
+                                editLayer.center,
+                                usedColor,
+                                usedReverse,
+                                editLayer.offsetFlow,
+                                editLayer.scaleFlow,
+                                editLayer.rotationFlow
+                            )
                         )
-                    )
+                    } else {
+                        onFinishTextLayer(
+                            null,
+                            TextEditLayer(
+                                input.text,
+                                config.textEditFontSize,
+                                Offset(
+                                    (constraints.maxWidth / 2 - photoLayoutInfo.rect.left) / photoLayoutInfo.scale,
+                                    constraints.maxHeight / 2 - photoLayoutInfo.rect.top
+                                ),
+                                usedColor,
+                                usedReverse,
+                                scaleFlow = MutableStateFlow(1 / photoLayoutInfo.scale)
+                            )
+                        )
+                    }
                 } else {
-                    onFinishTextLayer(
-                        null, TextEditLayer(
-                            input.text,
-                            config.textEditFontSize,
-                            Offset(
-                                (constraints.maxWidth / 2 - photoLayoutInfo.rect.left) / photoLayoutInfo.scale,
-                                constraints.maxHeight / 2 - photoLayoutInfo.rect.top
-                            ),
-                            usedColor,
-                            usedReverse,
-                            scaleFlow = MutableStateFlow(1 / photoLayoutInfo.scale)
-                        )
-                    )
+                    onCancel()
                 }
-
-            } else {
-                onCancel()
             }
-        }
-        .windowInsetsPadding(WindowInsets.safeDrawing)
+            .windowInsetsPadding(WindowInsets.safeDrawing)
     ) {
         val optionsId = createRef()
         PhotoPickerEditTextPaintOptions(
@@ -628,17 +679,19 @@ private fun PhotoEditHistoryList(
             layoutInfo.rect.height.toDp()
         )
     }
-    Canvas(modifier = Modifier
-        .width(w / layoutInfo.scale)
-        .height(h / layoutInfo.scale)
-        .graphicsLayer {
-            this.transformOrigin = TransformOrigin(0f, 0f)
-            this.translationX = layoutInfo.rect.left
-            this.translationY = layoutInfo.rect.top
-            this.scaleX = layoutInfo.scale
-            this.scaleY = layoutInfo.scale
-            this.clip = true
-        }) {
+    Canvas(
+        modifier = Modifier
+            .width(w / layoutInfo.scale)
+            .height(h / layoutInfo.scale)
+            .graphicsLayer {
+                this.transformOrigin = TransformOrigin(0f, 0f)
+                this.translationX = layoutInfo.rect.left
+                this.translationY = layoutInfo.rect.top
+                this.scaleX = layoutInfo.scale
+                this.scaleY = layoutInfo.scale
+                this.clip = true
+            }
+    ) {
         editLayers.forEach {
             with(it) {
                 draw()
@@ -657,7 +710,8 @@ private fun PhotoEditHistoryList(
                 },
                 onEdit = {
                     onEditTextLayer(it)
-                }) {
+                }
+            ) {
                 onDeleteTextLayer(it)
             }
         }
@@ -711,17 +765,19 @@ private fun PhotoPaintCanvas(
 
     val currentLayer = currentLayerState.value
 
-    Canvas(modifier = Modifier
-        .width(w / layoutInfo.scale)
-        .height(h / layoutInfo.scale)
-        .graphicsLayer {
-            this.transformOrigin = TransformOrigin(0f, 0f)
-            this.translationX = layoutInfo.rect.left
-            this.translationY = layoutInfo.rect.top
-            this.scaleX = layoutInfo.scale
-            this.scaleY = layoutInfo.scale
-            this.clip = true
-        }) {
+    Canvas(
+        modifier = Modifier
+            .width(w / layoutInfo.scale)
+            .height(h / layoutInfo.scale)
+            .graphicsLayer {
+                this.transformOrigin = TransformOrigin(0f, 0f)
+                this.translationX = layoutInfo.rect.left
+                this.translationY = layoutInfo.rect.top
+                this.scaleX = layoutInfo.scale
+                this.scaleY = layoutInfo.scale
+                this.clip = true
+            }
+    ) {
         with(currentLayer) {
             draw()
         }
@@ -751,7 +807,6 @@ private fun PhotoPaintCanvas(
                                     )
                                     currentLayerState.value = currentLayer
                                 }
-
                             } while (change == null || change.pressed)
                             onTouchEnd(currentLayer)
                         }
@@ -760,7 +815,6 @@ private fun PhotoPaintCanvas(
             }
     )
 }
-
 
 @Composable
 private fun PhotoPickerEditPaintOptions(
@@ -822,7 +876,7 @@ private fun PhotoPickerEditToolBar(
                     top.linkTo(parent.top)
                     bottom.linkTo(parent.bottom)
                 },
-            res = R.drawable.ic_checkbox_checked,
+            res = R.drawable.ic_checkbox_checked
         ) {
             onTextClick()
         }
@@ -833,7 +887,7 @@ private fun PhotoPickerEditToolBar(
                     top.linkTo(parent.top)
                     bottom.linkTo(parent.bottom)
                 },
-            res = R.drawable.ic_checkbox_checked,
+            res = R.drawable.ic_checkbox_checked
         ) {
             onClipClick()
         }
@@ -866,10 +920,9 @@ private fun PhotoPickerEditTextPaintOptions(
             .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-
         CommonImageButton(
             res = R.drawable.ic_mark,
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(16.dp)
         ) {
             onReverseClick(!isReverse)
         }
@@ -893,5 +946,4 @@ private fun PhotoPickerEditTextPaintOptions(
             }
         }
     }
-
 }

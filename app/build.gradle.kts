@@ -78,4 +78,5 @@ dependencies {
     implementation(libs.material3)
 
     implementation(libs.accompanist.navigation)
+    implementation(libs.accompanist.systemuicontroller)
 }

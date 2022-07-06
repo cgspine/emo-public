@@ -62,10 +62,10 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import kotlin.math.abs
-import kotlin.math.absoluteValue
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlin.math.abs
+import kotlin.math.absoluteValue
 
 @Composable
 fun GesturePhoto(
@@ -97,7 +97,6 @@ fun GesturePhoto(
         onImageRatioEnsured: (Float) -> Unit
     ) -> Unit
 ) {
-
     val (imageWidth, imageHeight) = calculateImageSize(containerWidth, containerHeight, imageRatio, isLongImage)
 
     var calculatedImageRatio by remember {
@@ -432,7 +431,6 @@ fun GesturePhoto(
                     }
                 }
         ) {
-
             if (initRect == null || initRect == Rect.Zero || imageRatio <= 0f) {
                 PhotoContentWithAlphaTransition(
                     transition = transition,

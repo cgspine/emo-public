@@ -14,20 +14,23 @@
  * limitations under the License.
  */
 
-package cn.qhplus.emo.photo.util
+package cn.qhplus.emo.fs
 
 import android.content.Context
-import android.os.Build
-import android.util.Size
-import android.view.WindowManager
+import android.os.Environment
+import java.io.File
 
-fun Context.getWindowSize(): Size {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-        val wm = getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        val windowMetrics = wm.currentWindowMetrics
-        Size(windowMetrics.bounds.width(), windowMetrics.bounds.height())
-    } else {
-        val displayMetrics = resources.displayMetrics
-        Size(displayMetrics.widthPixels, displayMetrics.heightPixels)
+object ShareFiles {
+
+    fun getAppShareDir(context: Context): File {
+        val file = if (Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED) {
+            File(context.getExternalFilesDir(""), "emo_public")
+        } else {
+            File(context.filesDir, "emo_public")
+        }
+        if (!file.exists()) {
+            file.mkdirs()
+        }
+        return file
     }
 }

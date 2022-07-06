@@ -37,7 +37,7 @@ class MainActivity : ComponentActivity() {
             EmoApp(calculateWindowSizeClass(this))
         }
         lifecycleScope.launch {
-            delay(50)
+            delay(100)
             window.setBackgroundDrawableResource(android.R.color.transparent)
         }
     }

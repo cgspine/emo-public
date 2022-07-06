@@ -144,7 +144,7 @@ fun PagerScope.DefaultPhotoPage(
         @Composable BoxWithConstraintsScope.(onPhotoLoaded: ((PhotoResult) -> Unit)?) -> Unit
     ) -> Unit = { item, content ->
         DefaultPhotoGestureBox(item, content)
-    },
+    }
 ) {
     val initRect = pageArg.item.photoRect()
     val transitionTarget = if (currentPage == pageArg.page) {
@@ -207,18 +207,18 @@ fun BoxWithConstraintsScope.DefaultPhotoGestureBox(
 
 @Composable
 fun DefaultPhotoPageContent(
-    arg: PhotoPageContentArg,
+    arg: PhotoPageContentArg
 ) {
     val thumb = remember(arg) { arg.photoShot.photoProvider.thumbnail(false) }
 
     var loadStatus by remember {
-        mutableStateOf(PhotoLoadStatus.loading)
+        mutableStateOf(PhotoLoadStatus.Loading)
     }
 
     val onSuccess: (PhotoResult) -> Unit = remember(arg) {
         {
             arg.onPhotoLoaded(it)
-            loadStatus = PhotoLoadStatus.success
+            loadStatus = PhotoLoadStatus.Success
         }
     }
 
@@ -227,11 +227,11 @@ fun DefaultPhotoPageContent(
             arg.photoShot,
             onSuccess = onSuccess,
             onError = {
-                loadStatus = PhotoLoadStatus.failed
+                loadStatus = PhotoLoadStatus.Failed
             }
         )
 
-        if (loadStatus != PhotoLoadStatus.success ||
+        if (loadStatus != PhotoLoadStatus.Success ||
             !arg.transition.currentState ||
             !arg.transition.targetState
         ) {
@@ -267,11 +267,11 @@ fun DefaultPhotoPageContent(
             }
         }
 
-        if (loadStatus == PhotoLoadStatus.loading) {
+        if (loadStatus == PhotoLoadStatus.Loading) {
             arg.photoPageCtrl.loading.let {
                 it()
             }
-        } else if (loadStatus == PhotoLoadStatus.failed) {
+        } else if (loadStatus == PhotoLoadStatus.Failed) {
             arg.photoPageCtrl.loadingFailed?.let {
                 it()
             }

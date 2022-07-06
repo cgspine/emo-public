@@ -26,5 +26,6 @@
             android:theme="@style/PhotoViewer"/>
 
         <activity android:name=".activity.PhotoPickerActivity"/>
+        <activity android:name=".activity.PhotoClipperActivity"/>
     </application>
 </manifest>

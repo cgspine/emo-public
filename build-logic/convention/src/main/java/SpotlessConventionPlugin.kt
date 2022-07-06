@@ -32,7 +32,6 @@ class SpotlessConventionPlugin : Plugin<Project> {
                     target("**/*.kt")
                     targetExclude("**/build/**/*.kt")
                     ktlint(libs.findVersion("ktlint").get().toString())
-                        .userData(mapOf("android" to "true"))
                         .editorConfigOverride(mapOf(
                             "max_line_length" to "150"
                         ))

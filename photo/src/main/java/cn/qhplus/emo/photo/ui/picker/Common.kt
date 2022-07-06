@@ -1,13 +1,39 @@
+/*
+ * Copyright 2022 emo Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package cn.qhplus.emo.photo.ui.picker
 
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterExitState
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -114,7 +140,7 @@ fun PhotoPickRadio(
 
                 drawCircle(
                     color = config.commonIconCheckedTintColor,
-                    radius = (size.minDimension - strokeWidth * 4) / 2.0f,
+                    radius = (size.minDimension - strokeWidth * 4) / 2.0f
                 )
             }
         }
@@ -125,7 +151,7 @@ fun PhotoPickRadio(
 fun OriginOpenButton(
     modifier: Modifier = Modifier,
     isOriginOpenFlow: StateFlow<Boolean>,
-    onToggleOrigin: (toOpen: Boolean) -> Unit,
+    onToggleOrigin: (toOpen: Boolean) -> Unit
 ) {
     val isOriginOpen by isOriginOpenFlow.collectAsState()
     Row(
@@ -153,7 +179,7 @@ fun OriginOpenButton(
 fun PickCurrentCheckButton(
     modifier: Modifier = Modifier,
     isPicked: Boolean,
-    onPicked: (toPick: Boolean) -> Unit,
+    onPicked: (toPick: Boolean) -> Unit
 ) {
     val config = LocalPhotoPickerConfig.current
     Row(
@@ -172,7 +198,7 @@ fun PickCurrentCheckButton(
             size = 18.dp,
             status = if (isPicked) CheckStatus.checked else CheckStatus.none,
             tint = if (isPicked) config.commonIconCheckedTintColor else config.commonIconNormalTintColor,
-            background = if (isPicked) config.commonIconNormalTintColor else Color.Transparent,
+            background = if (isPicked) config.commonIconNormalTintColor else Color.Transparent
         )
         Text(
             "选择",
@@ -181,7 +207,6 @@ fun PickCurrentCheckButton(
         )
     }
 }
-
 
 @Composable
 internal fun CommonTextButton(
@@ -216,7 +241,7 @@ internal fun CommonImageButton(
     enabled: Boolean = true,
     checked: Boolean = false,
     onClick: () -> Unit
-){
+) {
     PressWithAlphaBox(
         modifier = modifier,
         enable = enabled,
@@ -228,7 +253,7 @@ internal fun CommonImageButton(
         Image(
             painter = painterResource(res),
             contentDescription = "",
-            colorFilter = ColorFilter.tint(if(checked) config.commonIconCheckedTintColor else config.commonIconNormalTintColor),
+            colorFilter = ColorFilter.tint(if (checked) config.commonIconCheckedTintColor else config.commonIconNormalTintColor),
             contentScale = ContentScale.Inside
         )
     }

@@ -51,7 +51,7 @@ class PhotoShot(
     val photoProvider: PhotoProvider,
     var offsetInWindow: Offset?,
     var size: IntSize?,
-    var photo: Drawable?,
+    var photo: Drawable?
 ) {
     fun photoRect(): Rect? {
         val offset = offsetInWindow
@@ -73,6 +73,10 @@ class PhotoShot(
         }
         return ratio
     }
+}
+
+interface PhotoProviderBuilder {
+    fun build()
 }
 
 interface PhotoShotRecover {
@@ -100,5 +104,5 @@ val lossPhotoProvider = object : PhotoProvider {
 val lossPhotoShot = PhotoShot(lossPhotoProvider, null, null, null)
 
 internal enum class PhotoLoadStatus {
-    loading, success, failed
+    Loading, Success, Failed
 }

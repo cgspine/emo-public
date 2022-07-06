@@ -1,3 +1,19 @@
+/*
+ * Copyright 2022 emo Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package cn.qhplus.emo.photo.activity
 
 import android.app.Application
@@ -10,50 +26,23 @@ import android.os.Parcel
 import android.os.Parcelable
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
-import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
-import androidx.compose.animation.slideIn
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
@@ -63,33 +52,24 @@ import cn.qhplus.emo.photo.data.MediaPhotoBucketAllId
 import cn.qhplus.emo.photo.data.MediaPhotoProviderFactory
 import cn.qhplus.emo.photo.ui.picker.DefaultPhotoPickerConfigProvider
 import cn.qhplus.emo.photo.ui.picker.LocalPhotoPickerConfig
-import cn.qhplus.emo.photo.ui.picker.PICKER_ROUTE_Edit
-import cn.qhplus.emo.photo.ui.picker.PICKER_ROUTE_GRID
-import cn.qhplus.emo.photo.ui.picker.PICKER_ROUTE_PREVIEW
 import cn.qhplus.emo.photo.ui.picker.PhotoPickerEditPage
 import cn.qhplus.emo.photo.ui.picker.PhotoPickerGridPage
 import cn.qhplus.emo.photo.ui.picker.PhotoPickerPreviewPage
+import cn.qhplus.emo.photo.ui.picker.Route
 import cn.qhplus.emo.photo.vm.PhotoPickerViewModel
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.PagerState
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-const val PHOTO_DEFAULT_PICK_LIMIT_COUNT = 9
+internal const val PHOTO_DEFAULT_PICK_LIMIT_COUNT = 9
 internal const val PHOTO_RESULT_URI_LIST = "emo_photo_result_uri_list"
 internal const val PHOTO_RESULT_ORIGIN_OPEN = "emo_photo_result_origin_open"
 internal const val PHOTO_ENABLE_ORIGIN = "emo_photo_enable_origin"
 internal const val PHOTO_PICK_LIMIT_COUNT = "emo_photo_pick_limit_count"
 internal const val PHOTO_PICKED_ITEMS = "emo_photo_picked_items"
 internal const val PHOTO_PROVIDER_FACTORY = "emo_photo_provider_factory"
-
-
-
 
 class PhotoPickItemInfo(
     val id: Long,
@@ -101,10 +81,10 @@ class PhotoPickItemInfo(
 ) : Parcelable {
 
     fun ratio(): Float {
-        if(height <= 0 || width <= 0){
+        if (height <= 0 || width <= 0) {
             return -1f
         }
-        if(rotation == 90 || rotation == 270){
+        if (rotation == 90 || rotation == 270) {
             return height.toFloat() / width
         }
         return width.toFloat() / height
@@ -130,7 +110,6 @@ class PhotoPickItemInfo(
         dest.writeInt(height)
         dest.writeParcelable(uri, flags)
         dest.writeInt(rotation)
-
     }
 
     companion object CREATOR : Parcelable.Creator<PhotoPickItemInfo> {
@@ -142,7 +121,6 @@ class PhotoPickItemInfo(
             return arrayOfNulls(size)
         }
     }
-
 }
 
 class PhotoPickResult(val list: List<PhotoPickItemInfo>, val isOriginOpen: Boolean)
@@ -155,7 +133,6 @@ fun Intent.getPhotoPickResult(): PhotoPickResult? {
     val isOriginOpen = getBooleanExtra(PHOTO_RESULT_ORIGIN_OPEN, false)
     return PhotoPickResult(list, isOriginOpen)
 }
-
 
 open class PhotoPickerActivity : ComponentActivity() {
 
@@ -194,7 +171,6 @@ open class PhotoPickerActivity : ComponentActivity() {
                     supportedMimeTypes()
                 )
             }
-
         }
     })
 
@@ -219,9 +195,9 @@ open class PhotoPickerActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             viewModel.finishFlow.collectLatest {
-                if(it != null){
+                if (it != null) {
                     onHandleSend(it)
-                }else{
+                } else {
                     finish()
                 }
             }
@@ -229,7 +205,7 @@ open class PhotoPickerActivity : ComponentActivity() {
     }
 
     @Composable
-    protected open fun PageContentWithConfigProvider(viewModel: PhotoPickerViewModel){
+    protected open fun PageContentWithConfigProvider(viewModel: PhotoPickerViewModel) {
         DefaultPhotoPickerConfigProvider {
             PageContent(viewModel = viewModel)
         }
@@ -245,34 +221,35 @@ open class PhotoPickerActivity : ComponentActivity() {
             val navController = rememberAnimatedNavController()
             AnimatedNavHost(
                 navController = navController,
-                startDestination = PICKER_ROUTE_GRID
+                startDestination = Route.GRID
             ) {
                 composable(
-                    PICKER_ROUTE_GRID,
+                    Route.GRID,
                     exitTransition = { fadeOut(tween()) },
                     popEnterTransition = { fadeIn(tween()) }
                 ) {
                     PickerGrid(navController, viewModel)
                 }
 
-                composable(
-                    "${PICKER_ROUTE_PREVIEW}/{bucketId}/{currentId}",
-                    arguments = listOf(navArgument("currentId"){ type = NavType.LongType }),
-                    enterTransition = { fadeIn(tween()) },
-                    exitTransition = { fadeOut(tween()) + scaleOut(targetScale = 0.8f) },
-                    popEnterTransition = { fadeIn(tween()) + scaleIn(initialScale = 0.8f) },
-                    popExitTransition = { fadeOut(tween())}
-                ) { backStack ->
-                    val bucketId = backStack.arguments?.getString("bucketId") ?: MediaPhotoBucketAllId
-                    val currentId = backStack.arguments?.getLong("currentId") ?: -1
-                    PickerPreview(navController, viewModel, bucketId, currentId)
-                }
+                val route =
+                    composable(
+                        "${Route.PREVIEW}/{bucketId}/{currentId}",
+                        arguments = listOf(navArgument("currentId") { type = NavType.LongType }),
+                        enterTransition = { fadeIn(tween()) },
+                        exitTransition = { fadeOut(tween()) + scaleOut(targetScale = 0.8f) },
+                        popEnterTransition = { fadeIn(tween()) + scaleIn(initialScale = 0.8f) },
+                        popExitTransition = { fadeOut(tween()) }
+                    ) { backStack ->
+                        val bucketId = backStack.arguments?.getString("bucketId") ?: MediaPhotoBucketAllId
+                        val currentId = backStack.arguments?.getLong("currentId") ?: -1
+                        PickerPreview(navController, viewModel, bucketId, currentId)
+                    }
 
                 composable(
-                    "${PICKER_ROUTE_Edit}/{id}",
-                    arguments = listOf(navArgument("id"){ type = NavType.LongType }),
+                    "${Route.EDIT}/{id}",
+                    arguments = listOf(navArgument("id") { type = NavType.LongType }),
                     enterTransition = { fadeIn(tween()) + scaleIn(initialScale = 0.8f) },
-                    exitTransition = { fadeOut(tween()) + scaleOut(targetScale = 0.8f) },
+                    exitTransition = { fadeOut(tween()) + scaleOut(targetScale = 0.8f) }
                 ) { backStack ->
                     val id = backStack.arguments?.getLong("id") ?: -1
                     PickerEdit(navController, viewModel, id)
@@ -285,7 +262,7 @@ open class PhotoPickerActivity : ComponentActivity() {
     protected open fun PickerGrid(
         navController: NavHostController,
         viewModel: PhotoPickerViewModel
-    ){
+    ) {
         PhotoPickerGridPage(navController, viewModel)
     }
 
@@ -295,7 +272,7 @@ open class PhotoPickerActivity : ComponentActivity() {
         viewModel: PhotoPickerViewModel,
         bucketId: String,
         currentId: Long
-    ){
+    ) {
         PhotoPickerPreviewPage(navController, viewModel, bucketId, currentId)
     }
 
@@ -304,17 +281,23 @@ open class PhotoPickerActivity : ComponentActivity() {
         navController: NavHostController,
         viewModel: PhotoPickerViewModel,
         id: Long
-    ){
+    ) {
         PhotoPickerEditPage(navController, viewModel, id)
     }
 
     protected open fun onHandleSend(pickedList: List<PhotoPickItemInfo>) {
-        setResult(RESULT_OK, Intent().apply {
-            putParcelableArrayListExtra(PHOTO_RESULT_URI_LIST, arrayListOf<PhotoPickItemInfo>().apply {
-                addAll(pickedList)
-            })
-            putExtra(PHOTO_RESULT_ORIGIN_OPEN, viewModel.isOriginOpenFlow.value)
-        })
+        setResult(
+            RESULT_OK,
+            Intent().apply {
+                putParcelableArrayListExtra(
+                    PHOTO_RESULT_URI_LIST,
+                    arrayListOf<PhotoPickItemInfo>().apply {
+                        addAll(pickedList)
+                    }
+                )
+                putExtra(PHOTO_RESULT_ORIGIN_OPEN, viewModel.isOriginOpenFlow.value)
+            }
+        )
         finish()
     }
 

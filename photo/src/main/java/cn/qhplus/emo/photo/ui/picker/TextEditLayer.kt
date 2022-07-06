@@ -1,16 +1,53 @@
+/*
+ * Copyright 2022 emo Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package cn.qhplus.emo.photo.ui.picker
 
 import android.graphics.Typeface
 import android.text.TextPaint
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.*
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.calculateCentroidSize
+import androidx.compose.foundation.gestures.calculatePan
+import androidx.compose.foundation.gestures.calculateRotation
+import androidx.compose.foundation.gestures.calculateZoom
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.forEachGesture
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -18,9 +55,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.consumeAllChanges
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChangeConsumed
@@ -64,7 +106,6 @@ internal class TextEditLayer(
         setShadowLayer(0f, 2f, 2f, textColor.copy(0.4f).toArgb())
     }
 
-
     @Composable
     private fun TextLayout(
         modifier: Modifier,
@@ -86,7 +127,6 @@ internal class TextEditLayer(
         }
 
         Canvas(modifier = modifier) {
-
             val rectTopLeftOffset = Offset(focusPointSize / 2, focusPointSize / 2)
             val rectSize = Size(size.width - focusPointSize, size.height - focusPointSize)
 
@@ -105,7 +145,9 @@ internal class TextEditLayer(
                 var start = 0
                 while (start < text.length) {
                     val count = paint.breakText(
-                        text, start, text.length,
+                        text,
+                        start,
+                        text.length,
                         false,
                         size.width - paddingHor * 2,
                         null
@@ -191,7 +233,9 @@ internal class TextEditLayer(
                 var lineCount = 0
                 while (start < text.length) {
                     val count = paint.breakText(
-                        text, start, text.length,
+                        text,
+                        start,
+                        text.length,
                         false,
                         textConstraintMaxWidth,
                         null
@@ -258,7 +302,6 @@ internal class TextEditLayer(
                     }
                     .pointerInput("") {
                         coroutineScope {
-
                             launch {
                                 detectTapGestures(
                                     onTap = {
@@ -268,7 +311,7 @@ internal class TextEditLayer(
                                             isFocusFlow.value = true
                                             onFocus()
                                         }
-                                    },
+                                    }
                                 )
                             }
                             launch {
@@ -312,8 +355,8 @@ internal class TextEditLayer(
                                                         zoomChange != 1f ||
                                                         panChange != Offset.Zero
                                                     ) {
-                                                        if(panChange != Offset.Zero){
-                                                            if(!isDragging){
+                                                        if (panChange != Offset.Zero) {
+                                                            if (!isDragging) {
                                                                 isDragging = true
                                                                 onToggleDragging(true)
                                                             }
@@ -373,15 +416,16 @@ internal class TextEditLayer(
         onPlaced: (offset: Offset, size: IntSize) -> Unit
     ) {
         val config = LocalPhotoPickerConfig.current
-        Column(modifier = Modifier
-            .windowInsetsCommonNavPadding()
-            .padding(bottom = 16.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .onGloballyPositioned {
-                onPlaced(it.positionInWindow(), it.size)
-            }
-            .background(if (isFocusing) config.editLayerDeleteAreaNormalFocusColor else config.editLayerDeleteAreaNormalBgColor)
-            .padding(horizontal = 24.dp, vertical = 16.dp),
+        Column(
+            modifier = Modifier
+                .windowInsetsCommonNavPadding()
+                .padding(bottom = 16.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .onGloballyPositioned {
+                    onPlaced(it.positionInWindow(), it.size)
+                }
+                .background(if (isFocusing) config.editLayerDeleteAreaNormalFocusColor else config.editLayerDeleteAreaNormalBgColor)
+                .padding(horizontal = 24.dp, vertical = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
@@ -411,8 +455,8 @@ private class MutableDragInfo(
     fun isInDeleteArea(offset: Offset): Boolean {
         val windowOffset = editLayerCenter + offset
         return windowOffset.x > deleteAreaOffset.x &&
-                windowOffset.x < deleteAreaOffset.x + deleteAreaSize.width &&
-                windowOffset.y > deleteAreaOffset.y &&
-                windowOffset.y < deleteAreaOffset.y + deleteAreaSize.height
+            windowOffset.x < deleteAreaOffset.x + deleteAreaSize.width &&
+            windowOffset.y > deleteAreaOffset.y &&
+            windowOffset.y < deleteAreaOffset.y + deleteAreaSize.height
     }
 }
