@@ -18,7 +18,9 @@ This repository contains series of libraries for android developers:
 
 # apk download
 
-![赞赏码](image/apk-qr.png)
+[Download apk](apk/emo.apk) or scan the qrcode below(pay attention to the wall):
+
+![apk](image/apk-qr.png)
 
 ==========================================================================
 
