@@ -11,7 +11,7 @@ This repository contains series of libraries for android developers:
 
 # design principles
 
-- Support API Level 23+.
+- Support API Level 24+.
 - Based on JDK 11.
 - All in Jetpack Compose.
 - Use coroutines for concurrency and data flow.
