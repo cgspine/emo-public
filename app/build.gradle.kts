@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 import java.io.ByteArrayOutputStream
 
 plugins {
@@ -36,6 +37,16 @@ val gitVersion = runCommand(project, "git rev-list HEAD --count").toIntOrNull() 
 
 android {
 
+    signingConfigs {
+        val properties = gradleLocalProperties(project.rootDir)
+        create("release"){
+            keyAlias = properties.getProperty("sign_alias")
+            keyPassword = properties.getProperty("sign_key_password")
+            storeFile = project.rootProject.file("emo.keystore")
+            storePassword = properties.getProperty("sign_store_password")
+            enableV2Signing = true
+        }
+    }
 
     defaultConfig {
         applicationId = "cn.qhplus.emo"
@@ -54,7 +65,7 @@ android {
         getByName("release") {
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-//            signingConfig = signingConfigs.getByName("release")
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 

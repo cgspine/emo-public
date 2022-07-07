@@ -15,3 +15,19 @@ This repository contains series of libraries for android developers:
 - Based on JDK 11.
 - All in Jetpack Compose.
 - Use coroutines for concurrency and data flow.
+
+# apk download
+
+![赞赏码](image/apk-qr.png)
+
+==========================================================================
+
+
+关注我的公众号，获取 emo 相关的技术解析：
+
+![公众号](image/subions.png)
+
+
+给个赞赏，以资鼓励：
+
+![赞赏码](image/reward.png)

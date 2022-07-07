@@ -17,9 +17,10 @@ plugins {
     id("emo.android.library")
     id("emo.android.library.compose")
     id("emo.spotless")
+    id("emo.publish")
 }
 
-version = libs.versions.emoPhoto
+version = libs.versions.emoPhoto.get()
 
 android {
     buildTypes {

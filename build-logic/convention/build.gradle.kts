@@ -54,5 +54,10 @@ gradlePlugin {
             id = "emo.spotless"
             implementationClass = "SpotlessConventionPlugin"
         }
+
+        register("publish") {
+            id = "emo.publish"
+            implementationClass = "PublishConventionPlugin"
+        }
     }
 }
