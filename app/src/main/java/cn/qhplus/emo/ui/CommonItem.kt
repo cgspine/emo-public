@@ -22,12 +22,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import cn.qhplus.emo.ui.core.modifier.throttleClick
+import cn.qhplus.emo.ui.core.Item
 
 @Composable
 fun CommonItem(text: String, onClick: () -> Unit) {
@@ -36,14 +35,13 @@ fun CommonItem(text: String, onClick: () -> Unit) {
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .clip(RoundedCornerShape(6.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .throttleClick(onClick = onClick)
-            .padding(horizontal = 24.dp, vertical = 16.dp)
     ) {
-        Text(
-            text = text,
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+        Item(
+            title = text,
+            background = MaterialTheme.colorScheme.surfaceVariant,
+            titleTextStyle = MaterialTheme.typography.titleMedium,
+            titleTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            onClick = onClick
         )
     }
 }

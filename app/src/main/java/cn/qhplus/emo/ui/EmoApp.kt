@@ -53,7 +53,6 @@ fun EmoApp(windowSizeClass: WindowSizeClass) {
             modifier = Modifier.fillMaxSize(),
             startDestination = "${RouteConst.ROUTE_HOME}/{${RouteConst.PARAM_TAB}}"
         ) {
-
             composable(
                 "${RouteConst.ROUTE_HOME}/{${RouteConst.PARAM_TAB}}",
                 exitTransition = slideOutLeft,

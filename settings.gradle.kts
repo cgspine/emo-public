@@ -17,6 +17,7 @@ rootProject.name = "emo"
 include(":core")
 include(":fs")
 include(":ui-core")
+include(":modal")
 include(":photo")
 include(":photo-coil")
 include(":app")

@@ -221,7 +221,7 @@ fun PhotoViewerPage(navController: NavHostController) {
                         CoilPhotoProvider(
                             "https://weread-picture-1258476243.file.myqcloud.com/9136/1yn0KLFwy6Vb0nE6Sg.png".toUri(),
                             ratio = 1.379f
-                        ),
+                        )
                     )
                 )
             }
@@ -270,7 +270,7 @@ fun PhotoViewerPage(navController: NavHostController) {
                         CoilPhotoProvider(
                             "https://weread-picture-1258476243.file.myqcloud.com/9979/31y68oGufDGL3zQ6TT.jpg".toUri(),
                             ratio = 1f
-                        ),
+                        )
                     )
                 )
             }
@@ -280,7 +280,6 @@ fun PhotoViewerPage(navController: NavHostController) {
 
 @Composable
 fun PhotoPickerPage(navController: NavHostController) {
-
     val pickResult = remember {
         mutableStateOf<PhotoPickResult?>(null)
     }

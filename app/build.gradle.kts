@@ -69,6 +69,7 @@ android {
 dependencies {
     implementation(project(":ui-core"))
     implementation(project(":photo-coil"))
+    implementation(project(":modal"))
 
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.appcompat)
