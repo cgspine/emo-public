@@ -45,13 +45,13 @@ fun ChevronIcon(tint: Color? = null) {
 }
 
 enum class CheckStatus {
-    none, partial, checked
+    None, Partial, Checked
 }
 
 @Composable
 fun CheckBox(
     size: Dp,
-    status: CheckStatus = CheckStatus.none,
+    status: CheckStatus = CheckStatus.None,
     isEnabled: Boolean = true,
     tint: Color?,
     background: Color = Color.Transparent
@@ -62,7 +62,7 @@ fun CheckBox(
             .clip(CircleShape)
     ) {
         AnimatedVisibility(
-            visible = status == CheckStatus.none,
+            visible = status == CheckStatus.None,
             enter = fadeIn(),
             exit = fadeOut()
         ) {
@@ -70,7 +70,7 @@ fun CheckBox(
         }
 
         AnimatedVisibility(
-            visible = status == CheckStatus.checked,
+            visible = status == CheckStatus.Checked,
             enter = fadeIn(),
             exit = fadeOut()
         ) {
@@ -78,7 +78,7 @@ fun CheckBox(
         }
 
         AnimatedVisibility(
-            visible = status == CheckStatus.partial,
+            visible = status == CheckStatus.Partial,
             enter = fadeIn(),
             exit = fadeOut()
         ) {

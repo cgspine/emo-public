@@ -51,6 +51,8 @@ import cn.qhplus.emo.photo.ui.clipper.PhotoClipper
 import cn.qhplus.emo.photo.util.PhotoHelper
 import cn.qhplus.emo.photo.util.saveToLocal
 import cn.qhplus.emo.ui.core.Loading
+import cn.qhplus.emo.ui.core.ex.setNavTransparent
+import cn.qhplus.emo.ui.core.ex.setNormalDisplayCutoutMode
 import cn.qhplus.emo.ui.core.modifier.throttleClick
 import cn.qhplus.emo.ui.core.modifier.windowInsetsCommonNavPadding
 import kotlinx.coroutines.Dispatchers
@@ -108,14 +110,9 @@ open class PhotoClipperActivity : ComponentActivity() {
         WindowCompat.getInsetsController(window, window.decorView).run {
             isAppearanceLightNavigationBars = false
         }
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O) {
-            window.navigationBarColor = android.graphics.Color.TRANSPARENT
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                window.navigationBarDividerColor = android.graphics.Color.TRANSPARENT
-                window.attributes.layoutInDisplayCutoutMode =
-                    WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
-            }
-        }
+
+        window.setNavTransparent()
+        window.setNormalDisplayCutoutMode()
 
         val deliverKey = intent.getLongExtra(PHOTO_CLIPPER_DELIVERY_KEY, -1)
         val photoProvider = PhotoClipperDelivery.getAndRemove(deliverKey) ?: buildPhotoProvider()

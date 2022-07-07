@@ -46,10 +46,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import cn.qhplus.emo.R
+import cn.qhplus.emo.modal.emoToast
 import cn.qhplus.emo.ui.CommonItem
 import cn.qhplus.emo.ui.RouteConst
 import cn.qhplus.emo.ui.core.TopBarWithLazyListScrollState
@@ -145,33 +147,19 @@ fun HomePage(navController: NavHostController, tab: String) {
 
 @Composable
 fun ComponentPage(navController: NavHostController) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        val scrollState = rememberLazyListState()
-        TopBarWithLazyListScrollState(
-            scrollState,
-            title = "Components"
-        )
-        LazyColumn(
-            state = scrollState,
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .background(MaterialTheme.colorScheme.background),
-            contentPadding = PaddingValues(top = 8.dp)
-        ) {
-            item {
-                CommonItem("Modal") {
-                    navController.navigate(RouteConst.ROUTE_MODAL)
-                }
+    SimpleListPage(
+        navController = navController,
+        title = "Components"
+    ){
+        item {
+            CommonItem("Modal") {
+                navController.navigate(RouteConst.ROUTE_MODAL)
             }
+        }
 
-            item {
-                CommonItem("Photo") {
-                    navController.navigate(RouteConst.ROUTE_PHOTO)
-                }
+        item {
+            CommonItem("Photo") {
+                navController.navigate(RouteConst.ROUTE_PHOTO)
             }
         }
     }
@@ -179,31 +167,20 @@ fun ComponentPage(navController: NavHostController) {
 
 @Composable
 fun HelperPage(navController: NavHostController) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        val scrollState = rememberLazyListState()
-        TopBarWithLazyListScrollState(
-            scrollState,
-            title = "Helper"
-        )
-        LazyColumn(
-            state = scrollState,
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .background(MaterialTheme.colorScheme.background),
-            contentPadding = PaddingValues(top = 8.dp)
-        ) {
-            item {
-                CommonItem("Click") {
-                }
+    val view  = LocalView.current
+    SimpleListPage(
+        navController = navController,
+        title = "Components"
+    ){
+        item {
+            CommonItem("ThrottleClick") {
+                view.emoToast("use Modifier.throttleClick")
             }
+        }
 
-            item {
-                CommonItem("Separator") {
-                }
+        item {
+            CommonItem("Separator") {
+                view.emoToast("use Modifier.top/bottom/left/rightSeparator")
             }
         }
     }

@@ -52,7 +52,7 @@ fun Modifier.throttleClick(
         enabled = enabled,
         onClickLabel = onClickLabel,
         role = role,
-        onClick = { throttleHandler.process(onClick) },
+        onClick = { throttleHandler.process(onClick) }
     )
 }
 
@@ -83,7 +83,7 @@ fun Modifier.throttleClick(
         enabled = enabled,
         onClickLabel = onClickLabel,
         role = role,
-        onClick = { throttleHandler.process(onClick) },
+        onClick = { throttleHandler.process(onClick) }
     )
 }
 
@@ -109,7 +109,7 @@ fun Modifier.debounceClick(
         enabled = enabled,
         onClickLabel = onClickLabel,
         role = role,
-        onClick = { debounceHandler.process(onClick) },
+        onClick = { debounceHandler.process(onClick) }
     )
 }
 
@@ -141,7 +141,7 @@ fun Modifier.debounceClick(
         enabled = enabled,
         onClickLabel = onClickLabel,
         role = role,
-        onClick = { debounceHandler.process(onClick) },
+        onClick = { debounceHandler.process(onClick) }
     )
 }
 

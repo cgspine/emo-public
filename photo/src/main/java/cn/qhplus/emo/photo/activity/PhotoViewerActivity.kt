@@ -43,6 +43,8 @@ import cn.qhplus.emo.photo.ui.viewer.PhotoPageCtrl
 import cn.qhplus.emo.photo.ui.viewer.PhotoViewerArg
 import cn.qhplus.emo.photo.ui.viewer.PhotoViewerScaffold
 import cn.qhplus.emo.photo.vm.PhotoViewerViewModel
+import cn.qhplus.emo.ui.core.ex.setNavTransparent
+import cn.qhplus.emo.ui.core.ex.setNormalDisplayCutoutMode
 import com.google.accompanist.pager.ExperimentalPagerApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -95,14 +97,8 @@ open class PhotoViewerActivity : ComponentActivity() {
             hide(WindowInsetsCompat.Type.statusBars())
             isAppearanceLightNavigationBars = false
         }
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O) {
-            window.navigationBarColor = android.graphics.Color.TRANSPARENT
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                window.navigationBarDividerColor = android.graphics.Color.TRANSPARENT
-                window.attributes.layoutInDisplayCutoutMode =
-                    WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
-            }
-        }
+        window.setNavTransparent()
+        window.setNormalDisplayCutoutMode()
 
         onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {

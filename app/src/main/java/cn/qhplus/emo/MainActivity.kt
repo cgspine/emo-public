@@ -24,6 +24,8 @@ import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import cn.qhplus.emo.ui.EmoApp
+import cn.qhplus.emo.ui.core.ex.setNavTransparent
+import cn.qhplus.emo.ui.core.ex.setNormalDisplayCutoutMode
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -36,6 +38,14 @@ class MainActivity : ComponentActivity() {
         setContent {
             EmoApp(calculateWindowSizeClass(this))
         }
+
+        WindowCompat.getInsetsController(window, window.decorView).run {
+            isAppearanceLightNavigationBars = false
+        }
+
+        window.setNormalDisplayCutoutMode()
+        window.setNavTransparent()
+
         lifecycleScope.launch {
             delay(100)
             window.setBackgroundDrawableResource(android.R.color.transparent)

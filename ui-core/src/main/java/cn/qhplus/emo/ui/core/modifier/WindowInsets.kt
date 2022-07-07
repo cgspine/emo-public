@@ -16,36 +16,53 @@
 
 package cn.qhplus.emo.ui.core.modifier
 
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.navigationBarsIgnoringVisibility
 import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.statusBarsIgnoringVisibility
 import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.platform.debugInspectorInfo
 
+@OptIn(ExperimentalLayoutApi::class)
 fun Modifier.windowInsetsCommonTopPadding() = composed(
     inspectorInfo = debugInspectorInfo {
         name = "windowInsetsCommonTopPadding"
     }
 ) {
     windowInsetsPadding(
-        WindowInsets.statusBars
+        WindowInsets.statusBarsIgnoringVisibility
             .union(WindowInsets.displayCutout)
             .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
     )
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 fun Modifier.windowInsetsCommonNavPadding() = composed(
     inspectorInfo = debugInspectorInfo {
         name = "windowInsetsCommonNavPadding"
     }
 ) {
     windowInsetsPadding(
-        WindowInsets.navigationBars.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
+        WindowInsets.navigationBarsIgnoringVisibility.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
+    )
+}
+
+
+fun Modifier.windowInsetsCommonHorPadding() = composed(
+    inspectorInfo = debugInspectorInfo {
+        name = "windowInsetsCommonHorPadding"
+    }
+) {
+    windowInsetsPadding(
+        WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)
     )
 }

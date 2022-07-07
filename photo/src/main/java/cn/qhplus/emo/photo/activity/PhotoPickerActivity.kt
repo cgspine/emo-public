@@ -20,11 +20,9 @@ import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
-import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -57,6 +55,8 @@ import cn.qhplus.emo.photo.ui.picker.PhotoPickerGridPage
 import cn.qhplus.emo.photo.ui.picker.PhotoPickerPreviewPage
 import cn.qhplus.emo.photo.ui.picker.Route
 import cn.qhplus.emo.photo.vm.PhotoPickerViewModel
+import cn.qhplus.emo.ui.core.ex.setNormalDisplayCutoutMode
+import cn.qhplus.emo.ui.core.ex.setNavTransparent
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
@@ -181,13 +181,8 @@ open class PhotoPickerActivity : ComponentActivity() {
             isAppearanceLightNavigationBars = false
         }
         window.statusBarColor = android.graphics.Color.TRANSPARENT
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O) {
-            window.navigationBarColor = android.graphics.Color.TRANSPARENT
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                window.navigationBarDividerColor = android.graphics.Color.TRANSPARENT
-                window.attributes.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
-            }
-        }
+        window.setNavTransparent()
+        window.setNormalDisplayCutoutMode()
         setContent {
             PageContentWithConfigProvider(viewModel)
             PageContent(viewModel)

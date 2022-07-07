@@ -366,7 +366,6 @@ fun TopBarContent(
     rightItems: List<TopBarItem> = emptyList(),
     titleLayout: TopBarTitleLayout = remember { DefaultTopBarTitleLayout() }
 ) {
-
     val measurePolicy = remember(alignTitleCenter) {
         MeasurePolicy { measurables, constraints ->
             var centerMeasurable: Measurable? = null

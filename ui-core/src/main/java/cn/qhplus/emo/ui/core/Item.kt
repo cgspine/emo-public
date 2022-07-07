@@ -1,8 +1,23 @@
+/*
+ * Copyright 2022 emo Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package cn.qhplus.emo.ui.core
 
 import androidx.compose.foundation.Indication
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,10 +36,8 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cn.qhplus.emo.ui.core.modifier.throttleClick
@@ -64,22 +77,23 @@ fun Item(
     drawBehind: (DrawScope.() -> Unit)? = null,
     onClick: (() -> Unit)? = null
 ) {
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .defaultMinSize(minHeight = minHeight)
-        .alpha(alpha)
-        .background(background)
-        .drawBehind {
-            drawBehind?.invoke(this)
-        }
-        .throttleClick(
-            enabled = onClick != null,
-            interactionSource = remember { MutableInteractionSource() },
-            indication = indication
-        ) {
-            onClick?.invoke()
-        }
-        .padding(horizontal = paddingHor, vertical = paddingVer),
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .defaultMinSize(minHeight = minHeight)
+            .alpha(alpha)
+            .background(background)
+            .drawBehind {
+                drawBehind?.invoke(this)
+            }
+            .throttleClick(
+                enabled = onClick != null,
+                interactionSource = remember { MutableInteractionSource() },
+                indication = indication
+            ) {
+                onClick?.invoke()
+            }
+            .padding(horizontal = paddingHor, vertical = paddingVer),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
@@ -99,7 +113,6 @@ fun Item(
                     style = detailTextStyle
                 )
             }
-
         }
         accessory?.invoke(this)
     }

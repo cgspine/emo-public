@@ -196,7 +196,7 @@ fun PickCurrentCheckButton(
     ) {
         CheckBox(
             size = 18.dp,
-            status = if (isPicked) CheckStatus.checked else CheckStatus.none,
+            status = if (isPicked) CheckStatus.Checked else CheckStatus.None,
             tint = if (isPicked) config.commonIconCheckedTintColor else config.commonIconNormalTintColor,
             background = if (isPicked) config.commonIconNormalTintColor else Color.Transparent
         )
