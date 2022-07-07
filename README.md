@@ -1,8 +1,6 @@
-<p style="text-align: center;">
-    <img src="image/emo.png" alt="logo" width="220" height="220" style="border-radius:24px;"/> 
-</p>
+<img src="image/emo.png" alt="logo" width="220" height="220"/> 
 
-# emo - speed up android development with modern architectures
+# emo - speed up android development
 
 This repository contains series of libraries for android developers:
 
@@ -11,7 +9,7 @@ This repository contains series of libraries for android developers:
 - modal: A new way to implement Dialog，Toast, BottomSheet, ... with Jetpack Compose.
 - more libraries are on the way.
 
-# emo design principles
+# design principles
 
 - Support API Level 23+.
 - Based on JDK 11.
