@@ -19,7 +19,6 @@ package cn.qhplus.emo.ui.core.ex
 import android.os.Build
 import android.view.Window
 import android.view.WindowManager
-import androidx.core.view.WindowCompat
 
 fun Window.setNavTransparent() {
     navigationBarColor = android.graphics.Color.TRANSPARENT
@@ -29,7 +28,7 @@ fun Window.setNavTransparent() {
 }
 
 fun Window.setNormalDisplayCutoutMode() {
-    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R){
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
         attributes.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
     } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
         attributes.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES

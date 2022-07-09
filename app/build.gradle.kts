@@ -87,8 +87,9 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.compose.material3.windowSizeClass)
     implementation(libs.androidx.window.manager)
-    implementation(libs.material3)
 
     implementation(libs.accompanist.navigation)
     implementation(libs.accompanist.systemuicontroller)
+
+    implementation(libs.material3)
 }

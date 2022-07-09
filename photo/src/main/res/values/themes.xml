@@ -15,7 +15,9 @@
      limitations under the License.
 -->
 <resources>
-    <style name="PhotoViewer" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="PhotoViewer">
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
     </style>
