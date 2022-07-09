@@ -55,8 +55,8 @@ import cn.qhplus.emo.photo.ui.picker.PhotoPickerGridPage
 import cn.qhplus.emo.photo.ui.picker.PhotoPickerPreviewPage
 import cn.qhplus.emo.photo.ui.picker.Route
 import cn.qhplus.emo.photo.vm.PhotoPickerViewModel
-import cn.qhplus.emo.ui.core.ex.setNormalDisplayCutoutMode
 import cn.qhplus.emo.ui.core.ex.setNavTransparent
+import cn.qhplus.emo.ui.core.ex.setNormalDisplayCutoutMode
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
