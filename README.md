@@ -16,18 +16,18 @@ This repository contains series of libraries for android developers:
 - All in Jetpack Compose.
 - Use coroutines for concurrency and data flow.
 
-# usage
+# Download
 
 ```kts
 // ui-core
 implementation("cn.qhplus.emo:ui-core:0.0.1")
 // photo
-implementation("cn.qhplus.emo:photo-coil:0.0.1")
+implementation("cn.qhplus.emo:photo-coil:0.0.2")
 // modal
 implementation("cn.qhplus.emo:modal:0.0.1")
 ```
 
-# apk download
+# Demo apk
 
 [Download apk](apk/emo.apk) or scan the qrcode below(pay attention to the wall):
 

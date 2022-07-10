@@ -44,7 +44,7 @@ room = "2.4.2"
 secrets = "2.0.1"
 spotless = "6.8.0"
 turbine = "0.8.0"
-emoPhoto = "0.0.1"
+emoPhoto = "0.0.2"
 
 [libraries]
 accompanist-flowlayout = { group = "com.google.accompanist", name = "accompanist-flowlayout", version.ref = "accompanist" }
