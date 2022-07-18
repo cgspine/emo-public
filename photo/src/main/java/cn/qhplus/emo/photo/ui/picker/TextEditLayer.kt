@@ -326,7 +326,7 @@ internal class TextEditLayer(
                                         awaitFirstDown(requireUnconsumed = false)
                                         do {
                                             val event = awaitPointerEvent()
-                                            val canceled = event.changes.any { it.positionChangeConsumed() }
+                                            val canceled = event.changes.any { it.isConsumed }
                                             if (!canceled) {
                                                 val zoomChange = event.calculateZoom()
                                                 val rotationChange = event.calculateRotation()
@@ -370,7 +370,7 @@ internal class TextEditLayer(
                                                     }
                                                     event.changes.forEach {
                                                         if (it.positionChanged()) {
-                                                            it.consumeAllChanges()
+                                                            it.consume()
                                                         }
                                                     }
                                                 }

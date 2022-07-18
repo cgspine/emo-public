@@ -54,7 +54,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.input.pointer.consumeAllChanges
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -403,7 +402,7 @@ fun GesturePhoto(
                                                     scaleHandler(center, finalScale / targetScale, false)
                                                     event.changes.forEach {
                                                         if (it.positionChanged()) {
-                                                            it.consumeAllChanges()
+                                                            it.consume()
                                                         }
                                                     }
                                                 }

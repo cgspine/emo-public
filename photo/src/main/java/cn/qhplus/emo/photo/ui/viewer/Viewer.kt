@@ -142,8 +142,8 @@ fun PagerScope.DefaultPhotoPage(
     GestureBox: @Composable BoxWithConstraintsScope.(
         PhotoShot,
         @Composable BoxWithConstraintsScope.(onPhotoLoaded: ((PhotoResult) -> Unit)?) -> Unit
-    ) -> Unit = { item, content ->
-        DefaultPhotoGestureBox(item, content)
+    ) -> Unit = { _, content ->
+        DefaultPhotoGestureBox(content)
     }
 ) {
     val initRect = pageArg.item.photoRect()
@@ -199,7 +199,6 @@ fun PagerScope.DefaultPhotoPage(
 
 @Composable
 fun BoxWithConstraintsScope.DefaultPhotoGestureBox(
-    item: PhotoShot,
     content: @Composable BoxWithConstraintsScope.(onPhotoLoaded: ((PhotoResult) -> Unit)?) -> Unit
 ) {
     content(null)

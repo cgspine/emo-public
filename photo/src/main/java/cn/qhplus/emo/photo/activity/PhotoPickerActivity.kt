@@ -226,8 +226,7 @@ open class PhotoPickerActivity : ComponentActivity() {
                     PickerGrid(navController, viewModel)
                 }
 
-                val route =
-                    composable(
+                composable(
                         "${Route.PREVIEW}/{bucketId}/{currentId}",
                         arguments = listOf(navArgument("currentId") { type = NavType.LongType }),
                         enterTransition = { fadeIn(tween()) },

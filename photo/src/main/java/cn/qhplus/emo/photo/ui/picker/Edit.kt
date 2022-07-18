@@ -78,6 +78,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.consumeDownChange
 import androidx.compose.ui.input.pointer.consumePositionChange
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextRange
@@ -790,7 +791,10 @@ private fun PhotoPaintCanvas(
                     forEachGesture {
                         awaitPointerEventScope {
                             val down = awaitFirstDown(requireUnconsumed = true)
-                            down.consumeDownChange()
+
+                            if (down.pressed != down.previousPressed){
+                                down.consume()
+                            }
                             currentLayer.path.moveTo(
                                 (down.position.x - layoutInfo.rect.left) / layoutInfo.scale,
                                 (down.position.y - layoutInfo.rect.top) / layoutInfo.scale
@@ -800,7 +804,9 @@ private fun PhotoPaintCanvas(
                                 val event = awaitPointerEvent()
                                 val change = event.changes.find { it.id.value == down.id.value }
                                 if (change != null) {
-                                    change.consumePositionChange()
+                                    if(change.positionChange() != Offset.Zero){
+                                        change.consume()
+                                    }
                                     currentLayer.path.lineTo(
                                         (change.position.x - layoutInfo.rect.left) / layoutInfo.scale,
                                         (change.position.y - layoutInfo.rect.top) / layoutInfo.scale
