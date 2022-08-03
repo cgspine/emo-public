@@ -17,10 +17,35 @@
 package cn.qhplus.emo
 
 import android.app.Application
+import android.util.Log
+import cn.qhplus.emo.core.EmoLog
+import cn.qhplus.emo.core.EmoLogDelegate
 import coil.ImageLoader
 import coil.ImageLoaderFactory
 
 class EmoApp : Application(), ImageLoaderFactory {
+
+    override fun onCreate() {
+        super.onCreate()
+        EmoLog.delegate = object: EmoLogDelegate {
+            override fun e(tag: String, msg: String, throwable: Throwable?) {
+                Log.e(tag, msg, throwable)
+            }
+
+            override fun w(tag: String, msg: String, throwable: Throwable?) {
+                Log.w(tag, msg, throwable)
+            }
+
+            override fun i(tag: String, msg: String, throwable: Throwable?) {
+                Log.i(tag, msg, throwable)
+            }
+
+            override fun d(tag: String, msg: String, throwable: Throwable?) {
+                Log.d(tag, msg, throwable)
+            }
+        }
+    }
+
     override fun newImageLoader(): ImageLoader {
         return ImageLoader.Builder(applicationContext)
             .crossfade(true)

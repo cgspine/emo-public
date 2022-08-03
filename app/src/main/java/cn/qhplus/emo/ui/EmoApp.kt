@@ -23,15 +23,35 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideIn
 import androidx.compose.animation.slideOut
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDeepLink
 import androidx.navigation.NavGraphBuilder
+import cn.qhplus.emo.modal.emoToast
+import cn.qhplus.emo.network.NetworkConnectivity
+import cn.qhplus.emo.network.NetworkState
 import cn.qhplus.emo.theme.EmoTheme
 import cn.qhplus.emo.ui.page.HomePage
 import cn.qhplus.emo.ui.page.ModalPage
@@ -42,58 +62,90 @@ import cn.qhplus.emo.ui.page.PhotoViewerPage
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun EmoApp(windowSizeClass: WindowSizeClass) {
     EmoTheme {
         val navController = rememberAnimatedNavController()
-        AnimatedNavHost(
-            navController = navController,
-            modifier = Modifier.fillMaxSize(),
-            startDestination = "${RouteConst.ROUTE_HOME}/{${RouteConst.PARAM_TAB}}"
-        ) {
-            composable(
-                "${RouteConst.ROUTE_HOME}/{${RouteConst.PARAM_TAB}}",
-                exitTransition = slideOutLeft,
-                popEnterTransition = slideInLeft
-            ) { backStack ->
-                HomePage(
-                    navController,
-                    backStack.arguments?.getString(RouteConst.PARAM_TAB)
-                        ?: RouteConst.ROUTE_HOME_COMPONENT
-                )
-            }
-
-            slideComposable(
-                RouteConst.ROUTE_MODAL
+        Box(modifier = Modifier.fillMaxSize()){
+            AnimatedNavHost(
+                navController = navController,
+                modifier = Modifier.fillMaxSize(),
+                startDestination = "${RouteConst.ROUTE_HOME}/{${RouteConst.PARAM_TAB}}"
             ) {
-                ModalPage(navController)
-            }
+                composable(
+                    "${RouteConst.ROUTE_HOME}/{${RouteConst.PARAM_TAB}}",
+                    exitTransition = slideOutLeft,
+                    popEnterTransition = slideInLeft
+                ) { backStack ->
+                    HomePage(
+                        navController,
+                        backStack.arguments?.getString(RouteConst.PARAM_TAB)
+                            ?: RouteConst.ROUTE_HOME_COMPONENT
+                    )
+                }
 
-            slideComposable(
-                RouteConst.ROUTE_PHOTO
-            ) {
-                PhotoPage(navController)
-            }
+                slideComposable(
+                    RouteConst.ROUTE_MODAL
+                ) {
+                    ModalPage(navController)
+                }
 
-            slideComposable(
-                RouteConst.ROUTE_PHOTO_VIEWER
-            ) {
-                PhotoViewerPage(navController)
-            }
+                slideComposable(
+                    RouteConst.ROUTE_PHOTO
+                ) {
+                    PhotoPage(navController)
+                }
 
-            slideComposable(
-                RouteConst.ROUTE_PHOTO_PICKER
-            ) {
-                PhotoPickerPage(navController)
-            }
+                slideComposable(
+                    RouteConst.ROUTE_PHOTO_VIEWER
+                ) {
+                    PhotoViewerPage(navController)
+                }
 
-            slideComposable(
-                RouteConst.ROUTE_PHOTO_CLIPPER
-            ) {
-                PhotoClipperPage(navController)
+                slideComposable(
+                    RouteConst.ROUTE_PHOTO_PICKER
+                ) {
+                    PhotoPickerPage(navController)
+                }
+
+                slideComposable(
+                    RouteConst.ROUTE_PHOTO_CLIPPER
+                ) {
+                    PhotoClipperPage(navController)
+                }
             }
+            NetworkInfo()
+        }
+    }
+}
+
+@Composable
+fun BoxScope.NetworkInfo(){
+    val context = LocalContext.current
+    val networkState = remember {
+        mutableStateOf<NetworkState?>(null)
+    }
+
+    LaunchedEffect(context){
+        NetworkConnectivity.of(context).stateFlow.collectLatest {
+            networkState.value = it
+        }
+    }
+
+    val currentNetworkState = networkState.value
+    if(currentNetworkState != null){
+        Column(modifier = Modifier
+            .align(Alignment.TopEnd)
+            .offset((-40).dp, 40.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .background(Color.Red.copy(alpha = 0.5f))
+            .padding(14.dp)
+        ){
+            Text("network type = ${currentNetworkState.networkType}")
+            Text("valid = ${currentNetworkState.isValid}")
         }
     }
 }
