@@ -15,6 +15,8 @@
  */
 
 package cn.qhplus.emo.ui
+
+import android.text.format.Formatter
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.EnterTransition
@@ -27,6 +29,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -50,8 +53,11 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDeepLink
 import androidx.navigation.NavGraphBuilder
 import cn.qhplus.emo.modal.emoToast
+import cn.qhplus.emo.network.NetworkBandwidth
+import cn.qhplus.emo.network.NetworkBandwidthSampler
 import cn.qhplus.emo.network.NetworkConnectivity
 import cn.qhplus.emo.network.NetworkState
+import cn.qhplus.emo.network.NetworkStreamTotal
 import cn.qhplus.emo.theme.EmoTheme
 import cn.qhplus.emo.ui.page.HomePage
 import cn.qhplus.emo.ui.page.ModalPage
@@ -63,13 +69,15 @@ import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+import java.text.NumberFormat
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun EmoApp(windowSizeClass: WindowSizeClass) {
     EmoTheme {
         val navController = rememberAnimatedNavController()
-        Box(modifier = Modifier.fillMaxSize()){
+        Box(modifier = Modifier.fillMaxSize()) {
             AnimatedNavHost(
                 navController = navController,
                 modifier = Modifier.fillMaxSize(),
@@ -123,29 +131,89 @@ fun EmoApp(windowSizeClass: WindowSizeClass) {
 }
 
 @Composable
-fun BoxScope.NetworkInfo(){
-    val context = LocalContext.current
-    val networkState = remember {
-        mutableStateOf<NetworkState?>(null)
-    }
-
-    LaunchedEffect(context){
-        NetworkConnectivity.of(context).stateFlow.collectLatest {
-            networkState.value = it
-        }
-    }
-
-    val currentNetworkState = networkState.value
-    if(currentNetworkState != null){
-        Column(modifier = Modifier
+fun BoxScope.NetworkInfo() {
+    Column(
+        modifier = Modifier
             .align(Alignment.TopEnd)
             .offset((-40).dp, 40.dp)
             .clip(RoundedCornerShape(8.dp))
             .background(Color.Red.copy(alpha = 0.5f))
             .padding(14.dp)
-        ){
-            Text("network type = ${currentNetworkState.networkType}")
-            Text("valid = ${currentNetworkState.isValid}")
+    ) {
+        NetworkBaseInfo()
+        NetworkStreamTotalInfo()
+        NetworkBandwidthInfo()
+    }
+}
+
+@Composable
+fun NetworkBaseInfo() {
+    val context = LocalContext.current
+    val state = remember {
+        mutableStateOf<NetworkState?>(null)
+    }
+
+    LaunchedEffect(context) {
+        NetworkConnectivity.of(context).stateFlow.collectLatest {
+            state.value = it
+        }
+    }
+
+    val value = state.value
+    if (value != null) {
+        Column {
+            Text("network type = ${value.networkType}")
+            Text("valid = ${value.isValid}")
+        }
+    }
+}
+
+@Composable
+fun NetworkStreamTotalInfo() {
+    val context = LocalContext.current
+    val state = remember {
+        mutableStateOf(NetworkStreamTotal.ZERO)
+    }
+
+    LaunchedEffect(context) {
+        NetworkBandwidthSampler.of(context).streamTotalFlow.collectLatest {
+            state.value = it
+        }
+    }
+
+    val value = state.value
+    if (value != NetworkStreamTotal.ZERO) {
+        Column {
+            Text("total.up = ${Formatter.formatShortFileSize(context, value.up)}")
+            Text("total.down = ${Formatter.formatShortFileSize(context, value.down)}")
+        }
+    }
+}
+
+@Composable
+fun NetworkBandwidthInfo() {
+    val context = LocalContext.current
+    val state = remember {
+        mutableStateOf(NetworkBandwidth.UNDEFINED)
+    }
+
+    val formatter = remember {
+        val format = NumberFormat.getNumberInstance()
+        format.maximumFractionDigits = 2
+        format
+    }
+
+    LaunchedEffect(context) {
+        NetworkBandwidthSampler.of(context).bandwidthFlow.collectLatest {
+            state.value = it
+        }
+    }
+
+    val value = state.value
+    if (value != NetworkBandwidth.UNDEFINED) {
+        Column {
+            Text("bandwidth.up = ${formatter.format(value.up)} kbps")
+            Text("bandwidth.down = ${formatter.format(value.down)} kbps")
         }
     }
 }

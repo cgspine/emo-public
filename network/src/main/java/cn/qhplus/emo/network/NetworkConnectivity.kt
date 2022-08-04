@@ -18,11 +18,9 @@ package cn.qhplus.emo.network
 
 import android.content.Context
 import android.net.ConnectivityManager
-import android.net.LinkProperties
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.os.SystemClock
-import android.util.Log
 import cn.qhplus.emo.core.EmoLog
 import cn.qhplus.emo.core.LogTag
 import cn.qhplus.emo.core.retry
@@ -181,11 +179,6 @@ class NetworkConnectivity private constructor(applicationContext: Context) : Log
                 _stateFlow.value =
                     fetchNetworkStateByCapabilities(networkCapabilities, network.toString())
             }
-        }
-
-        override fun onLinkPropertiesChanged(network: Network, linkProperties: LinkProperties) {
-            super.onLinkPropertiesChanged(network, linkProperties)
-            Log.i("cgspine", "1.${linkProperties.domains}, ${linkProperties.dnsServers}, ${linkProperties.interfaceName}")
         }
 
         override fun onLost(network: Network) {

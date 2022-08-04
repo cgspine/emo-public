@@ -16,22 +16,23 @@
 
 package cn.qhplus.emo.network
 
-import org.junit.Assert.assertEquals
-import org.junit.Test
+import kotlin.math.exp
+import kotlin.math.ln
 
-/**
- * Example local unit test, which will execute on the development machine (host).
- *
- * See [testing documentation](http://d.android.cn/tools/testing).
- */
-class ExampleUnitTest {
-    @Test
-    fun testExponentialMovingAverage() {
-        val ema = ExponentialMovingAverage(0.2f)
-        ema.addMeasurement(1000.0)
-        ema.addMeasurement(1300.0)
-        ema.addMeasurement(1200.0)
+class ExponentialMovingAverage(private val decay: Float) {
+    private var value = -1.0
 
-        assertEquals(1080.8836465825684, ema.getAverage(), 1.0)
+    fun addMeasurement(measurement: Double) {
+        value = if (value < 0.0) {
+            measurement
+        } else {
+            exp((1 - decay) * ln(value) + decay * ln(measurement))
+        }
+    }
+
+    fun getAverage(): Double = value
+
+    fun reset() {
+        value = -1.0
     }
 }

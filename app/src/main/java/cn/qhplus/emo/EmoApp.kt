@@ -20,6 +20,7 @@ import android.app.Application
 import android.util.Log
 import cn.qhplus.emo.core.EmoLog
 import cn.qhplus.emo.core.EmoLogDelegate
+import cn.qhplus.emo.network.NetworkBandwidthSampler
 import coil.ImageLoader
 import coil.ImageLoaderFactory
 
@@ -44,6 +45,7 @@ class EmoApp : Application(), ImageLoaderFactory {
                 Log.d(tag, msg, throwable)
             }
         }
+        NetworkBandwidthSampler.of(this).startSampling()
     }
 
     override fun newImageLoader(): ImageLoader {
