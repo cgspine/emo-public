@@ -16,6 +16,15 @@ This repository contains series of libraries for android developers:
 - All in Jetpack Compose.
 - Use coroutines for concurrency and data flow.
 
+# compose versions
+
+<table>
+ <tr>
+  <td>Compose UI 1.2.x</td>
+  <td> ui-core 0.0.1, photo 0.0.2, modal 0.0.1</td>
+ </tr>
+</table>
+
 # Download
 
 ```kts
