@@ -21,7 +21,7 @@ This repository contains series of libraries for android developers:
 <table>
  <tr>
   <td>Compose UI 1.2.x</td>
-  <td> ui-core 0.0.1, photo 0.0.2, modal 0.0.1</td>
+  <td> ui-core 0.0.1  |  photo 0.0.2  |  modal 0.0.1</td>
  </tr>
 </table>
 
