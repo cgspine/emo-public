@@ -28,7 +28,7 @@ class EmoApp : Application(), ImageLoaderFactory {
 
     override fun onCreate() {
         super.onCreate()
-        EmoLog.delegate = object: EmoLogDelegate {
+        EmoLog.delegate = object : EmoLogDelegate {
             override fun e(tag: String, msg: String, throwable: Throwable?) {
                 Log.e(tag, msg, throwable)
             }

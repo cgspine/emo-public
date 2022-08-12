@@ -91,6 +91,7 @@ dependencies {
 
     implementation(libs.accompanist.navigation)
     implementation(libs.accompanist.systemuicontroller)
+    implementation(libs.accompanist.webview)
 
     implementation(libs.material3)
 }

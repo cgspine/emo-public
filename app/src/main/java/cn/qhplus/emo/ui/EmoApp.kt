@@ -26,39 +26,46 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideIn
 import androidx.compose.animation.slideOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDeepLink
 import androidx.navigation.NavGraphBuilder
-import cn.qhplus.emo.modal.emoToast
 import cn.qhplus.emo.network.NetworkBandwidth
 import cn.qhplus.emo.network.NetworkBandwidthSampler
 import cn.qhplus.emo.network.NetworkConnectivity
 import cn.qhplus.emo.network.NetworkState
 import cn.qhplus.emo.network.NetworkStreamTotal
 import cn.qhplus.emo.theme.EmoTheme
+import cn.qhplus.emo.ui.core.modifier.throttleClick
+import cn.qhplus.emo.ui.page.AboutPage
 import cn.qhplus.emo.ui.page.HomePage
 import cn.qhplus.emo.ui.page.ModalPage
 import cn.qhplus.emo.ui.page.PhotoClipperPage
@@ -68,6 +75,7 @@ import cn.qhplus.emo.ui.page.PhotoViewerPage
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
@@ -102,6 +110,12 @@ fun EmoApp(windowSizeClass: WindowSizeClass) {
                 }
 
                 slideComposable(
+                    RouteConst.ROUTE_ABOUT
+                ) {
+                    AboutPage(navController)
+                }
+
+                slideComposable(
                     RouteConst.ROUTE_PHOTO
                 ) {
                     PhotoPage(navController)
@@ -125,24 +139,71 @@ fun EmoApp(windowSizeClass: WindowSizeClass) {
                     PhotoClipperPage(navController)
                 }
             }
-            NetworkInfo()
+            DebugInfo()
         }
     }
 }
 
 @Composable
-fun BoxScope.NetworkInfo() {
-    Column(
-        modifier = Modifier
-            .align(Alignment.TopEnd)
-            .offset((-40).dp, 40.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .background(Color.Red.copy(alpha = 0.5f))
-            .padding(14.dp)
-    ) {
-        NetworkBaseInfo()
-        NetworkStreamTotalInfo()
-        NetworkBandwidthInfo()
+fun BoxScope.DebugInfo() {
+    var expend by remember {
+        mutableStateOf(false)
+    }
+
+    var offsetX by remember { mutableStateOf(0f) }
+    var offsetY by remember { mutableStateOf(0f) }
+
+    val offsetXDp = with(LocalDensity.current) {
+        offsetX.toDp()
+    }
+
+    val offsetYDp = with(LocalDensity.current) {
+        offsetY.toDp()
+    }
+
+    if (expend) {
+        Column(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .offset(offsetXDp + (-40).dp, offsetYDp + 40.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .background(Color.Red.copy(alpha = 0.5f))
+                .throttleClick {
+                    expend = false
+                }
+                .padding(14.dp)
+        ) {
+            NetworkBaseInfo()
+            NetworkStreamTotalInfo()
+            NetworkBandwidthInfo()
+        }
+    } else {
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .align(Alignment.TopEnd)
+                .offset(offsetXDp + (-40).dp, offsetYDp + 40.dp)
+                .size(48.dp)
+                .clip(CircleShape)
+                .background(Color.Red.copy(alpha = 0.2f))
+                .pointerInput(Unit) {
+                    coroutineScope {
+                        launch {
+                            detectDragGestures { change, dragAmount ->
+                                change.consume()
+                                offsetX += dragAmount.x
+                                offsetY += dragAmount.y
+                            }
+                        }
+
+                        launch {
+                            detectTapGestures {
+                                expend = true
+                            }
+                        }
+                    }
+                }
+        )
     }
 }
 

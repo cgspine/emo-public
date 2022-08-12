@@ -21,6 +21,7 @@ object RouteConst {
     const val ROUTE_HOME_COMPONENT = "component"
     const val ROUTE_HOME_HELPER = "helper"
     const val ROUTE_MODAL = "modal"
+    const val ROUTE_ABOUT = "about"
     const val ROUTE_PHOTO = "photo"
     const val ROUTE_PHOTO_VIEWER = "photoViewer"
     const val ROUTE_PHOTO_PICKER = "photoPicker"

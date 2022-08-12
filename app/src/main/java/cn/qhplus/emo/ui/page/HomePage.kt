@@ -17,15 +17,10 @@
 package cn.qhplus.emo.ui.page
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.consumedWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Grid3x3
 import androidx.compose.material.icons.filled.Widgets
@@ -54,7 +49,7 @@ import cn.qhplus.emo.R
 import cn.qhplus.emo.modal.emoToast
 import cn.qhplus.emo.ui.CommonItem
 import cn.qhplus.emo.ui.RouteConst
-import cn.qhplus.emo.ui.core.TopBarWithLazyListScrollState
+import cn.qhplus.emo.ui.core.TopBarTextItem
 import cn.qhplus.emo.ui.core.modifier.windowInsetsCommonNavPadding
 
 data class HomeDestination(
@@ -147,10 +142,18 @@ fun HomePage(navController: NavHostController, tab: String) {
 
 @Composable
 fun ComponentPage(navController: NavHostController) {
+    val topBarIconColor = MaterialTheme.colorScheme.onPrimary
     SimpleListPage(
         navController = navController,
-        title = "Components"
-    ){
+        title = "Components",
+        topBarRightItems = remember(topBarIconColor) {
+            listOf(
+                TopBarTextItem(text = "About", color = topBarIconColor) {
+                    navController.navigate(RouteConst.ROUTE_ABOUT)
+                }
+            )
+        }
+    ) {
         item {
             CommonItem("Modal") {
                 navController.navigate(RouteConst.ROUTE_MODAL)
@@ -167,11 +170,11 @@ fun ComponentPage(navController: NavHostController) {
 
 @Composable
 fun HelperPage(navController: NavHostController) {
-    val view  = LocalView.current
+    val view = LocalView.current
     SimpleListPage(
         navController = navController,
         title = "Components"
-    ){
+    ) {
         item {
             CommonItem("ThrottleClick") {
                 view.emoToast("use Modifier.throttleClick")
