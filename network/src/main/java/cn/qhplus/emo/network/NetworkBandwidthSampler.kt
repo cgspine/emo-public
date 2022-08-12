@@ -33,15 +33,20 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicInteger
 
-data class NetworkStreamTotal(val down: Long, val up: Long) {
+data class NetworkStreamTotal(
+    val id: Int,
+    val down: Long,
+    val up: Long,
+    val timestamp: Long
+) {
     companion object {
-        val ZERO = NetworkStreamTotal(0, 0)
+        val ZERO = NetworkStreamTotal(0, 0, 0, 0)
     }
 }
 
 data class NetworkBandwidth(val down: Double, val up: Double) {
     companion object {
-        val UNDEFINED = NetworkBandwidth(-1.0, -1.0)
+        val UNDEFINED = NetworkBandwidth(0.0, 0.0)
     }
 }
 
@@ -69,7 +74,7 @@ class NetworkBandwidthSampler private constructor(
     }
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO + scopeExceptionHandler)
     private val samplingCounter = AtomicInteger(0)
-    private var samplingJob: Job? = null
+    private val samplingTaskId = AtomicInteger(0)
 
     private val downStreamBandwidth = ExponentialMovingAverage(DEFAULT_DECAY)
     private val upStreamBandwidth = ExponentialMovingAverage(DEFAULT_DECAY)
@@ -84,26 +89,41 @@ class NetworkBandwidthSampler private constructor(
 
     fun startSampling() {
         if (samplingCounter.getAndDecrement() == 0) {
-            samplingJob = scope.launch {
+            val sampleId = samplingTaskId.incrementAndGet()
+            scope.launch {
                 var previousRxBytes = -1L
                 var previousTxBytes = -1L
                 var lastReadingTime = -1L
-                while (isActive) {
+                var historyRxBytes = -1L
+                var historyTxBytes = -1L
+                while (isActive && samplingTaskId.get() == sampleId) {
                     val rx = TrafficStats.getUidRxBytes(applicationContext.applicationInfo.uid)
                     val tx = TrafficStats.getUidTxBytes(applicationContext.applicationInfo.uid)
-                    _streamTotalFlow.value = NetworkStreamTotal(rx, tx)
-                    lastReadingTime = if (previousRxBytes >= 0) {
+                    val curTimeReading = SystemClock.elapsedRealtime()
+                    if(historyRxBytes < 0){
+                        historyRxBytes = rx
+                        historyTxBytes = tx
+                    }else{
+                        _streamTotalFlow.value = NetworkStreamTotal(sampleId, rx - historyRxBytes, tx - historyTxBytes, curTimeReading)
+                    }
+
+                    if (previousRxBytes >= 0) {
                         val rxDiff = rx - previousRxBytes
                         val txDiff = tx - previousTxBytes
-                        val curTimeReading = SystemClock.elapsedRealtime()
                         val timeDiff = curTimeReading - lastReadingTime
                         recordBandwidth(downStreamBandwidth, rxDiff, timeDiff)
                         recordBandwidth(upStreamBandwidth, txDiff, timeDiff)
-                        _bandwidthFlow.value = NetworkBandwidth(downStreamBandwidth.getAverage(), upStreamBandwidth.getAverage())
-                        curTimeReading
-                    } else {
-                        SystemClock.elapsedRealtime()
+                        val down = downStreamBandwidth.getAverage()
+                        val up = upStreamBandwidth.getAverage()
+                        if(down >= 0 || up >= 0){
+                            _bandwidthFlow.value = NetworkBandwidth(
+                                down.coerceAtLeast(0.0),
+                                up.coerceAtLeast(0.0)
+                            )
+                        }
+
                     }
+                    lastReadingTime = curTimeReading
                     previousRxBytes = rx
                     previousTxBytes = tx
                     delay(sampleInterval)
@@ -113,10 +133,9 @@ class NetworkBandwidthSampler private constructor(
     }
 
     fun stopSampling() {
-        // create a local variable point to the current samplingJob to avoid race condition.
-        val job = samplingJob
         if (samplingCounter.decrementAndGet() == 0) {
-            job?.cancel()
+            val current = samplingTaskId.get()
+            samplingTaskId.compareAndSet(current, current + 1)
             upStreamBandwidth.reset()
             downStreamBandwidth.reset()
         }
