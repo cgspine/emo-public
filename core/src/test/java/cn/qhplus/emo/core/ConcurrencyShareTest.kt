@@ -21,6 +21,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import org.junit.Assert
@@ -29,55 +30,52 @@ import kotlin.coroutines.AbstractCoroutineContextElement
 import kotlin.coroutines.CoroutineContext
 
 class ConcurrencyShareTest {
+
     @Test
     fun joinPreviousOrRunTest() = runTest {
         val key = "key"
         val testContext = CoroutineScope(SupervisorJob() + TestContext())
+        val concurrencyShare = ConcurrencyShare(this)
         launch {
-            launch {
-                withContext(testContext.coroutineContext) {
-                    val a = ConcurrencyShare.globalInstance.joinPreviousOrRun(key) {
-                        delay(300)
-                        Assert.assertEquals("test", coroutineContext[TestContext]?.test)
-                        "a"
-                    }
-                    Assert.assertEquals("a", a)
+            withContext(testContext.coroutineContext) {
+                val a = concurrencyShare.joinPreviousOrRun(key) {
+                    delay(300)
+                    Assert.assertEquals("test", coroutineContext[TestContext]?.test)
+                    "a"
                 }
+                Assert.assertEquals("a", a)
             }
+        }
 
-            launch {
-                delay(100)
-                val b = ConcurrencyShare.globalInstance.joinPreviousOrRun(key) {
-                    delay(1000)
-                    "b"
-                }
-                Assert.assertEquals("a", b)
+        launch {
+            delay(100)
+            val b = concurrencyShare.joinPreviousOrRun(key) {
+                delay(1000)
+                "b"
             }
+            Assert.assertEquals("a", b)
         }
     }
 
     @Test
     fun cancelPreviousThenRunTest() = runTest {
         val key = "key"
-        launch {
-            val a = launch {
-                val ret = ConcurrencyShare.globalInstance.cancelPreviousThenRun(key) {
-                    delay(300)
-                    "a"
-                }
-                Assert.assertEquals("No reachable code", ret)
+        val concurrencyShare = ConcurrencyShare(this)
+        val a = launch {
+            val ret = concurrencyShare.cancelPreviousThenRun(key) {
+                delay(300)
+                "a"
             }
-
-            launch {
-                delay(100)
-                val b = ConcurrencyShare.globalInstance.cancelPreviousThenRun(key) {
-                    delay(1000)
-                    "b"
-                }
-                Assert.assertEquals(true, a.isCancelled)
-                Assert.assertEquals("b", b)
-            }
+            Assert.assertEquals("No reachable code", ret)
         }
+
+        delay(100)
+        val b = concurrencyShare.cancelPreviousThenRun(key) {
+            delay(1000)
+            "b"
+        }
+        Assert.assertEquals(true, a.isCancelled)
+        Assert.assertEquals("b", b)
     }
 
     class TestContext : AbstractCoroutineContextElement(TestContext) {
@@ -87,44 +85,55 @@ class ConcurrencyShareTest {
         val test = "test"
     }
 
+    /**
+     *  Two task A, B. cancellation of A should not affect task B
+     */
     @Test
     fun joinPreviousOrRunCancelTest() = runTest {
         val key = "key"
-        launch {
-            val a = launch() {
-                val a = ConcurrencyShare.globalInstance.joinPreviousOrRun(key) {
-                    delay(1000)
-                    "a"
-                }
-                Assert.assertEquals("No reachable code", a)
+        val concurrencyShare = ConcurrencyShare(this)
+        val a = launch() {
+            val a = concurrencyShare.joinPreviousOrRun(key) {
+                delay(1000)
+                "a"
             }
-
-            val b = launch {
-                delay(100)
-                val b = ConcurrencyShare.globalInstance.joinPreviousOrRun(key) {
-                    delay(200)
-                    "b"
-                }
-                Assert.assertEquals("a", b)
-            }
-
-            launch {
-                delay(700)
-                a.cancelAndJoin()
-                Assert.assertEquals(false, b.isCancelled)
-            }
+            Assert.assertEquals("No reachable code", a)
         }
+
+        val b = launch {
+            delay(100)
+            val b = concurrencyShare.joinPreviousOrRun(key) {
+                delay(200)
+                "b"
+            }
+            Assert.assertEquals("a", b)
+        }
+
+        delay(100)
+        a.cancelAndJoin()
+        Assert.assertEquals(false, b.isCancelled)
+        advanceUntilIdle()
     }
 
+    /**
+     *  Only one task A. cancellation of A should cancel inner task.
+     */
     @Test
-    fun joinPreviousOrRunThrow() {
-        Assert.assertThrows(RuntimeException::class.java) {
-            runTest {
-                ConcurrencyShare.globalInstance.joinPreviousOrRun("key") {
-                    delay(1000)
-                    throw RuntimeException("crash")
-                }
+    fun joinPreviousOrRunOnlyOneCancelTest() = runTest{
+        val key = "key"
+        val concurrencyShare = ConcurrencyShare(this)
+        val a = launch {
+            val ret = concurrencyShare.joinPreviousOrRun(key) {
+                Assert.assertTrue(true)
+                delay(1000)
+                Assert.assertEquals("No reachable code", key)
+                "a"
             }
+            Assert.assertEquals("No reachable code", ret)
         }
+
+        delay(300)
+        a.cancelAndJoin()
+        advanceUntilIdle()
     }
 }

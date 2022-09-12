@@ -21,20 +21,27 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.supervisorScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.concurrent.CancellationException
+import kotlinx.coroutines.yield
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.coroutines.coroutineContext
 
+private val defaultCoroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
+    EmoLog.e("ConcurrencyShare", "scope error.", throwable)
+}
+
+
 class ConcurrencyShare(
-    scopeErrorHandler: CoroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
-        EmoLog.e("ConcurrencyShare", "scope error.", throwable)
-    }
+    private val timeoutByCancellation: Long = 10 * 1000,
+    private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob() + defaultCoroutineExceptionHandler)
 ) {
     companion object {
         val globalInstance by lazy {
@@ -42,55 +49,100 @@ class ConcurrencyShare(
         }
     }
 
-    private val caches = ConcurrentHashMap<String, Deferred<*>>()
-    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob() + scopeErrorHandler)
+    private val caches = ConcurrentHashMap<String, Item<*>>()
 
-    // Notice:
-    // this job will run in a inner scope, so cancel parent job will not cancel this job.
-    // because it may be reused by other coroutines.
+
     suspend fun <T> joinPreviousOrRun(key: String, block: suspend CoroutineScope.() -> T): T {
-        val activeTask = caches[key] as? Deferred<T>
-        activeTask?.let {
-            return it.await()
+
+        while (true) {
+            val activeTask = caches[key] ?: break
+            if (activeTask.task.isCancelled) {
+                yield()
+                continue
+            }
+            val counter = activeTask.counter.get()
+            if (counter < 0) {
+                yield()
+                continue
+            }
+            if (activeTask.counter.compareAndSet(counter, counter + 1)) {
+                return awaitItem(activeTask) as T
+            } else {
+                yield()
+            }
         }
 
-        val keepContext = coroutineContext
+        val contextInfo = coroutineContext.minusKey(Job)
         val newTask = scope.async(start = CoroutineStart.LAZY) {
-            withContext(keepContext) {
+            withContext(contextInfo) {
                 block()
             }
         }
+        val item = Item(newTask)
         newTask.invokeOnCompletion {
-            caches.remove(key, newTask)
+            caches.remove(key, item)
         }
 
-        val otherTask = caches.putIfAbsent(key, newTask) as? Deferred<T>
-        try {
-            return if (otherTask != null) {
-                newTask.cancel()
-                otherTask.await()
+        while (true) {
+            val otherTask = caches.putIfAbsent(key, item)
+            if (otherTask != null) {
+                if (otherTask.task.isCancelled) {
+                    yield()
+                    continue
+                }
+                val counter = otherTask.counter.get()
+                if (counter < 0) {
+                    yield()
+                } else if (otherTask.counter.compareAndSet(counter, counter + 1)) {
+                    newTask.cancel()
+                    return awaitItem(otherTask) as T
+                } else {
+                    yield()
+                }
             } else {
-                newTask.await()
+                return awaitItem(item)
             }
-        } catch (e: Throwable) {
-            if (e is CancellationException) {
-                newTask.onAwait
-            }
-            throw e
         }
     }
 
-    suspend fun <T> cancelPreviousThenRun(key: String, block: suspend CoroutineScope.() -> T): T = supervisorScope {
-        val newTask = async(start = CoroutineStart.LAZY, block = block)
-        newTask.invokeOnCompletion {
-            caches.remove(key, newTask)
+    private suspend fun <T> awaitItem(item: Item<T>): T {
+        try {
+            return item.task.await()
+        } finally {
+            val count = item.counter.decrementAndGet()
+            if (count == 0 && item.task.isActive) {
+                scope.launch {
+                    delay(timeoutByCancellation)
+                    if (item.counter.compareAndSet(0, -1) && item.task.isActive) {
+                        item.task.cancel()
+                    }
+                }
+            }
         }
-        val oldTask = caches.put(key, newTask) as? Deferred<T>
-        oldTask?.cancelAndJoin()
-        newTask.await()
+    }
+
+    suspend fun <T> cancelPreviousThenRun(key: String, block: suspend CoroutineScope.() -> T): T {
+        val contextInfo = coroutineContext.minusKey(Job)
+        val newTask = scope.async(start = CoroutineStart.LAZY) {
+            withContext(contextInfo) {
+                block()
+            }
+        }
+        val item = Item(newTask)
+        newTask.invokeOnCompletion {
+            caches.remove(key, item)
+        }
+        val oldTask = caches.put(key, item)
+        oldTask?.task?.cancelAndJoin()
+        return awaitItem(item)
     }
 
     fun destroy() {
         scope.cancel()
     }
+
+    private class Item<T>(
+        val task: Deferred<T>,
+        val counter: AtomicInteger = AtomicInteger(1)
+    )
 }
