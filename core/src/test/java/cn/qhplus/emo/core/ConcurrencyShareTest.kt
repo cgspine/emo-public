@@ -35,7 +35,7 @@ class ConcurrencyShareTest {
     fun joinPreviousOrRunTest() = runTest {
         val key = "key"
         val testContext = CoroutineScope(SupervisorJob() + TestContext())
-        val concurrencyShare = ConcurrencyShare(this)
+        val concurrencyShare = ConcurrencyShare(scope = this)
         launch {
             withContext(testContext.coroutineContext) {
                 val a = concurrencyShare.joinPreviousOrRun(key) {
@@ -60,7 +60,7 @@ class ConcurrencyShareTest {
     @Test
     fun cancelPreviousThenRunTest() = runTest {
         val key = "key"
-        val concurrencyShare = ConcurrencyShare(this)
+        val concurrencyShare = ConcurrencyShare(scope = this)
         val a = launch {
             val ret = concurrencyShare.cancelPreviousThenRun(key) {
                 delay(300)
@@ -91,7 +91,7 @@ class ConcurrencyShareTest {
     @Test
     fun joinPreviousOrRunCancelTest() = runTest {
         val key = "key"
-        val concurrencyShare = ConcurrencyShare(this)
+        val concurrencyShare = ConcurrencyShare(scope = this)
         val a = launch() {
             val a = concurrencyShare.joinPreviousOrRun(key) {
                 delay(1000)
@@ -121,7 +121,7 @@ class ConcurrencyShareTest {
     @Test
     fun joinPreviousOrRunOnlyOneCancelTest() = runTest{
         val key = "key"
-        val concurrencyShare = ConcurrencyShare(this)
+        val concurrencyShare = ConcurrencyShare(scope = this)
         val a = launch {
             val ret = concurrencyShare.joinPreviousOrRun(key) {
                 Assert.assertTrue(true)

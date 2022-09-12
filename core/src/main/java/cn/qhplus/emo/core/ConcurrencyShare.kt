@@ -40,7 +40,8 @@ private val defaultCoroutineExceptionHandler = CoroutineExceptionHandler { _, th
 
 
 class ConcurrencyShare(
-    private val timeoutByCancellation: Long = 10 * 1000,
+    private val successResultKeepTime: Long = 5 * 1000,
+    private val timeoutByCancellation: Long = 300,
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob() + defaultCoroutineExceptionHandler)
 ) {
     companion object {
@@ -51,15 +52,18 @@ class ConcurrencyShare(
 
     private val caches = ConcurrentHashMap<String, Item<*>>()
 
-
     suspend fun <T> joinPreviousOrRun(key: String, block: suspend CoroutineScope.() -> T): T {
-
         while (true) {
             val activeTask = caches[key] ?: break
             if (activeTask.task.isCancelled) {
                 yield()
                 continue
             }
+
+            if(activeTask.task.isCompleted){
+                return activeTask.task.getCompleted() as T
+            }
+
             val counter = activeTask.counter.get()
             if (counter < 0) {
                 yield()
@@ -79,9 +83,7 @@ class ConcurrencyShare(
             }
         }
         val item = Item(newTask)
-        newTask.invokeOnCompletion {
-            caches.remove(key, item)
-        }
+        invokeWhenCompletion(key, item)
 
         while (true) {
             val otherTask = caches.putIfAbsent(key, item)
@@ -90,6 +92,11 @@ class ConcurrencyShare(
                     yield()
                     continue
                 }
+
+                if(otherTask.task.isCompleted){
+                    return otherTask.task.getCompleted() as T
+                }
+
                 val counter = otherTask.counter.get()
                 if (counter < 0) {
                     yield()
@@ -103,6 +110,24 @@ class ConcurrencyShare(
                 return awaitItem(item)
             }
         }
+    }
+
+    suspend fun <T> cancelPreviousThenRun(key: String, block: suspend CoroutineScope.() -> T): T {
+        val contextInfo = coroutineContext.minusKey(Job)
+        val newTask = scope.async(start = CoroutineStart.LAZY) {
+            withContext(contextInfo) {
+                block()
+            }
+        }
+        val item = Item(newTask)
+        invokeWhenCompletion(key, item)
+        val oldTask = caches.put(key, item)
+        oldTask?.task?.cancelAndJoin()
+        return awaitItem(item)
+    }
+
+    fun destroy() {
+        scope.cancel()
     }
 
     private suspend fun <T> awaitItem(item: Item<T>): T {
@@ -121,24 +146,17 @@ class ConcurrencyShare(
         }
     }
 
-    suspend fun <T> cancelPreviousThenRun(key: String, block: suspend CoroutineScope.() -> T): T {
-        val contextInfo = coroutineContext.minusKey(Job)
-        val newTask = scope.async(start = CoroutineStart.LAZY) {
-            withContext(contextInfo) {
-                block()
+    private fun invokeWhenCompletion(key: String, item: Item<*>){
+        item.task.invokeOnCompletion {
+            if(it != null){
+                caches.remove(key, item)
+            }else{
+                scope.launch {
+                    delay(successResultKeepTime)
+                    caches.remove(key, item)
+                }
             }
         }
-        val item = Item(newTask)
-        newTask.invokeOnCompletion {
-            caches.remove(key, item)
-        }
-        val oldTask = caches.put(key, item)
-        oldTask?.task?.cancelAndJoin()
-        return awaitItem(item)
-    }
-
-    fun destroy() {
-        scope.cancel()
     }
 
     private class Item<T>(
