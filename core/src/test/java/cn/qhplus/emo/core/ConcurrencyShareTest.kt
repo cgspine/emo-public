@@ -119,7 +119,7 @@ class ConcurrencyShareTest {
      *  Only one task A. cancellation of A should cancel inner task.
      */
     @Test
-    fun joinPreviousOrRunOnlyOneCancelTest() = runTest{
+    fun joinPreviousOrRunOnlyOneCancelTest() = runTest {
         val key = "key"
         val concurrencyShare = ConcurrencyShare(scope = this)
         val a = launch {

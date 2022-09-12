@@ -38,7 +38,6 @@ private val defaultCoroutineExceptionHandler = CoroutineExceptionHandler { _, th
     EmoLog.e("ConcurrencyShare", "scope error.", throwable)
 }
 
-
 class ConcurrencyShare(
     private val successResultKeepTime: Long = 5 * 1000,
     private val timeoutByCancellation: Long = 300,
@@ -60,7 +59,7 @@ class ConcurrencyShare(
                 continue
             }
 
-            if(activeTask.task.isCompleted){
+            if (activeTask.task.isCompleted) {
                 return activeTask.task.getCompleted() as T
             }
 
@@ -93,7 +92,7 @@ class ConcurrencyShare(
                     continue
                 }
 
-                if(otherTask.task.isCompleted){
+                if (otherTask.task.isCompleted) {
                     return otherTask.task.getCompleted() as T
                 }
 
@@ -146,11 +145,11 @@ class ConcurrencyShare(
         }
     }
 
-    private fun invokeWhenCompletion(key: String, item: Item<*>){
+    private fun invokeWhenCompletion(key: String, item: Item<*>) {
         item.task.invokeOnCompletion {
-            if(it != null){
+            if (it != null) {
                 caches.remove(key, item)
-            }else{
+            } else {
                 scope.launch {
                     delay(successResultKeepTime)
                     caches.remove(key, item)
