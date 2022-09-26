@@ -20,8 +20,19 @@ This repository contains series of libraries for android developers:
 
 <table>
  <tr>
-  <td>Compose UI 1.2.x</td>
-  <td> ui-core 0.0.1  |  photo 0.0.2  |  modal 0.0.1</td>
+  <td>emo library version</td>
+  <td>Compose Version</td>
+  <td>Compose Compiler Version</td>
+ </tr>
+ <tr>
+  <td> 0.0.x </td>
+  <td> 1.2.x </td>
+  <td> - </td>
+ </tr>
+ <tr>
+  <td> 0.1.x </td>
+  <td> 1.3.0-beta03 </td>
+  <td> 1.3.1 </td>
  </tr>
 </table>
 

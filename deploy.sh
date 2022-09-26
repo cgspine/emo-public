@@ -5,33 +5,52 @@
 #./deploy.sh fs publishToMavenLocal
 #./deploy.sh modal publishToMavenLocal
 #./deploy.sh photo publishToMavenLocal
+#./deploy.sh network publishToMavenLocal
+#./deploy.sh all publishToMavenLocal
 
 #./deploy.sh core publish
 #./deploy.sh ui-core publish
 #./deploy.sh fs publish
 #./deploy.sh modal publish
 #./deploy.sh photo publish
+#./deploy.sh network publish
+#./deploy.sh all publish
+
+buildCore="./gradlew :core:clean :core:build core:$2"
+buildUiCore="./gradlew :ui-core:clean :ui-core:build :ui-core:$2"
+buildFs="./gradlew :fs:clean :fs:build :fs:$2"
+buildModal="./gradlew :modal:clean :modal:build :modal:$2"
+buildPhoto="./gradlew :photo:clean :photo:build :photo:$2"
+buildPhotoCoil="./gradlew :photo-coil:clean :photo-coil:build :photo-coil:$2"
+buildNetwork="./gradlew :network:clean :network:build :network:$2"
+
 
 if [[ "core" == "$1" ]]
 then
-    buildCmd="./gradlew :core:clean :core:build core:$2"
-    $buildCmd
+    $buildCore
 elif [[ "ui-core" == "$1" ]]
 then
-    buildCmd="./gradlew :ui-core:clean :ui-core:build :ui-core:$2"
-    $buildCmd
+    $buildUiCore
 elif [[ "fs" == "$1" ]]
 then
-    buildCmd="./gradlew :fs:clean :fs:build :fs:$2"
-    $buildCmd
+    $buildFs
 elif [[ "modal" == "$1" ]]
 then
-    buildCmd="./gradlew :modal:clean :modal:build :modal:$2"
-    $buildCmd
+    $buildModal
+elif [[ "network" == "$1" ]]
+then
+    $buildNetwork
 elif [[ "photo" == "$1" ]]
 then
-    buildCmd="./gradlew :photo:clean :photo:build :photo:$2"
-    $buildCmd
-    buildCmd="./gradlew :photo-coil:clean :photo-coil:build :photo-coil:$2"
-    $buildCmd
+    $buildPhoto
+    $buildPhotoCoil
+elif [[ "all" == "$1" ]]
+then
+    $buildCore
+    $buildUiCore
+    $buildFs
+    $buildNetwork
+    $buildModal
+    $buildPhoto
+    $buildPhotoCoil
 fi

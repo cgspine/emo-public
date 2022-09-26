@@ -63,7 +63,9 @@ class PublishConventionPlugin: Plugin<Project> {
                         create<MavenPublication>("release") {
 
                             project.configure<SigningExtension> {
-                                sign(this@create)
+                                sign(this@create).onEach {
+                                    it.notCompatibleWithConfigurationCache("https://github.com/gradle/gradle/issues/13470")
+                                }
                             }
 
                             if (isAndroid) {

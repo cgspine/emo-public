@@ -24,7 +24,6 @@ import cn.qhplus.emo.core.LogTag
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -100,10 +99,10 @@ class NetworkBandwidthSampler private constructor(
                     val rx = TrafficStats.getUidRxBytes(applicationContext.applicationInfo.uid)
                     val tx = TrafficStats.getUidTxBytes(applicationContext.applicationInfo.uid)
                     val curTimeReading = SystemClock.elapsedRealtime()
-                    if(historyRxBytes < 0){
+                    if (historyRxBytes < 0) {
                         historyRxBytes = rx
                         historyTxBytes = tx
-                    }else{
+                    } else {
                         _streamTotalFlow.value = NetworkStreamTotal(sampleId, rx - historyRxBytes, tx - historyTxBytes, curTimeReading)
                     }
 
@@ -115,13 +114,12 @@ class NetworkBandwidthSampler private constructor(
                         recordBandwidth(upStreamBandwidth, txDiff, timeDiff)
                         val down = downStreamBandwidth.getAverage()
                         val up = upStreamBandwidth.getAverage()
-                        if(down >= 0 || up >= 0){
+                        if (down >= 0 || up >= 0) {
                             _bandwidthFlow.value = NetworkBandwidth(
                                 down.coerceAtLeast(0.0),
                                 up.coerceAtLeast(0.0)
                             )
                         }
-
                     }
                     lastReadingTime = curTimeReading
                     previousRxBytes = rx

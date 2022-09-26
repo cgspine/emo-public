@@ -227,17 +227,17 @@ open class PhotoPickerActivity : ComponentActivity() {
                 }
 
                 composable(
-                        "${Route.PREVIEW}/{bucketId}/{currentId}",
-                        arguments = listOf(navArgument("currentId") { type = NavType.LongType }),
-                        enterTransition = { fadeIn(tween()) },
-                        exitTransition = { fadeOut(tween()) + scaleOut(targetScale = 0.8f) },
-                        popEnterTransition = { fadeIn(tween()) + scaleIn(initialScale = 0.8f) },
-                        popExitTransition = { fadeOut(tween()) }
-                    ) { backStack ->
-                        val bucketId = backStack.arguments?.getString("bucketId") ?: MediaPhotoBucketAllId
-                        val currentId = backStack.arguments?.getLong("currentId") ?: -1
-                        PickerPreview(navController, viewModel, bucketId, currentId)
-                    }
+                    "${Route.PREVIEW}/{bucketId}/{currentId}",
+                    arguments = listOf(navArgument("currentId") { type = NavType.LongType }),
+                    enterTransition = { fadeIn(tween()) },
+                    exitTransition = { fadeOut(tween()) + scaleOut(targetScale = 0.8f) },
+                    popEnterTransition = { fadeIn(tween()) + scaleIn(initialScale = 0.8f) },
+                    popExitTransition = { fadeOut(tween()) }
+                ) { backStack ->
+                    val bucketId = backStack.arguments?.getString("bucketId") ?: MediaPhotoBucketAllId
+                    val currentId = backStack.arguments?.getLong("currentId") ?: -1
+                    PickerPreview(navController, viewModel, bucketId, currentId)
+                }
 
                 composable(
                     "${Route.EDIT}/{id}",

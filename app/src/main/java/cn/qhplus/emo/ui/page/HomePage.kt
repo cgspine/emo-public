@@ -18,8 +18,10 @@ package cn.qhplus.emo.ui.page
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumedWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsIgnoringVisibility
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Grid3x3
@@ -92,6 +94,7 @@ fun HomePage(navController: NavHostController, tab: String) {
         modifier = Modifier.fillMaxSize(),
         containerColor = Color.Transparent,
         contentColor = MaterialTheme.colorScheme.onBackground,
+        contentWindowInsets = WindowInsets.navigationBarsIgnoringVisibility,
         bottomBar = {
             NavigationBar(
                 modifier = Modifier

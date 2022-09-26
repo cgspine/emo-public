@@ -51,6 +51,7 @@ class ConcurrencyShare(
 
     private val caches = ConcurrentHashMap<String, Item<*>>()
 
+    @Suppress("UNCHECKED_CAST")
     suspend fun <T> joinPreviousOrRun(key: String, block: suspend CoroutineScope.() -> T): T {
         while (true) {
             val activeTask = caches[key] ?: break

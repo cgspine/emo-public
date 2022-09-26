@@ -31,7 +31,6 @@ dependencies {
     implementation(libs.spotless.gradlePlugin)
 }
 
-
 gradlePlugin {
     plugins {
         register("androidApplicationCompose") {

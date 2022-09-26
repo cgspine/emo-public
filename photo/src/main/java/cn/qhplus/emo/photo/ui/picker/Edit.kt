@@ -75,8 +75,6 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.consumeDownChange
-import androidx.compose.ui.input.pointer.consumePositionChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.layout.ContentScale
@@ -792,7 +790,7 @@ private fun PhotoPaintCanvas(
                         awaitPointerEventScope {
                             val down = awaitFirstDown(requireUnconsumed = true)
 
-                            if (down.pressed != down.previousPressed){
+                            if (down.pressed != down.previousPressed) {
                                 down.consume()
                             }
                             currentLayer.path.moveTo(
@@ -804,7 +802,7 @@ private fun PhotoPaintCanvas(
                                 val event = awaitPointerEvent()
                                 val change = event.changes.find { it.id.value == down.id.value }
                                 if (change != null) {
-                                    if(change.positionChange() != Offset.Zero){
+                                    if (change.positionChange() != Offset.Zero) {
                                         change.consume()
                                     }
                                     currentLayer.path.lineTo(
