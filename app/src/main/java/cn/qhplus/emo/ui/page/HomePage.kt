@@ -168,6 +168,12 @@ fun ComponentPage(navController: NavHostController) {
                 navController.navigate(RouteConst.ROUTE_PHOTO)
             }
         }
+
+        item {
+            CommonItem("Permission") {
+                navController.navigate(RouteConst.ROUTE_PERMISSION)
+            }
+        }
     }
 }
 

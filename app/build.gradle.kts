@@ -82,6 +82,7 @@ dependencies {
     implementation(project(":photo-coil"))
     implementation(project(":modal"))
     implementation(project(":network"))
+    implementation(project(":permission"))
 
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.appcompat)

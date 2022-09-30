@@ -21,6 +21,7 @@ include(":network")
 include(":modal")
 include(":photo")
 include(":photo-coil")
+include(":permission")
 include(":app")
 
 

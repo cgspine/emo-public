@@ -6,6 +6,7 @@
 #./deploy.sh modal publishToMavenLocal
 #./deploy.sh photo publishToMavenLocal
 #./deploy.sh network publishToMavenLocal
+#./deploy.sh permission publishToMavenLocal
 #./deploy.sh all publishToMavenLocal
 
 #./deploy.sh core publish
@@ -14,6 +15,7 @@
 #./deploy.sh modal publish
 #./deploy.sh photo publish
 #./deploy.sh network publish
+#./deploy.sh permission publish
 #./deploy.sh all publish
 
 buildCore="./gradlew :core:clean :core:build core:$2"
@@ -23,6 +25,7 @@ buildModal="./gradlew :modal:clean :modal:build :modal:$2"
 buildPhoto="./gradlew :photo:clean :photo:build :photo:$2"
 buildPhotoCoil="./gradlew :photo-coil:clean :photo-coil:build :photo-coil:$2"
 buildNetwork="./gradlew :network:clean :network:build :network:$2"
+buildPermission="./gradlew :permission:clean :permission:build :permission:$2"
 
 
 if [[ "core" == "$1" ]]
@@ -40,6 +43,9 @@ then
 elif [[ "network" == "$1" ]]
 then
     $buildNetwork
+elif [[ "permission" == "$1" ]]
+then
+    $buildPermission
 elif [[ "photo" == "$1" ]]
 then
     $buildPhoto
@@ -50,6 +56,7 @@ then
     $buildUiCore
     $buildFs
     $buildNetwork
+    $buildPermission
     $buildModal
     $buildPhoto
     $buildPhotoCoil

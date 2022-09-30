@@ -13,20 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+plugins {
+    id("emo.android.library")
+    id("emo.android.library.compose")
+    id("emo.spotless")
+    id("emo.publish")
+}
 
-package cn.qhplus.emo.ui
+version = libs.versions.emoPermission.get()
 
-object RouteConst {
-    const val ROUTE_HOME = "home"
-    const val ROUTE_HOME_COMPONENT = "component"
-    const val ROUTE_HOME_HELPER = "helper"
-    const val ROUTE_MODAL = "modal"
-    const val ROUTE_ABOUT = "about"
-    const val ROUTE_PHOTO = "photo"
-    const val ROUTE_PERMISSION = "permission"
-    const val ROUTE_PHOTO_VIEWER = "photoViewer"
-    const val ROUTE_PHOTO_PICKER = "photoPicker"
-    const val ROUTE_PHOTO_CLIPPER = "photoClipper"
-
-    const val PARAM_TAB = "tab"
+android {
+    buildTypes {
+        getByName("release") {
+            isMinifyEnabled = false
+            proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
+        }
+    }
+}
+dependencies {
+    implementation(libs.androidx.core.ktx)
+    api(libs.accompanist.permissions)
+    api(project(":modal"))
 }

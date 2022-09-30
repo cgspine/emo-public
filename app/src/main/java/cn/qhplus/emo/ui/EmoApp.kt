@@ -68,6 +68,7 @@ import cn.qhplus.emo.ui.core.modifier.throttleClick
 import cn.qhplus.emo.ui.page.AboutPage
 import cn.qhplus.emo.ui.page.HomePage
 import cn.qhplus.emo.ui.page.ModalPage
+import cn.qhplus.emo.ui.page.PermissionPage
 import cn.qhplus.emo.ui.page.PhotoClipperPage
 import cn.qhplus.emo.ui.page.PhotoPage
 import cn.qhplus.emo.ui.page.PhotoPickerPage
@@ -113,6 +114,12 @@ fun EmoApp(windowSizeClass: WindowSizeClass) {
                     RouteConst.ROUTE_ABOUT
                 ) {
                     AboutPage(navController)
+                }
+
+                slideComposable(
+                    RouteConst.ROUTE_PERMISSION
+                ) {
+                    PermissionPage(navController)
                 }
 
                 slideComposable(

@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package cn.qhplus.emo.ui
+package cn.qhplus.emo.permission
 
-object RouteConst {
-    const val ROUTE_HOME = "home"
-    const val ROUTE_HOME_COMPONENT = "component"
-    const val ROUTE_HOME_HELPER = "helper"
-    const val ROUTE_MODAL = "modal"
-    const val ROUTE_ABOUT = "about"
-    const val ROUTE_PHOTO = "photo"
-    const val ROUTE_PERMISSION = "permission"
-    const val ROUTE_PHOTO_VIEWER = "photoViewer"
-    const val ROUTE_PHOTO_PICKER = "photoPicker"
-    const val ROUTE_PHOTO_CLIPPER = "photoClipper"
+import org.junit.Assert.assertEquals
+import org.junit.Test
 
-    const val PARAM_TAB = "tab"
+/**
+ * Example local unit test, which will execute on the development machine (host).
+ *
+ * See [testing documentation](http://d.android.cn/tools/testing).
+ */
+class ExampleUnitTest {
+    @Test
+    fun addition_isCorrect() {
+        assertEquals(4, 2 + 2)
+    }
 }
