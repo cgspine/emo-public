@@ -7,6 +7,8 @@ This repository contains series of libraries for android developers:
 - ui-core: Contain some basic components such as TopBar, Loading, ... and some util methods.
 - photo: To view/pick/clip pictures with Jetpack Compose.
 - modal: A new way to implement Dialog，Toast, BottomSheet, ... with Jetpack Compose.
+- permission: Request permission with tip.
+- network: Get network state and Trace network traffic.
 - more libraries are on the way.
 
 # design principles
@@ -40,11 +42,15 @@ This repository contains series of libraries for android developers:
 
 ```kts
 // ui-core
-implementation("cn.qhplus.emo:ui-core:0.0.1")
+implementation("cn.qhplus.emo:ui-core:0.1.0")
 // photo
-implementation("cn.qhplus.emo:photo-coil:0.0.2")
+implementation("cn.qhplus.emo:photo-coil:0.1.0")
 // modal
-implementation("cn.qhplus.emo:modal:0.0.1")
+implementation("cn.qhplus.emo:modal:0.1.0")
+// permission
+implementation("cn.qhplus.emo:permission:0.1.0")
+// network
+implementation("cn.qhplus.emo:network:0.1.0")
 ```
 
 # Demo apk
