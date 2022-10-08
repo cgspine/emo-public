@@ -1,3 +1,19 @@
+/*
+ * Copyright 2022 emo Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package cn.qhplus.emo.core
 
 import kotlinx.coroutines.CoroutineScope
@@ -36,12 +52,12 @@ class EmoBus {
 
     init {
         scope.launch {
-            while (true){
+            while (true) {
                 delay(10 * 60 * 1000)
                 // clear empty values.
                 weakFlowMap.forEach {
                     val value = it.value
-                    if(value.get() == null){
+                    if (value.get() == null) {
                         weakFlowMap.remove(it.key, value)
                     }
                 }
@@ -101,14 +117,13 @@ class EmoBus {
                         if (weakFlowMap.replace(cls, weakReference, ref)) {
                             return new.asSharedFlow()
                         }
-                    }else{
+                    } else {
                         return (flow as MutableSharedFlow<T>).asSharedFlow()
                     }
                 }
             }
         }
     }
-
 
     private fun <T : Any> createFlow(
         prop: EmoEventProp?
@@ -124,7 +139,7 @@ class EmoBus {
         val prop = cls.getAnnotation(EmoEventProp::class.java)
         if (prop != null && (prop.sticky || prop.keepChannelAlive)) {
             strongFlowMap.remove(cls)
-        }else{
+        } else {
             weakFlowMap.remove(cls)
         }
     }
