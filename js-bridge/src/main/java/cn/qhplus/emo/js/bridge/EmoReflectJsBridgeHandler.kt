@@ -20,8 +20,10 @@ import kotlinx.coroutines.CoroutineScope
 
 class EmoReflectJsBridgeHandler(
     scope: CoroutineScope,
-    private val obj: Any
-) : EmoJsBridgeHandler(scope) {
+    private val obj: Any,
+    bridgePropName: String = DEFAULT_BRIDGE_PROP_NAME,
+    readyEventName: String = DEFAULT_READY_EVENT_NAME
+) : EmoJsBridgeHandler(scope, bridgePropName, readyEventName) {
     override fun getSupportedCmdList(): List<String> {
         return obj::class.java.declaredMethods.map { it.name }
     }

@@ -42,8 +42,6 @@ private const val MSG_CMD = "cmd"
 
 private const val CMD_GET_SUPPORTED_LIST = "__getSupportedCmdList__"
 private const val CMD_ON_BRIDGE_READY = "__onBridgeReady__"
-private const val DEFAULT_BRIDGE_PROP_NAME = "EmoBridge"
-private const val DEFAULT_READY_EVENT_NAME = "EmoBridgeReady"
 
 private val defaultCoroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
     EmoLog.e("EmoJsBridgeHandler", "scope error.", throwable)
@@ -261,6 +259,9 @@ abstract class EmoJsBridgeHandler(
     }
 
     companion object {
+        const val DEFAULT_BRIDGE_PROP_NAME = "EmoBridge"
+        const val DEFAULT_READY_EVENT_NAME = "EmoBridgeReady"
+
         fun unescape(value: String?): String? {
             if (value == null || value.isEmpty()) {
                 return null
