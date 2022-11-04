@@ -174,6 +174,12 @@ fun ComponentPage(navController: NavHostController) {
                 navController.navigate(RouteConst.ROUTE_PERMISSION)
             }
         }
+
+        item {
+            CommonItem("JS Bridge") {
+                navController.navigate(RouteConst.ROUTE_JS_BRIDGE)
+            }
+        }
     }
 }
 

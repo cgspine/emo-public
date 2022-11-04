@@ -1,5 +1,5 @@
 [versions]
-accompanist = "0.26.5-rc"
+accompanist = "0.27.0"
 androidDesugarJdkLibs = "1.1.5"
 androidGradlePlugin = "7.3.0"
 androidxActivity = "1.6.0"
@@ -44,13 +44,14 @@ room = "2.4.2"
 secrets = "2.0.1"
 spotless = "6.8.0"
 turbine = "0.8.0"
-emoCore = "0.1.0"
-emoUiCore = "0.1.0"
-emoFs = "0.1.0"
-emoModal = "0.1.0"
-emoPhoto = "0.1.0"
-emoNetwork = "0.1.0"
-emoPermission = "0.1.0"
+emoCore = "0.2.0"
+emoUiCore = "0.2.0"
+emoFs = "0.2.0"
+emoModal = "0.2.0"
+emoPhoto = "0.2.0"
+emoNetwork = "0.2.0"
+emoPermission = "0.2.0"
+emoJsBridge = "0.2.0"
 
 [libraries]
 accompanist-flowlayout = { group = "com.google.accompanist", name = "accompanist-flowlayout", version.ref = "accompanist" }

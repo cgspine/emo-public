@@ -83,6 +83,7 @@ dependencies {
     implementation(project(":modal"))
     implementation(project(":network"))
     implementation(project(":permission"))
+    implementation(project(":js-bridge"))
 
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.appcompat)

@@ -27,6 +27,7 @@ object RouteConst {
     const val ROUTE_PHOTO_VIEWER = "photoViewer"
     const val ROUTE_PHOTO_PICKER = "photoPicker"
     const val ROUTE_PHOTO_CLIPPER = "photoClipper"
+    const val ROUTE_JS_BRIDGE = "jsBridge"
 
     const val PARAM_TAB = "tab"
 }

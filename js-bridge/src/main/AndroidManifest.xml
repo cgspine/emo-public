@@ -15,6 +15,6 @@
      limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="cn.qhplus.emo.template">
+    package="cn.qhplus.emo.js.bridge">
 
 </manifest>

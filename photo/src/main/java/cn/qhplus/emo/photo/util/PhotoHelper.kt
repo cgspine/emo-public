@@ -25,6 +25,7 @@ import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
+import cn.qhplus.emo.core.EmoLog
 import cn.qhplus.emo.core.LogTag
 import cn.qhplus.emo.fs.ShareFiles
 import java.io.File
@@ -102,7 +103,7 @@ object PhotoHelper : LogTag {
             }
             return uri
         } catch (e: Throwable) {
-            Log.i(TAG, "saveToStore failed.", e)
+            EmoLog.e(TAG, "saveToStore failed.", e)
             if (uri != null) {
                 context.contentResolver.delete(uri, null, null)
             }

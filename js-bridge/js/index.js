@@ -1,5 +1,7 @@
 
-var QUEUE_HAS_MSG = "emo://__QUEUE_MSG__/"
+var QUEUE_MSG = "emo://__QUEUE_MSG__/"
+var CMD_GET_SUPPORTED_LIST = "__getSupportedCmdList__"
+var CMD_ON_BRIDGE_READY = "__onBridgeReady__"
  
 function createIframe(doc) {
     var iframe = doc.createElement('iframe');
@@ -13,41 +15,57 @@ function createBridge(doc){
     var messagingIframe = createIframe(doc)
     var responseHoldings = {}
     var uuid = 1
+    var sendingMessageQueue = []
 
-    function nextCallbackId(){
+    function nextResponseId(){
         return `cb_${uuid++}`
     }
 
-    function send(data, callback, timeout, timeoutCallback) {
-        if(!data){
-            throw new Error("message == null")
+    function send(opts) {
+        if(!opts.cmd) {
+            opts.onFailed && opts.onFailed("cmd is undefined.")
+            return
         }
-        var message = {
-            data: data
-        }
-        if(callback){
-            var callbackId = nextCallbackId()
-            var holding  = { 
-                callback: callback
-            };
-            responseHoldings[callbackId] = holding
-            message.callbackId = callbackId;
-            if(typeof timeout === 'number' && timeout > 0){
-                holding.timeoutId = setTimeout(function(){
-                    delete responseHoldings[callbackId]
-                    if(typeof timeoutCallback === 'function'){
-                        timeoutCallback()
-                    }
-                }, timeout);
+
+        isCmdSupport(opts.cmd, function(supported) {
+            if(!supported) {
+                opts.onFailed && opts.onFailed("cmd is not supported.")
+                return
             }
-        }
-        sendingMessageQueue.push(message)
-        messagingIframe.src = QUEUE_HAS_MSG
+            var message = {
+                cmd: opts.cmd,
+                data: opts.data,
+            }
+            if(typeof opts.onResponse === "function"){
+                var responseId = nextResponseId()
+                var holding  = { 
+                    onResponse: opts.onResponse,
+                    onFailed: opts.onFailed
+                }
+                var onTimeout = opts.onTimeout
+                responseHoldings[responseId] = holding
+                message.responseId = responseId;
+                if(typeof opts.timeout === 'number' && opts.timeout > 0){
+                    holding.timeoutId = setTimeout(function(){
+                        delete responseHoldings[responseId]
+                        if(typeof onTimeout === 'function'){
+                            onTimeout()
+                        }
+                    }, opts.timeout);
+                }
+            }
+            sendingMessageQueue.push(message)
+            messagingIframe.src = QUEUE_MSG
+        })
     }
 
     function isCmdSupport(cmd, callback){
+        if(cmd == CMD_GET_SUPPORTED_LIST || cmd == CMD_ON_BRIDGE_READY){
+            callback(true)
+            return
+        }
         getSupportedCmdList(function(data){
-            callback(data.indexOf(cmd))
+            callback(data.indexOf(cmd) >= 0)
         })
     }
 
@@ -57,9 +75,12 @@ function createBridge(doc){
             callback(getSupportedCmdList.__cache)
             return
         }
-        send({__cmd__: "getSupportedCmdList"}, function(data){
-            getSupportedCmdList.__cache = data
-            callback(data)
+        send({
+            cmd: CMD_GET_SUPPORTED_LIST,
+            onResponse: function(data){
+                getSupportedCmdList.__cache = data
+                callback(data)
+            }
         })
     }
 
@@ -70,30 +91,36 @@ function createBridge(doc){
     }
 
     function _handleResponseFromNative(response){
-        if(response && response.callbackId){
-            var holding = responseHoldings[response.callbackId]
+        if(response && response.responseId){
+            var holding = responseHoldings[response.responseId]
             if(holding){
                 holding.timeoutId && clearTimeout(holding.timeoutId)
-                holding.callback(response.data)
-                delete responseHoldings[response.callbackId]
+                if(response.error){
+                    holding.onFailed && holding.onFailed(response.error)
+                }else{
+                    holding.onResponse(response.data)
+                }
+                delete responseHoldings[response.responseId]
             }
         }
     }
     
 
-    var bridge = {
+    return {
         send: send,
         isCmdSupport: isCmdSupport,
         getSupportedCmdList: getSupportedCmdList,
         _fetchQueueFromNative: _fetchQueueFromNative,
         _handleResponseFromNative: _handleResponseFromNative
     }
-
-    var readyEvent = new Event('EmoBridgeReady')
-    readyEvent.bridge = bridge
-    doc.dispatchEvent(readyEvent)
-    return bridge
  }
  
-
-window.EmoBridge || (window.EmoBridge = createBridge(document))
+if(!window.EmoBridge){
+    var bridge = window.EmoBridge = createBridge(document)
+    bridge.send({
+        cmd: CMD_ON_BRIDGE_READY
+    })
+    var readyEvent = new Event('EmoBridgeReady')
+    readyEvent.bridge = bridge
+    document.dispatchEvent(readyEvent)
+}
