@@ -17,6 +17,7 @@
 package cn.qhplus.emo.js.bridge
 
 import kotlinx.coroutines.CoroutineScope
+import java.lang.reflect.Method
 
 class EmoReflectJsBridgeHandler(
     scope: CoroutineScope,
@@ -24,34 +25,30 @@ class EmoReflectJsBridgeHandler(
     bridgePropName: String = DEFAULT_BRIDGE_PROP_NAME,
     readyEventName: String = DEFAULT_READY_EVENT_NAME
 ) : EmoJsBridgeHandler(scope, bridgePropName, readyEventName) {
+
+    private val supportedCmdListCache by lazy {
+        obj::class.java.declaredMethods.map { it.name }
+    }
+    private val methodsCache = mutableMapOf<String, Method>()
+
     override fun getSupportedCmdList(): List<String> {
-        return obj::class.java.declaredMethods.map { it.name }
+        return supportedCmdListCache
     }
 
     override fun handleMessage(cmd: String, dataPicker: JsonDataPicker, callback: ResponseCallback?) {
         try {
-            val method = obj::class.java.getDeclaredMethod(
+            val method = methodsCache[cmd] ?: obj::class.java.getDeclaredMethod(
                 cmd,
                 CoroutineScope::class.java,
                 JsonDataPicker::class.java,
                 ResponseCallback::class.java
-            )
-            method.isAccessible = true
+            ).also {
+                it.isAccessible = true
+                methodsCache[cmd] = it
+            }
             method.invoke(obj, scope, dataPicker, callback)
         } catch (e: Throwable) {
-            if (callback == null) {
-                kotlin.runCatching {
-                    val method = obj::class.java.getDeclaredMethod(
-                        cmd,
-                        CoroutineScope::class.java,
-                        JsonDataPicker::class.java
-                    )
-                    method.isAccessible = true
-                    method.invoke(obj, scope, dataPicker)
-                }
-            } else {
-                callback.failed(e.message ?: "call method failed.")
-            }
+            callback?.failed(e.message ?: "call method failed.")
         }
     }
 }

@@ -17,6 +17,7 @@
 package cn.qhplus.emo.ui
 
 import android.text.format.Formatter
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.EnterTransition
@@ -31,7 +32,9 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsIgnoringVisibility
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -48,12 +51,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDeepLink
@@ -158,14 +163,19 @@ fun EmoApp(windowSizeClass: WindowSizeClass) {
     }
 }
 
+
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun BoxScope.DebugInfo() {
     var expend by remember {
         mutableStateOf(false)
     }
 
+    val defaultBottomMargin = with(LocalDensity.current) {
+        100.dp.toPx()
+    }
     var offsetX by remember { mutableStateOf(0f) }
-    var offsetY by remember { mutableStateOf(0f) }
+    var offsetY by remember { mutableStateOf(-defaultBottomMargin) }
 
     val offsetXDp = with(LocalDensity.current) {
         offsetX.toDp()
@@ -178,10 +188,10 @@ fun BoxScope.DebugInfo() {
     if (expend) {
         Column(
             modifier = Modifier
-                .align(Alignment.TopEnd)
-                .offset(offsetXDp + (-40).dp, offsetYDp + 40.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .background(Color.Red.copy(alpha = 0.5f))
+                .align(Alignment.BottomEnd)
+                .offset(offsetXDp + (-40).dp, offsetYDp + (-40).dp)
+                .shadow(12.dp, RoundedCornerShape(8.dp), true)
+                .background(Color.White)
                 .throttleClick {
                     expend = false
                 }
@@ -194,12 +204,11 @@ fun BoxScope.DebugInfo() {
     } else {
         Box(
             modifier = Modifier
-                .align(Alignment.TopEnd)
-                .align(Alignment.TopEnd)
-                .offset(offsetXDp + (-40).dp, offsetYDp + 40.dp)
+                .align(Alignment.BottomEnd)
+                .offset(offsetXDp + (-40).dp, offsetYDp + (-40).dp)
                 .size(48.dp)
-                .clip(CircleShape)
-                .background(Color.Red.copy(alpha = 0.2f))
+                .shadow(12.dp, CircleShape, true)
+                .background(Color.White)
                 .pointerInput(Unit) {
                     coroutineScope {
                         launch {
@@ -217,8 +226,16 @@ fun BoxScope.DebugInfo() {
                         }
                     }
                 }
-        )
+        ){
+            Text(
+                text = "Monitor",
+                fontSize = 9.sp,
+                color = Color.Black,
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
     }
+
 }
 
 @Composable
@@ -329,13 +346,13 @@ val slideInLeft: AnimatedContentScope<NavBackStackEntry>.() -> EnterTransition b
 @OptIn(ExperimentalAnimationApi::class)
 val slideOutLeft: AnimatedContentScope<NavBackStackEntry>.() -> ExitTransition by lazy {
     {
-        slideOut(tween(durationMillis = 250, delayMillis = 50)) { IntOffset(-it.width, 0) }
+        slideOut(tween(durationMillis = 300, delayMillis = 50)) { IntOffset(-it.width, 0) }
     }
 }
 
 @OptIn(ExperimentalAnimationApi::class)
 val slideOutRight: AnimatedContentScope<NavBackStackEntry>.() -> ExitTransition by lazy {
     {
-        slideOut(tween(durationMillis = 250, delayMillis = 50)) { IntOffset(it.width, 0) }
+        slideOut(tween(durationMillis = 300, delayMillis = 50)) { IntOffset(it.width, 0) }
     }
 }
