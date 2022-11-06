@@ -1,7 +1,7 @@
 
-var QUEUE_MSG = "emo://__QUEUE_MSG__/"
-var CMD_GET_SUPPORTED_LIST = "__getSupportedCmdList__"
-var CMD_ON_BRIDGE_READY = "__onBridgeReady__"
+const QUEUE_MSG = "emo://__QUEUE_MSG__/"
+const CMD_GET_SUPPORTED_LIST = "__getSupportedCmdList__"
+const CMD_ON_BRIDGE_READY = "__onBridgeReady__"
  
 function createIframe(doc) {
     var iframe = doc.createElement('iframe');
@@ -21,65 +21,57 @@ function createBridge(doc){
         return `cb_${uuid++}`
     }
 
-    function send(opts) {
-        var onFailed = opts.onFailed
+    async function send(opts) {
         if(!opts.cmd) {
-            onFailed && onFailed("cmd is undefined.")
-            return
+            throw new Error('cmd is undefined.')
         }
-
-        isCmdSupport(opts.cmd, function(supported) {
-            if(!supported) {
-                onFailed && onFailed("cmd("+ opts.cmd +") is not supported.")
-                return
-            }
+        let supported = await isCmdSupport(opts.cmd)
+        if(!supported){
+            throw new Error(`cmd(${opts.cmd}) is not supported`)
+        }
+        return await new Promise((resolve, reject)=> {
             var message = {
                 cmd: opts.cmd,
                 data: opts.data,
             }
-            if(typeof opts.onResponse === "function"){
-                var responseId = nextResponseId()
-                var holding  = { 
-                    onResponse: opts.onResponse,
-                    onFailed: onFailed
-                }
-                responseHoldings[responseId] = holding
-                message.responseId = responseId;
-                if(typeof opts.timeout === 'number' && opts.timeout > 0){
-                    holding.timeoutId = setTimeout(function(){
-                        delete responseHoldings[responseId]
-                        onFailed && onFailed("cmd("+ opts.cmd +") timed out.")
-                    }, opts.timeout);
-                }
+            var responseId = nextResponseId()
+            var holding  = { 
+                onResponse: data => resolve(data),
+                onFailed: error => reject(new Error(error))
+            }
+            responseHoldings[responseId] = holding
+            message.responseId = responseId;
+            if(typeof opts.timeout === 'number' && opts.timeout > 0){
+                holding.timeoutId = setTimeout(() => {
+                    delete responseHoldings[responseId]
+                    reject(new Error(`cmd(${opts.cmd}) timed out`))
+                }, opts.timeout);
             }
             sendingMessageQueue.push(message)
             messagingIframe.src = QUEUE_MSG
         })
+        
     }
 
-    function isCmdSupport(cmd, callback){
+    async function isCmdSupport(cmd){
         if(cmd == CMD_GET_SUPPORTED_LIST || cmd == CMD_ON_BRIDGE_READY){
-            callback(true)
-            return
+            return true
         }
-        getSupportedCmdList(function(data){
-            callback(data.indexOf(cmd) >= 0)
-        })
+        let list = await getSupportedCmdList()
+        return list.indexOf(cmd) >= 0
     }
 
 
-    function getSupportedCmdList(callback){
+    async function getSupportedCmdList(){
         if(getSupportedCmdList.__cache){
-            callback(getSupportedCmdList.__cache)
-            return
+            return getSupportedCmdList.__cache
         }
-        send({
-            cmd: CMD_GET_SUPPORTED_LIST,
-            onResponse: function(data){
-                getSupportedCmdList.__cache = data
-                callback(data)
-            }
+        
+        let data = await send({
+            cmd: CMD_GET_SUPPORTED_LIST
         })
+        getSupportedCmdList.__cache = data
+        return data
     }
 
     function _fetchQueueFromNative(){

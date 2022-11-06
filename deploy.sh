@@ -7,6 +7,7 @@
 #./deploy.sh photo publishToMavenLocal
 #./deploy.sh network publishToMavenLocal
 #./deploy.sh permission publishToMavenLocal
+#./deploy.sh js-bridge publishToMavenLocal
 #./deploy.sh all publishToMavenLocal
 
 #./deploy.sh core publish
@@ -16,6 +17,7 @@
 #./deploy.sh photo publish
 #./deploy.sh network publish
 #./deploy.sh permission publish
+#./deploy.sh js-bridge publish
 #./deploy.sh all publish
 
 buildCore="./gradlew :core:clean :core:build core:$2"
@@ -26,6 +28,7 @@ buildPhoto="./gradlew :photo:clean :photo:build :photo:$2"
 buildPhotoCoil="./gradlew :photo-coil:clean :photo-coil:build :photo-coil:$2"
 buildNetwork="./gradlew :network:clean :network:build :network:$2"
 buildPermission="./gradlew :permission:clean :permission:build :permission:$2"
+buildJsBridge="./gradlew :js-bridge:clean :js-bridge:build :js-bridge:$2"
 
 
 if [[ "core" == "$1" ]]
@@ -46,6 +49,9 @@ then
 elif [[ "permission" == "$1" ]]
 then
     $buildPermission
+elif [[ "js-bridge" == "$1" ]]
+then
+    $buildJsBridge
 elif [[ "photo" == "$1" ]]
 then
     $buildPhoto
@@ -60,4 +66,5 @@ then
     $buildModal
     $buildPhoto
     $buildPhotoCoil
+    $buildJsBridge
 fi

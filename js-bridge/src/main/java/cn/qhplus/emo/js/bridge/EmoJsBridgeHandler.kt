@@ -53,6 +53,11 @@ abstract class EmoJsBridgeHandler(
     private val readyEventName: String = DEFAULT_READY_EVENT_NAME
 ) : LogTag {
 
+    companion object {
+        const val DEFAULT_BRIDGE_PROP_NAME = "EmoBridge"
+        const val DEFAULT_READY_EVENT_NAME = "EmoBridgeReady"
+    }
+
     private val waitingList = arrayListOf<() -> Unit>()
 
     var isBridgeReady: Boolean = false
@@ -68,10 +73,9 @@ abstract class EmoJsBridgeHandler(
 
     internal fun fetchAndHandleMessageFromJs(webView: WebView) {
         webView.evaluateJavascriptCatching("$bridgePropName.$JS_METHOD_NAME_FETCH_QUEUE()") { value ->
-            val unescaped = unescape(value)
-            if (unescaped != null) {
+            if (value != null) {
                 try {
-                    val array = JSONArray(unescaped)
+                    val array = JSONArray(value)
                     for (i in 0 until array.length()) {
                         val message = array.getJSONObject(i)
                         parseMessage(webView, message)
@@ -255,33 +259,6 @@ abstract class EmoJsBridgeHandler(
 
         fun pickAsDouble(defaultValue: Double = 0.0): Double {
             return json.optDouble(MSG_DATA, defaultValue)
-        }
-    }
-
-    companion object {
-        const val DEFAULT_BRIDGE_PROP_NAME = "EmoBridge"
-        const val DEFAULT_READY_EVENT_NAME = "EmoBridgeReady"
-
-        fun unescape(value: String?): String? {
-            if (value == null || value.isEmpty()) {
-                return null
-            }
-            val ret = value.substring(1, value.length - 1)
-                .replace("\\\\", "\\")
-                .replace("\\\"", "\"")
-            return if ("null" == ret) {
-                null
-            } else ret
-        }
-
-        fun escape(value: String?): String {
-            if (value == null || value.isEmpty()) {
-                return "\"null\""
-            }
-            val ret = value
-                .replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-            return "\"" + ret + "\""
         }
     }
 }

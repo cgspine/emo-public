@@ -51,7 +51,7 @@ emoModal = "0.2.0"
 emoPhoto = "0.2.0"
 emoNetwork = "0.2.0"
 emoPermission = "0.2.0"
-emoJsBridge = "0.2.0"
+emoJsBridge = "0.2.1"
 
 [libraries]
 accompanist-flowlayout = { group = "com.google.accompanist", name = "accompanist-flowlayout", version.ref = "accompanist" }
