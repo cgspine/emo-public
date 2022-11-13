@@ -17,7 +17,6 @@
 package cn.qhplus.emo.photo.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
@@ -87,7 +86,7 @@ private fun PhotoThumbnailItem(
             .let {
                 if (click != null) {
                     it
-                        .throttleClick (interactionSource, null) {
+                        .throttleClick(interactionSource, null) {
                             click.invoke()
                         }
                         .alpha(if (isPressed.value) alphaWhenPressed else 1f)

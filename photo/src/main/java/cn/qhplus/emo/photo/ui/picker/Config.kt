@@ -130,8 +130,7 @@ interface PhotoPickerConfigProvider {
     fun Provide(content: @Composable () -> Unit)
 }
 
-
-class DefaultPhotoPickerConfigProvider: PhotoPickerConfigProvider {
+class DefaultPhotoPickerConfigProvider : PhotoPickerConfigProvider {
 
     @Composable
     override fun Provide(content: @Composable () -> Unit) {
@@ -139,5 +138,4 @@ class DefaultPhotoPickerConfigProvider: PhotoPickerConfigProvider {
             content()
         }
     }
-
 }
