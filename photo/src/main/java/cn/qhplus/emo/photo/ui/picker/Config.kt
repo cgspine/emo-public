@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.sp
 import cn.qhplus.emo.ui.core.TopBarItem
 import kotlinx.coroutines.flow.StateFlow
 
-class PhotoPickerConfig(
+data class PhotoPickerConfig(
     val editable: Boolean = false,
     val primaryColor: Color = Color(0xFF4148E2),
     val commonTextButtonTextColor: Color = Color.White,
@@ -125,9 +125,19 @@ class PhotoPickerConfig(
 val DefaultPhotoPickerConfig by lazy { PhotoPickerConfig() }
 val LocalPhotoPickerConfig = staticCompositionLocalOf { DefaultPhotoPickerConfig }
 
-@Composable
-fun DefaultPhotoPickerConfigProvider(content: @Composable () -> Unit) {
-    CompositionLocalProvider(LocalPhotoPickerConfig provides DefaultPhotoPickerConfig) {
-        content()
+interface PhotoPickerConfigProvider {
+    @Composable
+    fun Provide(content: @Composable () -> Unit)
+}
+
+
+class DefaultPhotoPickerConfigProvider: PhotoPickerConfigProvider {
+
+    @Composable
+    override fun Provide(content: @Composable () -> Unit) {
+        CompositionLocalProvider(LocalPhotoPickerConfig provides DefaultPhotoPickerConfig) {
+            content()
+        }
     }
+
 }

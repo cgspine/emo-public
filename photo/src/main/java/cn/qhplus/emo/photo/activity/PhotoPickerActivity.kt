@@ -35,6 +35,7 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
@@ -50,6 +51,7 @@ import cn.qhplus.emo.photo.data.MediaPhotoBucketAllId
 import cn.qhplus.emo.photo.data.MediaPhotoProviderFactory
 import cn.qhplus.emo.photo.ui.picker.DefaultPhotoPickerConfigProvider
 import cn.qhplus.emo.photo.ui.picker.LocalPhotoPickerConfig
+import cn.qhplus.emo.photo.ui.picker.PhotoPickerConfigProvider
 import cn.qhplus.emo.photo.ui.picker.PhotoPickerEditPage
 import cn.qhplus.emo.photo.ui.picker.PhotoPickerGridPage
 import cn.qhplus.emo.photo.ui.picker.PhotoPickerPreviewPage
@@ -67,6 +69,7 @@ internal const val PHOTO_DEFAULT_PICK_LIMIT_COUNT = 9
 internal const val PHOTO_RESULT_URI_LIST = "emo_photo_result_uri_list"
 internal const val PHOTO_RESULT_ORIGIN_OPEN = "emo_photo_result_origin_open"
 internal const val PHOTO_ENABLE_ORIGIN = "emo_photo_enable_origin"
+internal const val PHOTO_CONFIG_PROVIDER = "emo_photo_config_provider"
 internal const val PHOTO_PICK_LIMIT_COUNT = "emo_photo_pick_limit_count"
 internal const val PHOTO_PICKED_ITEMS = "emo_photo_picked_items"
 internal const val PHOTO_PROVIDER_FACTORY = "emo_photo_provider_factory"
@@ -144,13 +147,15 @@ open class PhotoPickerActivity : ComponentActivity() {
             cls: Class<out PhotoPickerActivity> = PhotoPickerActivity::class.java,
             pickedItems: ArrayList<Uri> = arrayListOf(),
             pickLimitCount: Int = PHOTO_DEFAULT_PICK_LIMIT_COUNT,
-            enableOrigin: Boolean = true
+            enableOrigin: Boolean = true,
+            configProviderCls: Class<out PhotoPickerConfigProvider> = DefaultPhotoPickerConfigProvider::class.java
         ): Intent {
             val intent = Intent(context, cls)
             intent.putExtra(PHOTO_PICK_LIMIT_COUNT, pickLimitCount)
             intent.putParcelableArrayListExtra(PHOTO_PICKED_ITEMS, pickedItems)
             intent.putExtra(PHOTO_PROVIDER_FACTORY, factoryCls.name)
             intent.putExtra(PHOTO_ENABLE_ORIGIN, enableOrigin)
+            intent.putExtra(PHOTO_CONFIG_PROVIDER, configProviderCls.name)
             return intent
         }
     }
@@ -200,7 +205,15 @@ open class PhotoPickerActivity : ComponentActivity() {
 
     @Composable
     protected open fun PageContentWithConfigProvider(viewModel: PhotoPickerViewModel) {
-        DefaultPhotoPickerConfigProvider {
+        val configProvider = remember {
+            kotlin.runCatching {
+                val providerClsName = intent.getStringExtra(PHOTO_CONFIG_PROVIDER) ?: throw RuntimeException("No configProvider provided.")
+                Class.forName(providerClsName).newInstance() as PhotoPickerConfigProvider
+            }.getOrElse {
+                DefaultPhotoPickerConfigProvider()
+            }
+        }
+        configProvider.Provide {
             PageContent(viewModel = viewModel)
         }
     }

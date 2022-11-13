@@ -63,6 +63,7 @@ import cn.qhplus.emo.ui.core.Loading
 import cn.qhplus.emo.ui.core.TopBarBackIconItem
 import cn.qhplus.emo.ui.core.TopBarWithLazyGridScrollState
 import cn.qhplus.emo.ui.core.helper.OnePx
+import cn.qhplus.emo.ui.core.modifier.throttleClick
 import cn.qhplus.emo.ui.core.modifier.windowInsetsCommonNavPadding
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionStatus
@@ -289,7 +290,10 @@ private fun PhotoPickerGridCell(
             Box(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .clickable {
+                    .throttleClick(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {
                         onPickItem(pickedIndex < 0, data)
                     }
                     .padding(4.dp)
