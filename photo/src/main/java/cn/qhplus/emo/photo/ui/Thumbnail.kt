@@ -49,6 +49,7 @@ import cn.qhplus.emo.photo.data.PhotoResult
 import cn.qhplus.emo.photo.data.PhotoShot
 import cn.qhplus.emo.photo.ui.viewer.LocalPhotoViewerConfig
 import cn.qhplus.emo.ui.core.ex.getWindowSize
+import cn.qhplus.emo.ui.core.modifier.throttleClick
 
 const val SINGLE_HIGH_IMAGE_MINI_SCREEN_HEIGHT_RATIO = -1F
 
@@ -86,7 +87,7 @@ private fun PhotoThumbnailItem(
             .let {
                 if (click != null) {
                     it
-                        .clickable(interactionSource, null) {
+                        .throttleClick (interactionSource, null) {
                             click.invoke()
                         }
                         .alpha(if (isPressed.value) alphaWhenPressed else 1f)
@@ -128,7 +129,7 @@ fun PhotoThumbnail(
     config: PhotoThumbnailConfig = remember { emoDefaultPhotoThumbnailConfig },
     onClick: ((images: List<PhotoShot>, index: Int) -> Unit)? = null
 ) {
-    if (images.size < 0) {
+    if (images.isEmpty()) {
         return
     }
     val renderInfo = remember(images) {

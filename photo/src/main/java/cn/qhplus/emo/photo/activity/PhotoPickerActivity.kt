@@ -83,11 +83,21 @@ class PhotoPickItemInfo(
     val rotation: Int
 ) : Parcelable {
 
+    private fun isRotated() = rotation == 90 || rotation == 270
+
+    val displayWidth: Int by lazy {
+        if (isRotated()) height else width
+    }
+
+    val displayHeight: Int by lazy {
+        if (isRotated()) width else height
+    }
+
     fun ratio(): Float {
         if (height <= 0 || width <= 0) {
             return -1f
         }
-        if (rotation == 90 || rotation == 270) {
+        if (isRotated()) {
             return height.toFloat() / width
         }
         return width.toFloat() / height
