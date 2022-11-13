@@ -185,7 +185,6 @@ open class PhotoPickerActivity : ComponentActivity() {
         window.setNormalDisplayCutoutMode()
         setContent {
             PageContentWithConfigProvider(viewModel)
-            PageContent(viewModel)
         }
 
         lifecycleScope.launch {
