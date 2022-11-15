@@ -38,6 +38,14 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
 
             val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
             dependencies {
+                dependencies.add("testImplementation", libs.findLibrary("junit4").get())
+                dependencies.add("testImplementation", libs.findLibrary("kotlinx-coroutines-test").get())
+                dependencies.add("androidTestImplementation", libs.findLibrary("androidx-test-core").get())
+                dependencies.add("androidTestImplementation", libs.findLibrary("androidx-test-ext").get())
+                dependencies.add("androidTestImplementation", libs.findLibrary("androidx-test-runner").get())
+                dependencies.add("androidTestImplementation", libs.findLibrary("androidx-test-rules").get())
+                dependencies.add("androidTestImplementation", libs.findLibrary("androidx-test-espresso-core").get())
+
                 configurations.configureEach {
                     resolutionStrategy {
                         force(libs.findLibrary("junit4").get())
