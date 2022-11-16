@@ -13,23 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-plugins {
-    id("emo.android.library")
-    id("emo.spotless")
-    id("emo.publish")
+
+package cn.qhplus.emo.report
+
+interface ReportMsgConverter<T> {
+    fun encode(content: T): ByteArray
+    fun decode(content: ByteArray, offset: Int, len: Int): T
 }
 
-version = libs.versions.emoNetwork.get()
+class ReportStringMsgConverter private constructor() : ReportMsgConverter<String> {
 
-android {
-    buildTypes {
-        getByName("release") {
-            isMinifyEnabled = false
-            proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
+    companion object {
+        val instance by lazy {
+            ReportStringMsgConverter()
         }
     }
-}
-dependencies {
-    implementation(libs.androidx.core.ktx)
-    implementation(project(":core"))
+
+    override fun encode(content: String): ByteArray {
+        return content.toByteArray()
+    }
+
+    override fun decode(content: ByteArray, offset: Int, len: Int): String {
+        return String(content, offset, len)
+    }
 }

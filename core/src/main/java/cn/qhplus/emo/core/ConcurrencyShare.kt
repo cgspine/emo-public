@@ -126,10 +126,6 @@ class ConcurrencyShare(
         return awaitItem(item)
     }
 
-    fun destroy() {
-        scope.cancel()
-    }
-
     private suspend fun <T> awaitItem(item: Item<T>): T {
         try {
             return item.task.await()

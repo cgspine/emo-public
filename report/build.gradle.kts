@@ -19,7 +19,7 @@ plugins {
     id("emo.publish")
 }
 
-version = libs.versions.emoNetwork.get()
+version = "0.0.1"
 
 android {
     buildTypes {
@@ -31,5 +31,5 @@ android {
 }
 dependencies {
     implementation(libs.androidx.core.ktx)
-    implementation(project(":core"))
+    api(project(":core"))
 }

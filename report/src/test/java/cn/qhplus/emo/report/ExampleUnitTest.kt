@@ -13,23 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-plugins {
-    id("emo.android.library")
-    id("emo.spotless")
-    id("emo.publish")
-}
 
-version = libs.versions.emoNetwork.get()
+package cn.qhplus.emo.report
 
-android {
-    buildTypes {
-        getByName("release") {
-            isMinifyEnabled = false
-            proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
-        }
+import org.junit.Assert.assertEquals
+import org.junit.Test
+
+/**
+ * Example local unit test, which will execute on the development machine (host).
+ *
+ * See [testing documentation](http://d.android.cn/tools/testing).
+ */
+class ExampleUnitTest {
+    @Test
+    fun addition_isCorrect() {
+        assertEquals(4, 2 + 2)
     }
-}
-dependencies {
-    implementation(libs.androidx.core.ktx)
-    implementation(project(":core"))
 }

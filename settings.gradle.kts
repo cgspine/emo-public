@@ -23,6 +23,7 @@ include(":modal")
 include(":photo")
 include(":photo-coil")
 include(":permission")
+include(":report")
 include(":app")
 
 

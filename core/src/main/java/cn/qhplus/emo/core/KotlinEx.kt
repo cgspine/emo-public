@@ -16,4 +16,13 @@
 
 package cn.qhplus.emo.core
 
+import java.io.Closeable
+
 inline fun <T> T.runIf(condition: Boolean, block: T.() -> T): T = if (condition) block() else this
+
+fun Closeable.closeQuietly() {
+    try {
+        close()
+    } catch (ignore: Throwable) {
+    }
+}
