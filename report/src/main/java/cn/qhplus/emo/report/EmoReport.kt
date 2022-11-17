@@ -18,6 +18,7 @@ package cn.qhplus.emo.report
 
 import android.content.Context
 import cn.qhplus.emo.core.EmoLog
+import cn.qhplus.emo.network.NetworkConnectivity
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -40,6 +41,8 @@ class EmoReport<T> internal constructor(
     val fileBatchFileSize: Long
 ) {
 
+    private val applicationContext = context.applicationContext
+
     private val immediatelyReporter by lazy {
         ImmediatelyReporter(scope, listReportTransporter)
     }
@@ -49,7 +52,7 @@ class EmoReport<T> internal constructor(
 
     private val fileBatchReporter by lazy {
         FileBatchReporter(
-            context.applicationContext,
+            applicationContext,
             scope,
             batchInterval,
             converter,
@@ -60,6 +63,10 @@ class EmoReport<T> internal constructor(
     }
 
     fun report(msg: T, strategy: ReportStrategy = ReportStrategy.FileBatch) {
+        if (!NetworkConnectivity.of(applicationContext).getNetworkState().isConnected) {
+            fileBatchReporter.report(msg)
+            return
+        }
         when (strategy) {
             ReportStrategy.Immediately -> immediatelyReporter.report(msg)
             ReportStrategy.MemBach -> memBatchReporter.report(msg)
@@ -81,7 +88,7 @@ fun <T> emoReport(init: EmoReportBuilder<T>.() -> Unit): EmoReport<T> {
     val msgContentConverter = builder.converter ?: throw RuntimeException("converter is required!")
     val scope = builder.scope ?: CoroutineScope(SupervisorJob() + Dispatchers.IO + defaultCoroutineExceptionHandler)
 
-    val streamReportTransporter = builder.streamReportTransporter ?: listReportTransporter.wrapToStreamTransporter()
+    val streamReportTransporter = builder.streamReportTransporter ?: listReportTransporter.wrapToStreamTransporter(builder.memBatchCount)
     return EmoReport(
         scope,
         context,

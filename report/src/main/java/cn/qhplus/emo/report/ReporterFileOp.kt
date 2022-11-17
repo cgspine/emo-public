@@ -27,6 +27,7 @@ import java.io.RandomAccessFile
 import java.nio.ByteBuffer
 import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
+import java.util.concurrent.atomic.AtomicInteger
 
 private val MAGIC_END = "emo".toByteArray()
 
@@ -74,6 +75,8 @@ class ReporterStreamSink<T>(
 
     private val os = file.outputStream().buffered()
 
+    private val bufferedCount = AtomicInteger(0)
+
     @Throws(IOException::class)
     override suspend fun write(msg: T, converter: ReportMsgConverter<T>): Boolean = withContext(Dispatchers.IO) {
         val content = converter.encode(msg)
@@ -81,7 +84,7 @@ class ReporterStreamSink<T>(
             return@withContext true
         }
         val totalLength = Integer.BYTES + content.size + MAGIC_END.size
-        if (totalLength + file.length() > fileMaxSize) {
+        if (totalLength + file.length() + bufferedCount.get() > fileMaxSize) {
             return@withContext false
         }
         val buffer = ByteBuffer.allocate(Integer.BYTES)
@@ -89,13 +92,11 @@ class ReporterStreamSink<T>(
         os.write(buffer.array())
         os.write(content)
         os.write(MAGIC_END)
+        os.flush()
         return@withContext true
     }
 
     override fun flush() {
-        kotlin.runCatching {
-            os.flush()
-        }
     }
 
     override fun close() {
@@ -162,7 +163,7 @@ class ReporterMappedByteBufferSource<T>(
             if (!end.contentEquals(MAGIC_END)) {
                 return
             }
-            transporter.transport(buffer, 0, size, converter)
+            transporter.transport(buffer, 0, size, converter, ReportStrategy.FileBatch)
         }
     }
 
@@ -203,7 +204,7 @@ class ReporterStreamSource<T>(
             if (!end.contentEquals(MAGIC_END)) {
                 return@withContext
             }
-            transporter.transport(contentBuffer, 0, size, converter)
+            transporter.transport(contentBuffer, 0, size, converter, ReportStrategy.FileBatch)
         }
     }
 

@@ -138,18 +138,24 @@ class EmoReportTest {
 
 class TestListReportTrans : ListReportTransporter<String> {
 
-    override suspend fun transport(batch: List<String>): Boolean {
+    override suspend fun transport(batch: List<String>, usedStrategy: ReportStrategy): Boolean {
         Log.i(TAG, "listTransport: count = ${batch.count()}, " + batch.joinToString(","))
         return true
     }
 }
 
 class TestStreamReportTrans : StreamReportTransporter<String> {
-    override suspend fun transport(buffer: ByteArray, offset: Int, len: Int, converter: ReportMsgConverter<String>) {
+    override suspend fun transport(
+        buffer: ByteArray,
+        offset: Int,
+        len: Int,
+        converter: ReportMsgConverter<String>,
+        usedStrategy: ReportStrategy
+    ) {
         Log.i(TAG, "streamTransport:" + converter.decode(buffer, offset, len))
     }
 
-    override suspend fun flush() {
+    override suspend fun flush(usedStrategy: ReportStrategy) {
         Log.i(TAG, "streamTransport:flush")
     }
 }

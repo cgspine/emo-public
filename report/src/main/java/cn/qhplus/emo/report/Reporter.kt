@@ -21,6 +21,7 @@ import android.os.Process
 import cn.qhplus.emo.core.EmoLog
 import cn.qhplus.emo.core.LogTag
 import cn.qhplus.emo.core.currentSimpleProcessName
+import cn.qhplus.emo.network.NetworkConnectivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -55,7 +56,7 @@ class ImmediatelyReporter<T>(
 ) : Reporter<T> {
     override fun report(msg: T) {
         scope.launch {
-            transporter.transport(listOf(msg))
+            transporter.transport(listOf(msg), ReportStrategy.Immediately)
         }
     }
 }
@@ -130,7 +131,7 @@ class MemBatchReporter<T>(
             local
         }
         if (toFlush.isNotEmpty()) {
-            transporter.transport(toFlush)
+            transporter.transport(toFlush, ReportStrategy.MemBach)
         }
     }
 }
@@ -146,10 +147,11 @@ class FileBatchReporter<T>(
 ) : IntervalBatchReporter<T>(scope, batchInterval), LogTag {
 
     private val applicationContext = context.applicationContext
-    private val dir = File(
-        applicationContext.filesDir,
-        "$dirName-${applicationContext.currentSimpleProcessName()}"
-    ).apply {
+    private val rootDir = File(applicationContext.filesDir, dirName).apply {
+        mkdirs()
+    }
+
+    private val dir = File(rootDir, applicationContext.currentSimpleProcessName()).apply {
         mkdirs()
     }
 
@@ -161,6 +163,9 @@ class FileBatchReporter<T>(
     init {
         scope.launch(Dispatchers.IO) {
             for (i in transportChannel) {
+                if (!NetworkConnectivity.of(applicationContext).getNetworkState().isConnected) {
+                    continue
+                }
                 kotlin.runCatching {
                     val newestTime = currentFile.name.split("-")[2].toLong()
                     val list = dir.listFiles(
@@ -183,18 +188,21 @@ class FileBatchReporter<T>(
                         }
                     )
                     if (list != null && list.isNotEmpty()) {
-                        list.forEach {
-                            val source = it.createReportSource<T>()
+                        for (file in list) {
+                            if (!NetworkConnectivity.of(applicationContext).getNetworkState().isConnected) {
+                                break
+                            }
+                            val source = file.createReportSource<T>()
                             val success = kotlin.runCatching {
                                 source.read(transporter, converter)
                                 true
                             }.getOrDefault(false)
                             source.close()
                             if (success) {
-                                it.delete()
+                                file.delete()
                             }
                         }
-                        transporter.flush()
+                        transporter.flush(ReportStrategy.FileBatch)
                     }
                 }
             }
