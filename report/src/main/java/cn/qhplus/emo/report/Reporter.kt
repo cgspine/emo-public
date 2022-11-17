@@ -162,7 +162,17 @@ class FileBatchReporter<T>(
 
     init {
         scope.launch(Dispatchers.IO) {
+
+            val deleteFailedFileList = mutableListOf<File>()
+
             for (i in transportChannel) {
+                if(deleteFailedFileList.isNotEmpty()){
+                    for(j in deleteFailedFileList.size-1 downTo 0){
+                        if(deleteFailedFileList[j].delete()){
+                            deleteFailedFileList.removeAt(j)
+                        }
+                    }
+                }
                 if (!NetworkConnectivity.of(applicationContext).getNetworkState().isConnected) {
                     continue
                 }
@@ -175,6 +185,10 @@ class FileBatchReporter<T>(
                             }
                             val parts = file.name.split("-")
                             if (parts.size != 3) {
+                                return@FileFilter false
+                            }
+
+                            if(deleteFailedFileList.find { it.name == file.name } != null){
                                 return@FileFilter false
                             }
 
@@ -199,7 +213,12 @@ class FileBatchReporter<T>(
                             }.getOrDefault(false)
                             source.close()
                             if (success) {
-                                file.delete()
+                                if(!file.delete()){
+                                    // handle if MappedByteBuffer not recycled.
+                                    deleteFailedFileList.add(file)
+                                } else {
+                                    EmoLog.w(TAG, "delete file(${file.name}) failed.")
+                                }
                             }
                         }
                         transporter.flush(ReportStrategy.FileBatch)
