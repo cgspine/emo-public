@@ -32,14 +32,14 @@ import org.junit.runner.RunWith
  * See [testing documentation](http://d.android.cn/tools/testing).
  */
 
-private const val TAG = "EmoReport"
+private const val TAG = "ReportClient"
 
 @RunWith(AndroidJUnit4::class)
 class EmoReportTest {
     @Test
     fun test_immediate_report() = runTest {
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        val emoReport = emoSimpleReport {
+        val emoReport = simpleReportClient {
             scope = this@runTest
             context = appContext
             listReportTransporter = TestListReportTrans()
@@ -54,7 +54,7 @@ class EmoReportTest {
     @Test
     fun test_mem_batch_report() = runTest {
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        val emoReport = emoSimpleReport {
+        val emoReport = simpleReportClient {
             scope = this@runTest
             context = appContext
             listReportTransporter = TestListReportTrans()
@@ -82,7 +82,7 @@ class EmoReportTest {
     @Test
     fun test_file_batch_report() = runTest {
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        val emoReport = emoSimpleReport {
+        val emoReport = simpleReportClient {
             scope = this@runTest
             context = appContext
             listReportTransporter = TestListReportTrans()
@@ -110,7 +110,7 @@ class EmoReportTest {
     @Test
     fun test_file_batch_report_with_list_transporter() = runTest {
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        val emoReport = emoSimpleReport {
+        val emoReport = simpleReportClient {
             scope = this@runTest
             context = appContext
             listReportTransporter = TestListReportTrans()
@@ -138,7 +138,7 @@ class EmoReportTest {
 
 class TestListReportTrans : ListReportTransporter<String> {
 
-    override suspend fun transport(batch: List<String>, usedStrategy: ReportStrategy): Boolean {
+    override suspend fun transport(client: ReportClient<String>, batch: List<String>, usedStrategy: ReportStrategy): Boolean {
         Log.i(TAG, "listTransport: count = ${batch.count()}, " + batch.joinToString(","))
         return true
     }
@@ -146,6 +146,7 @@ class TestListReportTrans : ListReportTransporter<String> {
 
 class TestStreamReportTrans : StreamReportTransporter<String> {
     override suspend fun transport(
+        client: ReportClient<String>,
         buffer: ByteArray,
         offset: Int,
         len: Int,
@@ -155,7 +156,7 @@ class TestStreamReportTrans : StreamReportTransporter<String> {
         Log.i(TAG, "streamTransport:" + converter.decode(buffer, offset, len))
     }
 
-    override suspend fun flush(usedStrategy: ReportStrategy) {
+    override suspend fun flush(client: ReportClient<String>, usedStrategy: ReportStrategy) {
         Log.i(TAG, "streamTransport:flush")
     }
 }

@@ -17,20 +17,35 @@
 package cn.qhplus.emo.report
 
 import android.content.Context
-import cn.qhplus.emo.core.EmoLog
+import cn.qhplus.emo.core.coroutineLogExceptionHandler
 import cn.qhplus.emo.network.NetworkConnectivity
-import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 
-private val defaultCoroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
-    EmoLog.e("EmoReport", "scope error.", throwable)
+
+interface ReportClient<T> {
+    val scope: CoroutineScope
+    fun report(msg: T, strategy: ReportStrategy = ReportStrategy.FileBatch)
+    fun destroy()
 }
 
-class EmoReport<T> internal constructor(
-    val scope: CoroutineScope,
+// For Test
+class DummyReportClient<T>(override val scope: CoroutineScope): ReportClient<T> {
+
+    override fun report(msg: T, strategy: ReportStrategy) {
+
+    }
+
+    override fun destroy() {
+
+    }
+}
+
+class EmoReportClient<T> internal constructor(
+    override val scope: CoroutineScope,
     context: Context,
     listReportTransporter: ListReportTransporter<T>,
     streamReportTransporter: StreamReportTransporter<T>,
@@ -39,21 +54,21 @@ class EmoReport<T> internal constructor(
     val memBatchCount: Int,
     val fileBatchDirName: String,
     val fileBatchFileSize: Long
-) {
+): ReportClient<T> {
 
     private val applicationContext = context.applicationContext
 
     private val immediatelyReporter by lazy {
-        ImmediatelyReporter(scope, listReportTransporter)
+        ImmediatelyReporter(this, listReportTransporter)
     }
     private val memBatchReporter by lazy {
-        MemBatchReporter(scope, memBatchCount, batchInterval, listReportTransporter)
+        MemBatchReporter(this, memBatchCount, batchInterval, listReportTransporter)
     }
 
     private val fileBatchReporter by lazy {
         FileBatchReporter(
             applicationContext,
-            scope,
+            this,
             batchInterval,
             converter,
             streamReportTransporter,
@@ -62,7 +77,7 @@ class EmoReport<T> internal constructor(
         )
     }
 
-    fun report(msg: T, strategy: ReportStrategy = ReportStrategy.FileBatch) {
+    override fun report(msg: T, strategy: ReportStrategy) {
         if (!NetworkConnectivity.of(applicationContext).getNetworkState().isConnected) {
             fileBatchReporter.report(msg)
             return
@@ -74,22 +89,26 @@ class EmoReport<T> internal constructor(
         }
     }
 
-    fun destroy() {
+    override fun destroy() {
         fileBatchReporter.close()
         scope.cancel()
     }
 }
 
-fun <T> emoReport(init: EmoReportBuilder<T>.() -> Unit): EmoReport<T> {
-    val builder = EmoReportBuilder<T>()
+fun <T> newReportClient(init: ReportClientBuilder<T>.() -> Unit): ReportClient<T> {
+    val builder = ReportClientBuilder<T>()
     builder.init()
     val context = builder.context ?: throw RuntimeException("context is required!")
     val listReportTransporter = builder.listReportTransporter ?: throw RuntimeException("listReportTransporter is required!")
     val msgContentConverter = builder.converter ?: throw RuntimeException("converter is required!")
-    val scope = builder.scope ?: CoroutineScope(SupervisorJob() + Dispatchers.IO + defaultCoroutineExceptionHandler)
+    val scope = builder.scope ?: CoroutineScope(
+        SupervisorJob() +
+                Dispatchers.IO +
+                coroutineLogExceptionHandler("ReportClient")
+    )
 
     val streamReportTransporter = builder.streamReportTransporter ?: listReportTransporter.wrapToStreamTransporter(builder.memBatchCount)
-    return EmoReport(
+    return EmoReportClient(
         scope,
         context,
         listReportTransporter,
@@ -102,8 +121,8 @@ fun <T> emoReport(init: EmoReportBuilder<T>.() -> Unit): EmoReport<T> {
     )
 }
 
-fun emoSimpleReport(init: EmoReportBuilder<String>.() -> Unit): EmoReport<String> {
-    return emoReport {
+fun simpleReportClient(init: ReportClientBuilder<String>.() -> Unit): ReportClient<String> {
+    return newReportClient {
         init()
         if (converter == null) {
             converter = ReportStringMsgConverter.instance
@@ -111,7 +130,7 @@ fun emoSimpleReport(init: EmoReportBuilder<String>.() -> Unit): EmoReport<String
     }
 }
 
-class EmoReportBuilder<T> internal constructor() {
+class ReportClientBuilder<T> internal constructor() {
     var context: Context? = null
     var scope: CoroutineScope? = null
     var listReportTransporter: ListReportTransporter<T>? = null

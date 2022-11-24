@@ -21,6 +21,7 @@ import kotlinx.coroutines.sync.withLock
 
 interface ListReportTransporter<T> {
     suspend fun transport(
+        client: ReportClient<T>,
         batch: List<T>,
         usedStrategy: ReportStrategy
     ): Boolean
@@ -29,6 +30,7 @@ interface ListReportTransporter<T> {
 interface StreamReportTransporter<T> {
 
     suspend fun transport(
+        client: ReportClient<T>,
         buffer: ByteArray,
         offset: Int,
         len: Int,
@@ -36,7 +38,7 @@ interface StreamReportTransporter<T> {
         usedStrategy: ReportStrategy
     )
 
-    suspend fun flush(usedStrategy: ReportStrategy)
+    suspend fun flush(client: ReportClient<T>, usedStrategy: ReportStrategy)
 }
 
 internal class ListToStreamTransporterAdapter<T>(
@@ -48,6 +50,7 @@ internal class ListToStreamTransporterAdapter<T>(
     private val mutex = Mutex()
 
     override suspend fun transport(
+        client: ReportClient<T>,
         buffer: ByteArray,
         offset: Int,
         len: Int,
@@ -66,17 +69,17 @@ internal class ListToStreamTransporterAdapter<T>(
         }
 
         batchTransport?.let {
-            delegate.transport(it, usedStrategy)
+            delegate.transport(client, it, usedStrategy)
         }
     }
 
-    override suspend fun flush(usedStrategy: ReportStrategy) {
+    override suspend fun flush(client: ReportClient<T>, usedStrategy: ReportStrategy) {
         val ret = mutex.withLock {
             val local = list
             list = mutableListOf()
             local
         }
-        delegate.transport(ret, usedStrategy)
+        delegate.transport(client, ret, usedStrategy)
     }
 }
 
@@ -86,14 +89,15 @@ internal class StreamToListTransporterAdapter<T>(
 ) : ListReportTransporter<T> {
 
     override suspend fun transport(
+        client: ReportClient<T>,
         batch: List<T>,
         usedStrategy: ReportStrategy
     ): Boolean {
         batch.forEach {
             val buffer = converter.encode(it)
-            delegate.transport(buffer, 0, buffer.size, converter, usedStrategy)
+            delegate.transport(client, buffer, 0, buffer.size, converter, usedStrategy)
         }
-        delegate.flush(usedStrategy)
+        delegate.flush(client, usedStrategy)
         return true
     }
 }

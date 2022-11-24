@@ -51,25 +51,25 @@ enum class ReportStrategy {
 }
 
 class ImmediatelyReporter<T>(
-    private val scope: CoroutineScope,
+    private val client: ReportClient<T>,
     private val transporter: ListReportTransporter<T>
 ) : Reporter<T> {
     override fun report(msg: T) {
-        scope.launch {
-            transporter.transport(listOf(msg), ReportStrategy.Immediately)
+        client.scope.launch {
+            transporter.transport(client, listOf(msg), ReportStrategy.Immediately)
         }
     }
 }
 
 abstract class IntervalBatchReporter<T>(
-    private val scope: CoroutineScope,
+    private val client: ReportClient<T>,
     private val batchInterval: Long
 ) : BatchReporter<T>, Closeable {
 
     private val channel = Channel<Unit>(1, BufferOverflow.DROP_LATEST)
 
     init {
-        scope.launch {
+        client.scope.launch {
             var intervalJob: Job? = createIntervalJob()
             for (i in channel) {
                 intervalJob?.cancel()
@@ -82,14 +82,14 @@ abstract class IntervalBatchReporter<T>(
     private fun createIntervalJob(): Job? {
         return if (batchInterval <= 0) {
             null
-        } else scope.launch {
+        } else client.scope.launch {
             delay(batchInterval)
             channel.send(Unit)
         }
     }
 
     final override fun flush() {
-        scope.launch {
+        client.scope.launch {
             channel.send(Unit)
         }
     }
@@ -102,18 +102,18 @@ abstract class IntervalBatchReporter<T>(
 }
 
 class MemBatchReporter<T>(
-    private val scope: CoroutineScope,
+    private val client: ReportClient<T>,
     private val batchCount: Int,
     batchInterval: Long,
     private val transporter: ListReportTransporter<T>
-) : IntervalBatchReporter<T>(scope, batchInterval) {
+) : IntervalBatchReporter<T>(client, batchInterval) {
 
     @Volatile
     private var list = mutableListOf<T>()
     private val mutex = Mutex()
 
     override fun report(msg: T) {
-        scope.launch {
+        client.scope.launch {
             val shouldFlush = mutex.withLock {
                 list.add(msg)
                 list.size >= batchCount
@@ -131,20 +131,20 @@ class MemBatchReporter<T>(
             local
         }
         if (toFlush.isNotEmpty()) {
-            transporter.transport(toFlush, ReportStrategy.MemBach)
+            transporter.transport(client, toFlush, ReportStrategy.MemBach)
         }
     }
 }
 
 class FileBatchReporter<T>(
     context: Context,
-    private val scope: CoroutineScope,
+    private val client: ReportClient<T>,
     batchInterval: Long,
     private val converter: ReportMsgConverter<T>,
     private val transporter: StreamReportTransporter<T>,
     dirName: String = "emo-report",
     private val fileSize: Long = 150 * 1024
-) : IntervalBatchReporter<T>(scope, batchInterval), LogTag {
+) : IntervalBatchReporter<T>(client, batchInterval), LogTag {
 
     private val applicationContext = context.applicationContext
     private val rootDir = File(applicationContext.filesDir, dirName).apply {
@@ -161,7 +161,7 @@ class FileBatchReporter<T>(
     private val transportChannel = Channel<Unit>(1, onBufferOverflow = BufferOverflow.DROP_LATEST)
 
     init {
-        scope.launch(Dispatchers.IO) {
+        client.scope.launch(Dispatchers.IO) {
 
             val deleteFailedFileList = mutableListOf<File>()
 
@@ -208,7 +208,7 @@ class FileBatchReporter<T>(
                             }
                             val source = file.createReportSource<T>()
                             val success = kotlin.runCatching {
-                                source.read(transporter, converter)
+                                source.read(client, transporter, converter)
                                 true
                             }.getOrDefault(false)
                             source.close()
@@ -221,12 +221,12 @@ class FileBatchReporter<T>(
                                 }
                             }
                         }
-                        transporter.flush(ReportStrategy.FileBatch)
+                        transporter.flush(client, ReportStrategy.FileBatch)
                     }
                 }
             }
         }
-        scope.launch {
+        client.scope.launch {
             transportChannel.send(Unit)
         }
     }
@@ -236,7 +236,7 @@ class FileBatchReporter<T>(
     }
 
     override fun report(msg: T) {
-        scope.launch {
+        client.scope.launch {
             try {
                 var ret = mutex.withLock {
                     currentWriter.write(msg, converter)
@@ -274,7 +274,7 @@ class FileBatchReporter<T>(
 
     override fun close() {
         transportChannel.close()
-        scope.launch {
+        client.scope.launch {
             mutex.withLock {
                 currentWriter.flush()
                 currentWriter.close()

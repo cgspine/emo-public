@@ -34,6 +34,7 @@ class ReporterFileTest {
     @Test
     fun test_normal_read_write() = runTest {
         test(
+            client = DummyReportClient(this@runTest),
             sinkProvider = { file, size ->
                 file.createReportSink(size)
             },
@@ -47,6 +48,7 @@ class ReporterFileTest {
     @Test
     fun test_stream_write_read() = runTest {
         test(
+            client = DummyReportClient(this@runTest),
             sinkProvider = { file, size ->
                 ReporterStreamSink(file, size)
             },
@@ -62,6 +64,7 @@ class ReporterFileTest {
         val list = mutableListOf<Speed>()
         repeat(100) {
             list += speed(
+                client = DummyReportClient(this@runTest),
                 sinkProvider = { file, size ->
                     file.createReportSink(size)
                 },
@@ -83,6 +86,7 @@ class ReporterFileTest {
         list.clear()
         repeat(100) {
             list += speed(
+                client = DummyReportClient(this@runTest),
                 sinkProvider = { file, size ->
                     ReporterStreamSink(file, size)
                 },
@@ -111,6 +115,7 @@ class ReporterFileTest {
     }
 
     private suspend fun test(
+        client: ReportClient<String>,
         sinkProvider: (File, Long) -> ReporterFileSink<String>,
         sourceProvider: (File) -> ReporterFileSource<String>
     ) {
@@ -130,6 +135,7 @@ class ReporterFileTest {
         val transporter = object : StreamReportTransporter<String> {
             private val list = mutableListOf<String>()
             override suspend fun transport(
+                client: ReportClient<String>,
                 buffer: ByteArray,
                 offset: Int,
                 len: Int,
@@ -139,18 +145,19 @@ class ReporterFileTest {
                 list.add(converter.decode(buffer, offset, len))
             }
 
-            override suspend fun flush(usedStrategy: ReportStrategy) {
+            override suspend fun flush(client: ReportClient<String>, usedStrategy: ReportStrategy) {
                 assert(list.size == 2)
                 assert(list[0] == "aaaaaaaaaaa")
                 assert(list[1] == "bbbbbbbbbb")
             }
         }
-        source.read(transporter, converter)
-        transporter.flush(ReportStrategy.FileBatch)
+        source.read(client, transporter, converter)
+        transporter.flush(client, ReportStrategy.FileBatch)
         source.close()
     }
 
     private suspend fun speed(
+        client: ReportClient<String>,
         sinkProvider: (File, Long) -> ReporterFileSink<String>,
         sourceProvider: (File) -> ReporterFileSource<String>
     ): Speed {
@@ -172,6 +179,7 @@ class ReporterFileTest {
         val source = sourceProvider(file)
         val transporter = object : StreamReportTransporter<String> {
             override suspend fun transport(
+                client: ReportClient<String>,
                 buffer: ByteArray,
                 offset: Int,
                 len: Int,
@@ -180,12 +188,12 @@ class ReporterFileTest {
             ) {
             }
 
-            override suspend fun flush(usedStrategy: ReportStrategy) {
+            override suspend fun flush(client: ReportClient<String>,usedStrategy: ReportStrategy) {
             }
         }
         partStart = SystemClock.elapsedRealtime()
-        source.read(transporter, converter)
-        transporter.flush(ReportStrategy.FileBatch)
+        source.read(client, transporter, converter)
+        transporter.flush(client, ReportStrategy.FileBatch)
         source.close()
         return Speed(
             SystemClock.elapsedRealtime() - partStart,

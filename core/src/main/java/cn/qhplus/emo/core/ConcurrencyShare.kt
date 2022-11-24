@@ -16,7 +16,6 @@
 
 package cn.qhplus.emo.core
 
-import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
@@ -24,7 +23,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -34,14 +32,12 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.coroutines.coroutineContext
 
-private val defaultCoroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
-    EmoLog.e("ConcurrencyShare", "scope error.", throwable)
-}
-
 class ConcurrencyShare(
     private val successResultKeepTime: Long = 5 * 1000,
     private val timeoutByCancellation: Long = 300,
-    private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob() + defaultCoroutineExceptionHandler)
+    private val scope: CoroutineScope = CoroutineScope(
+        Dispatchers.IO + SupervisorJob() + coroutineLogExceptionHandler("ConcurrencyShare")
+    )
 ) {
     companion object {
         val globalInstance by lazy {

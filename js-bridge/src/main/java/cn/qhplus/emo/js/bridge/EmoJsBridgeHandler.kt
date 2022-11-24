@@ -20,8 +20,8 @@ import android.webkit.ValueCallback
 import android.webkit.WebView
 import cn.qhplus.emo.core.EmoLog
 import cn.qhplus.emo.core.LogTag
+import cn.qhplus.emo.core.coroutineLogExceptionHandler
 import cn.qhplus.emo.core.runIf
-import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -43,12 +43,10 @@ private const val MSG_CMD = "cmd"
 private const val CMD_GET_SUPPORTED_LIST = "__getSupportedCmdList__"
 private const val CMD_ON_BRIDGE_READY = "__onBridgeReady__"
 
-private val defaultCoroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
-    EmoLog.e("EmoJsBridgeHandler", "scope error.", throwable)
-}
-
 abstract class EmoJsBridgeHandler(
-    val scope: CoroutineScope = CoroutineScope(Dispatchers.Main + SupervisorJob() + defaultCoroutineExceptionHandler),
+    val scope: CoroutineScope = CoroutineScope(
+        Dispatchers.Main + SupervisorJob() + coroutineLogExceptionHandler("EmoJsBridgeHandler")
+    ),
     private val bridgePropName: String = DEFAULT_BRIDGE_PROP_NAME,
     private val readyEventName: String = DEFAULT_READY_EVENT_NAME
 ) : LogTag {

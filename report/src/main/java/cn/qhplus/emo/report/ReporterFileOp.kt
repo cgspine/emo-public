@@ -131,7 +131,7 @@ fun <T> File.createReportSink(bufferLength: Long = 150 * 1024): ReporterFileSink
 
 //region source
 interface ReporterFileSource<T> {
-    suspend fun read(transporter: StreamReportTransporter<T>, converter: ReportMsgConverter<T>)
+    suspend fun read(client: ReportClient<T>, transporter: StreamReportTransporter<T>, converter: ReportMsgConverter<T>)
     fun close()
 }
 
@@ -141,6 +141,7 @@ class ReporterMappedByteBufferSource<T>(
 ) : ReporterFileSource<T> {
 
     override suspend fun read(
+        client: ReportClient<T>,
         transporter: StreamReportTransporter<T>,
         converter: ReportMsgConverter<T>
     ) {
@@ -163,7 +164,7 @@ class ReporterMappedByteBufferSource<T>(
             if (!end.contentEquals(MAGIC_END)) {
                 return
             }
-            transporter.transport(buffer, 0, size, converter, ReportStrategy.FileBatch)
+            transporter.transport(client, buffer, 0, size, converter, ReportStrategy.FileBatch)
         }
     }
 
@@ -177,6 +178,7 @@ class ReporterStreamSource<T>(
 ) : ReporterFileSource<T> {
 
     override suspend fun read(
+        client: ReportClient<T>,
         transporter: StreamReportTransporter<T>,
         converter: ReportMsgConverter<T>
     ) = withContext(Dispatchers.IO) {
@@ -204,7 +206,7 @@ class ReporterStreamSource<T>(
             if (!end.contentEquals(MAGIC_END)) {
                 return@withContext
             }
-            transporter.transport(contentBuffer, 0, size, converter, ReportStrategy.FileBatch)
+            transporter.transport(client, contentBuffer, 0, size, converter, ReportStrategy.FileBatch)
         }
     }
 
