@@ -14,8 +14,7 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="cn.qhplus.emo.fs">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application>
         <provider
             android:name="androidx.core.content.FileProvider"

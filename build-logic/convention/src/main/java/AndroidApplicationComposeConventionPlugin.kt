@@ -17,6 +17,8 @@ import cn.qhplus.emo.configureAndroidCompose
 import com.android.build.gradle.internal.dsl.BaseAppModuleExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.VersionCatalogsExtension
+import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.getByType
 
 class AndroidApplicationComposeConventionPlugin : Plugin<Project> {
@@ -25,6 +27,13 @@ class AndroidApplicationComposeConventionPlugin : Plugin<Project> {
             pluginManager.apply("com.android.application")
             val extension = extensions.getByType<BaseAppModuleExtension>()
             configureAndroidCompose(extension)
+
+            val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
+            dependencies {
+                dependencies.add("androidTestImplementation", platform(libs.findLibrary("androidx-compose-bom").get()))
+                dependencies.add("androidTestImplementation", libs.findLibrary("androidx-compose-ui-test").get())
+                dependencies.add("debugImplementation", libs.findLibrary("androidx-compose-ui-testManifest").get())
+            }
         }
     }
 

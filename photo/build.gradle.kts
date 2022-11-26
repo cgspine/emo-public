@@ -29,6 +29,7 @@ android {
             proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
         }
     }
+    namespace = "cn.qhplus.emo.photo"
 }
 dependencies {
     implementation(libs.androidx.core.ktx)

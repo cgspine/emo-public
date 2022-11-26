@@ -29,6 +29,7 @@ android {
             proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
         }
     }
+    namespace = "cn.qhplus.emo.permission"
 }
 dependencies {
     implementation(libs.androidx.core.ktx)

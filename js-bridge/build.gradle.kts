@@ -28,6 +28,7 @@ android {
             proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
         }
     }
+    namespace = "cn.qhplus.emo.js.bridge"
 }
 dependencies {
     implementation(libs.androidx.core.ktx)

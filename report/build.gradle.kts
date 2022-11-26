@@ -28,6 +28,7 @@ android {
             proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
         }
     }
+    namespace = "cn.qhplus.emo.report"
 }
 dependencies {
     implementation(libs.androidx.core.ktx)

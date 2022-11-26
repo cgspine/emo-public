@@ -18,7 +18,9 @@ import cn.qhplus.emo.configureAndroidCompose
 import com.android.build.gradle.LibraryExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.kotlin.dsl.getByType
+import org.gradle.kotlin.dsl.dependencies
 
 class AndroidLibraryComposeConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
@@ -26,6 +28,13 @@ class AndroidLibraryComposeConventionPlugin : Plugin<Project> {
             pluginManager.apply("com.android.library")
             val extension = extensions.getByType<LibraryExtension>()
             configureAndroidCompose(extension)
+
+            val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
+            dependencies {
+                dependencies.add("androidTestImplementation", platform(libs.findLibrary("androidx-compose-bom").get()))
+                dependencies.add("androidTestImplementation", libs.findLibrary("androidx-compose-ui-test").get())
+                dependencies.add("debugImplementation", libs.findLibrary("androidx-compose-ui-testManifest").get())
+            }
         }
     }
 

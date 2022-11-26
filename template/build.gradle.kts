@@ -7,6 +7,7 @@ plugins {
 version = "0.0.1"
 
 android {
+    namespace = "cn.qhplus.emo.template"
     buildTypes {
         getByName("release") {
             isMinifyEnabled = false
