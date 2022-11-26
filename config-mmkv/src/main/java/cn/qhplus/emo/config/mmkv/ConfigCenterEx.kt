@@ -14,19 +14,16 @@
  * limitations under the License.
  */
 
-package cn.qhplus.emo.config
+package cn.qhplus.emo.config.mmkv
 
-import org.junit.Assert.assertEquals
-import org.junit.Test
+import cn.qhplus.emo.config.ConfigCenter
 
-/**
- * Example local unit test, which will execute on the development machine (host).
- *
- * See [testing documentation](http://d.android.cn/tools/testing).
- */
-class ExampleUnitTest {
-    @Test
-    fun addition_isCorrect() {
-        assertEquals(4, 2 + 2)
-    }
+fun configCenterWithMMKV(
+    version: Long,
+    name: String = "emo-cfg-0",
+    prodMode: Boolean = true,
+    multiProcess: Boolean = false
+): ConfigCenter {
+    val storage = MMKVConfigStorage(version, name, multiProcess)
+    return ConfigCenter(storage, prodMode)
 }

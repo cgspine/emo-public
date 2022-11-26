@@ -71,6 +71,14 @@ android {
         }
     }
 
+    applicationVariants.all {
+        sourceSets {
+            getByName(name) {
+                kotlin.srcDir("build/generated/ksp/$name/kotlin")
+            }
+        }
+    }
+
     packagingOptions {
         resources {
             excludes.add("/META-INF/{AL2.0,LGPL2.1}")
@@ -86,7 +94,7 @@ dependencies {
     implementation(project(":network"))
     implementation(project(":permission"))
     implementation(project(":js-bridge"))
-    implementation(project(":config-runtime"))
+    implementation(project(":config-mmkv"))
     ksp(project(":config-ksp"))
 
     implementation(libs.androidx.activity.compose)

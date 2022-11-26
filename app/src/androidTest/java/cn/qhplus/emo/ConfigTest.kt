@@ -16,11 +16,9 @@
 
 package cn.qhplus.emo
 
-import android.content.Context
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import cn.qhplus.emo.config.ConfigCenter
-import cn.qhplus.emo.config.ConfigStorage
 import cn.qhplus.emo.config.ConfigTestBool
 import cn.qhplus.emo.config.ConfigTestDouble
 import cn.qhplus.emo.config.ConfigTestFloat
@@ -41,6 +39,9 @@ import cn.qhplus.emo.config.concreteInt
 import cn.qhplus.emo.config.concreteLong
 import cn.qhplus.emo.config.concreteString
 import cn.qhplus.emo.config.implOf
+import cn.qhplus.emo.config.mmkv.MMKVConfigStorage
+import cn.qhplus.emo.config.mmkv.configCenterWithMMKV
+import com.tencent.mmkv.MMKV
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -57,7 +58,8 @@ class ConfigTest {
     @Test
     fun config_action_test() {
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        val storage = SpConfigStorage(appContext, System.currentTimeMillis())
+        MMKV.initialize(appContext)
+        val storage = MMKVConfigStorage(System.currentTimeMillis())
         val center = ConfigCenter(storage, false)
         val actionInt = center.actionOf<ConfigTestInt>().concreteInt()
         assert(actionInt.read() == 1)
@@ -79,11 +81,10 @@ class ConfigTest {
         actionFloat.write(8.0f)
         assert(actionFloat.read() == 8.0f)
 
-        // sp not support double, it's not safe because it's converted from float.
-//        val actionDouble = center.actionOf<ConfigTestDouble>().concreteDouble()
-//        assert(actionDouble.read() == 7.5)
-//        actionDouble.write(11.2)
-//        assert(actionDouble.read() == 11.2)
+        val actionDouble = center.actionOf<ConfigTestDouble>().concreteDouble()
+        assert(actionDouble.read() == 7.5)
+        actionDouble.write(11.2)
+        assert(actionDouble.read() == 11.2)
 
         val actionString = center.actionOf<ConfigTestString>().concreteString()
         assert(actionString.read() == "hello")
@@ -94,7 +95,8 @@ class ConfigTest {
     @Test
     fun config_impl_test() {
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        val storage = SpConfigStorage(appContext, System.currentTimeMillis())
+        MMKV.initialize(appContext)
+        val storage = MMKVConfigStorage(System.currentTimeMillis())
         val center = ConfigCenter(storage, false)
         assert(center.implOf<ConfigTestImplInt>()?.getName() == "ConfigImplIntA")
         center.actionOf<ConfigTestImplInt>().concreteInt().write(2)
@@ -122,75 +124,32 @@ class ConfigTest {
 
 
     }
-}
 
-
-class SpConfigStorage(val context: Context, val version: Long) : ConfigStorage {
-
-    private val sp = context.getSharedPreferences("config", Context.MODE_PRIVATE)
-
-    init {
-        //TODO should clear old version values/
+    @Test
+    fun config_remove_test() {
+        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
+        MMKV.initialize(appContext)
+        val storage = MMKVConfigStorage(System.currentTimeMillis())
+        val center = ConfigCenter(storage, false)
+        val actionInt = center.actionOf<ConfigTestInt>().concreteInt()
+        assert(actionInt.read() == 1)
+        actionInt.write(3)
+        assert(actionInt.read() == 3)
+        actionInt.remove()
+        assert(actionInt.read() == 1)
     }
 
-    private fun buildKey(name: String, versionRelated: Boolean): String {
-        return if (versionRelated) {
-            "$version-$name"
-        } else {
-            "forever-$name"
-        }
-    }
+    @Test
+    fun config_version_test() {
+        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
+        MMKV.initialize(appContext)
+        val center = configCenterWithMMKV(System.currentTimeMillis())
+        val actionInt = center.actionOf<ConfigTestInt>().concreteInt()
+        assert(actionInt.read() == 1)
+        actionInt.write(3)
+        assert(actionInt.read() == 3)
 
-    override fun readBool(name: String, versionRelated: Boolean, default: Boolean): Boolean {
-        return sp.getBoolean(buildKey(name, versionRelated), default)
+        val center1 = configCenterWithMMKV(System.currentTimeMillis())
+        assert(center1.actionOf<ConfigTestInt>().concreteInt().read() == 1)
     }
-
-    override fun writeBool(name: String, versionRelated: Boolean, value: Boolean) {
-        sp.edit().putBoolean(buildKey(name, versionRelated), value).apply()
-    }
-
-    override fun readInt(name: String, versionRelated: Boolean, default: Int): Int {
-        return sp.getInt(buildKey(name, versionRelated), default)
-    }
-
-    override fun writeInt(name: String, versionRelated: Boolean, value: Int) {
-        sp.edit().putInt(buildKey(name, versionRelated), value).apply()
-    }
-
-    override fun readLong(name: String, versionRelated: Boolean, default: Long): Long {
-        return sp.getLong(buildKey(name, versionRelated), default)
-    }
-
-    override fun writeLong(name: String, versionRelated: Boolean, value: Long) {
-        sp.edit().putLong(buildKey(name, versionRelated), value).apply()
-    }
-
-    override fun readFloat(name: String, versionRelated: Boolean, default: Float): Float {
-        return sp.getFloat(buildKey(name, versionRelated), default)
-    }
-
-    override fun writeFloat(name: String, versionRelated: Boolean, value: Float) {
-        sp.edit().putFloat(buildKey(name, versionRelated), value).apply()
-    }
-
-    override fun readDouble(name: String, versionRelated: Boolean, default: Double): Double {
-        return sp.getFloat(buildKey(name, versionRelated), default.toFloat()).toDouble()
-    }
-
-    override fun writeDouble(name: String, versionRelated: Boolean, value: Double) {
-        sp.edit().putFloat(buildKey(name, versionRelated), value.toFloat()).apply()
-    }
-
-    override fun readString(name: String, versionRelated: Boolean, default: String): String {
-        return sp.getString(buildKey(name, versionRelated), default) ?: ""
-    }
-
-    override fun writeString(name: String, versionRelated: Boolean, value: String) {
-        sp.edit().putString(buildKey(name, versionRelated), value).apply()
-    }
-
-    override fun flush() {
-        sp.edit().commit()
-    }
-
 }

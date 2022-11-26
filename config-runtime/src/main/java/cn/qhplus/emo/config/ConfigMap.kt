@@ -1,9 +1,35 @@
+/*
+ * Copyright 2022 emo Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package cn.qhplus.emo.config
 
 class ConfigMap(
     val actionMap: Map<Class<*>, ConfigAction>,
     val implMap: Map<Class<*>, ConfigImplResolver<*>>
-)
+) {
+    private val nameMap = mutableMapOf<String, ConfigAction>().apply {
+        actionMap.values.forEach {
+            put(it.meta.name, it)
+        }
+    }
+
+    fun actionByName(name: String): ConfigAction? {
+        return nameMap[name]
+    }
+}
 
 interface ConfigMapFactory {
     fun factory(storage: ConfigStorage, prodMode: Boolean): ConfigMap
@@ -73,7 +99,6 @@ abstract class InstanceListConfigImplResolver<T, V>(
 
     abstract fun readValue(): V
     abstract fun writeValue(v: V)
-
 }
 
 class IntClsConfigImplResolver<T>(
@@ -81,7 +106,6 @@ class IntClsConfigImplResolver<T>(
     prodMode: Boolean,
     private val action: IntConfigAction
 ) : InstanceListConfigImplResolver<T, Int>(implList, prodMode) {
-
 
     override fun readValue(): Int {
         return action.read()
@@ -98,7 +122,6 @@ class BoolClsConfigImplResolver<T>(
     private val action: BoolConfigAction
 ) : InstanceListConfigImplResolver<T, Boolean>(implList, prodMode) {
 
-
     override fun readValue(): Boolean {
         return action.read()
     }
@@ -113,7 +136,6 @@ class LongClsConfigImplResolver<T>(
     prodMode: Boolean,
     private val action: LongConfigAction
 ) : InstanceListConfigImplResolver<T, Long>(implList, prodMode) {
-
 
     override fun readValue(): Long {
         return action.read()
@@ -130,7 +152,6 @@ class FloatClsConfigImplResolver<T>(
     private val action: FloatConfigAction
 ) : InstanceListConfigImplResolver<T, Float>(implList, prodMode) {
 
-
     override fun readValue(): Float {
         return action.read()
     }
@@ -146,7 +167,6 @@ class DoubleClsConfigImplResolver<T>(
     private val action: DoubleConfigAction
 ) : InstanceListConfigImplResolver<T, Double>(implList, prodMode) {
 
-
     override fun readValue(): Double {
         return action.read()
     }
@@ -161,7 +181,6 @@ class StringClsConfigImplResolver<T>(
     prodMode: Boolean,
     private val action: StringConfigAction
 ) : InstanceListConfigImplResolver<T, String>(implList, prodMode) {
-
 
     override fun readValue(): String {
         return action.read()
