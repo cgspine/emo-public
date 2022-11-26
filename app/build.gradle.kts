@@ -20,6 +20,8 @@ plugins {
     id("emo.android.application")
     id("emo.android.application.compose")
     id("emo.spotless")
+    @Suppress("DSL_SCOPE_VIOLATION") // TODO: Remove once KTIJ-19369 is fixed
+    alias(libs.plugins.ksp)
 }
 
 fun runCommand(project: Project, command: String): String {
@@ -84,6 +86,8 @@ dependencies {
     implementation(project(":network"))
     implementation(project(":permission"))
     implementation(project(":js-bridge"))
+    implementation(project(":config-runtime"))
+    ksp(project(":config-ksp"))
 
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.appcompat)

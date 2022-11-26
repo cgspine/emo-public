@@ -24,6 +24,9 @@ include(":photo")
 include(":photo-coil")
 include(":permission")
 include(":report")
+include(":config-runtime")
+include(":config-ksp")
 include(":app")
+
 
 
