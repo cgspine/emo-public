@@ -42,6 +42,7 @@ import cn.qhplus.emo.config.implOf
 import cn.qhplus.emo.config.mmkv.MMKVConfigStorage
 import cn.qhplus.emo.config.mmkv.configCenterWithMMKV
 import com.tencent.mmkv.MMKV
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -59,7 +60,7 @@ class ConfigTest {
     fun config_action_test() {
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
         MMKV.initialize(appContext)
-        val storage = MMKVConfigStorage(System.currentTimeMillis())
+        val storage = MMKVConfigStorage(System.currentTimeMillis().toInt())
         val center = ConfigCenter(storage, false)
         val actionInt = center.actionOf<ConfigTestInt>().concreteInt()
         assert(actionInt.read() == 1)
@@ -96,7 +97,7 @@ class ConfigTest {
     fun config_impl_test() {
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
         MMKV.initialize(appContext)
-        val storage = MMKVConfigStorage(System.currentTimeMillis())
+        val storage = MMKVConfigStorage(System.currentTimeMillis().toInt())
         val center = ConfigCenter(storage, false)
         assert(center.implOf<ConfigTestImplInt>()?.getName() == "ConfigImplIntA")
         center.actionOf<ConfigTestImplInt>().concreteInt().write(2)
@@ -129,7 +130,7 @@ class ConfigTest {
     fun config_remove_test() {
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
         MMKV.initialize(appContext)
-        val storage = MMKVConfigStorage(System.currentTimeMillis())
+        val storage = MMKVConfigStorage(System.currentTimeMillis().toInt())
         val center = ConfigCenter(storage, false)
         val actionInt = center.actionOf<ConfigTestInt>().concreteInt()
         assert(actionInt.read() == 1)
@@ -143,13 +144,72 @@ class ConfigTest {
     fun config_version_test() {
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
         MMKV.initialize(appContext)
-        val center = configCenterWithMMKV(System.currentTimeMillis())
+        val center = configCenterWithMMKV(System.currentTimeMillis().toInt())
         val actionInt = center.actionOf<ConfigTestInt>().concreteInt()
         assert(actionInt.read() == 1)
         actionInt.write(3)
         assert(actionInt.read() == 3)
 
-        val center1 = configCenterWithMMKV(System.currentTimeMillis())
+        val center1 = configCenterWithMMKV(System.currentTimeMillis().toInt())
         assert(center1.actionOf<ConfigTestInt>().concreteInt().read() == 1)
+    }
+
+    @Test
+    fun config_write_map_test() = runTest{
+        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
+        MMKV.initialize(appContext)
+        val center = configCenterWithMMKV(System.currentTimeMillis().toInt())
+        var map = mutableMapOf<String, Any>()
+        map[center.actionOf<ConfigTestInt>().meta.name] = 100
+        map[center.actionOf<ConfigTestBool>().meta.name] = true
+        map[center.actionOf<ConfigTestLong>().meta.name] = 1000L
+        map[center.actionOf<ConfigTestFloat>().meta.name] = 100.1f
+        map[center.actionOf<ConfigTestDouble>().meta.name] = 101.1234
+        map[center.actionOf<ConfigTestString>().meta.name] = "haha"
+        center.writeMap(map)
+        assert(center.actionOf<ConfigTestInt>().concreteInt().read() == 100)
+        assert(center.actionOf<ConfigTestBool>().concreteBool().read())
+        assert(center.actionOf<ConfigTestLong>().concreteLong().read() == 1000L)
+        assert(center.actionOf<ConfigTestFloat>().concreteFloat().read() == 100.1f)
+        assert(center.actionOf<ConfigTestDouble>().concreteDouble().read() == 101.1234)
+        assert(center.actionOf<ConfigTestString>().concreteString().read() == "haha")
+
+        // compatibility 1
+        map = mutableMapOf()
+        map[center.actionOf<ConfigTestInt>().meta.name] = "10"
+        map[center.actionOf<ConfigTestBool>().meta.name] = "false"
+        map[center.actionOf<ConfigTestLong>().meta.name] = "10000"
+        map[center.actionOf<ConfigTestFloat>().meta.name] = "1000.1"
+        map[center.actionOf<ConfigTestDouble>().meta.name] = "98.123"
+        center.writeMap(map)
+        assert(center.actionOf<ConfigTestInt>().concreteInt().read() == 10)
+        assert(center.actionOf<ConfigTestBool>().concreteBool().read().not())
+        assert(center.actionOf<ConfigTestLong>().concreteLong().read() == 10000L)
+        assert(center.actionOf<ConfigTestFloat>().concreteFloat().read() == 1000.1f)
+        assert(center.actionOf<ConfigTestDouble>().concreteDouble().read() == 98.123)
+
+        // compatibility 2
+        map = mutableMapOf()
+        map[center.actionOf<ConfigTestBool>().meta.name] = 1
+        map[center.actionOf<ConfigTestFloat>().meta.name] = 10.12345
+        center.writeMap(map)
+        assert(center.actionOf<ConfigTestBool>().concreteBool().read())
+        assert(center.actionOf<ConfigTestFloat>().concreteFloat().read() == 10.12345f)
+
+        map = mutableMapOf()
+        map["not_exist_key"] = "haha"
+        map[center.actionOf<ConfigTestInt>().meta.name] = "haha"
+        center.writeMap(map, { name, value ->
+            assert(name == "not_exist_key")
+            assert(value == "haha")
+            false
+        }){ _, cgfCls, value, expected, actual ->
+            assert(cgfCls == ConfigTestInt::class.java)
+            assert(value == "haha")
+            assert(expected == Int::class.java)
+            assert(actual == String::class.java)
+            false
+        }
+
     }
 }

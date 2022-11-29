@@ -33,7 +33,7 @@ sealed class ConfigAction(
     val meta: ConfigMeta
 ) {
     fun remove() {
-        storage.remove(meta.name, meta.versionRelated)
+        storage.remove(meta)
     }
 }
 
@@ -53,11 +53,11 @@ class IntConfigAction(
     }
 
     fun read(): Int {
-        return storage.readInt(meta.name, meta.versionRelated, default)
+        return storage.readInt(meta, default)
     }
 
     fun write(value: Int) {
-        storage.writeInt(meta.name, meta.versionRelated, value)
+        storage.writeInt(meta, value)
         stateFlow?.get()?.value = value
     }
 }
@@ -78,11 +78,11 @@ class BoolConfigAction(
     }
 
     fun read(): Boolean {
-        return storage.readBool(meta.name, meta.versionRelated, default)
+        return storage.readBool(meta, default)
     }
 
     fun write(value: Boolean) {
-        storage.writeBool(meta.name, meta.versionRelated, value)
+        storage.writeBool(meta, value)
         stateFlow?.get()?.value = value
     }
 }
@@ -103,11 +103,11 @@ class LongConfigAction(
     }
 
     fun read(): Long {
-        return storage.readLong(meta.name, meta.versionRelated, default)
+        return storage.readLong(meta, default)
     }
 
     fun write(value: Long) {
-        storage.writeLong(meta.name, meta.versionRelated, value)
+        storage.writeLong(meta, value)
         stateFlow?.get()?.value = value
     }
 }
@@ -128,11 +128,11 @@ class FloatConfigAction(
     }
 
     fun read(): Float {
-        return storage.readFloat(meta.name, meta.versionRelated, default)
+        return storage.readFloat(meta, default)
     }
 
     fun write(value: Float) {
-        storage.writeFloat(meta.name, meta.versionRelated, value)
+        storage.writeFloat(meta, value)
         stateFlow?.get()?.value = value
     }
 }
@@ -153,11 +153,11 @@ class DoubleConfigAction(
     }
 
     fun read(): Double {
-        return storage.readDouble(meta.name, meta.versionRelated, default)
+        return storage.readDouble(meta, default)
     }
 
     fun write(value: Double) {
-        storage.writeDouble(meta.name, meta.versionRelated, value)
+        storage.writeDouble(meta, value)
         stateFlow?.get()?.value = value
     }
 }
@@ -178,11 +178,11 @@ class StringConfigAction(
     }
 
     fun read(): String {
-        return storage.readString(meta.name, meta.versionRelated, default)
+        return storage.readString(meta, default)
     }
 
     fun write(value: String) {
-        storage.writeString(meta.name, meta.versionRelated, value)
+        storage.writeString(meta, value)
         stateFlow?.get()?.value = value
     }
 }

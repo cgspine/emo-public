@@ -18,11 +18,24 @@ package cn.qhplus.emo
 
 import android.app.Application
 import android.util.Log
+import android.widget.Toast
+import androidx.lifecycle.ProcessLifecycleOwner
+import androidx.lifecycle.lifecycleScope
+import cn.qhplus.emo.config.actionOfConfigTestBool
+import cn.qhplus.emo.config.mmkv.configCenterWithMMKV
 import cn.qhplus.emo.core.EmoLog
 import cn.qhplus.emo.core.EmoLogDelegate
 import cn.qhplus.emo.network.NetworkBandwidthSampler
 import coil.ImageLoader
 import coil.ImageLoaderFactory
+import com.tencent.mmkv.MMKV
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+
+val configCenter by lazy {
+    configCenterWithMMKV(BuildConfig.VERSION_CODE)
+}
 
 class EmoApp : Application(), ImageLoaderFactory {
 
@@ -45,7 +58,18 @@ class EmoApp : Application(), ImageLoaderFactory {
                 Log.d(tag, msg, throwable)
             }
         }
+        MMKV.initialize(this)
         NetworkBandwidthSampler.of(this).startSampling()
+        ProcessLifecycleOwner.get().lifecycleScope.launch {
+            configCenter.actionOfConfigTestBool().stateFlowOf().collectLatest {
+                Toast.makeText(this@EmoApp, "config changed: $it", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        ProcessLifecycleOwner.get().lifecycleScope.launchWhenResumed {
+            delay(500)
+            configCenter.actionOfConfigTestBool().write(true)
+        }
     }
 
     override fun newImageLoader(): ImageLoader {

@@ -19,11 +19,14 @@ package cn.qhplus.emo.config.mmkv
 import cn.qhplus.emo.config.ConfigCenter
 
 fun configCenterWithMMKV(
-    version: Long,
-    name: String = "emo-cfg-0",
+    version: Int,
+    name: String = "emo-cfg-mmkv",
     prodMode: Boolean = true,
-    multiProcess: Boolean = false
+    multiProcess: Boolean = false,
+    autoClearUp: Boolean = true
 ): ConfigCenter {
     val storage = MMKVConfigStorage(version, name, multiProcess)
-    return ConfigCenter(storage, prodMode)
+    return ConfigCenter(storage, prodMode, autoClearUp)
 }
+
+

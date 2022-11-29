@@ -71,6 +71,7 @@ class EmoBus {
         }
     }
 
+    @Suppress("UNCHECKED_CAST")
     suspend fun <T : Any> emit(cls: Class<T>, event: T) {
         val prop = cls.getAnnotation(EmoEventProp::class.java)
         if (prop != null && prop.sticky) {
@@ -85,6 +86,7 @@ class EmoBus {
         }
     }
 
+    @Suppress("UNCHECKED_CAST")
     fun <T : Any> flowOf(cls: Class<T>): SharedFlow<T> {
         val prop = cls.getAnnotation(EmoEventProp::class.java)
         if (prop != null && (prop.sticky || prop.keepChannelAlive)) {

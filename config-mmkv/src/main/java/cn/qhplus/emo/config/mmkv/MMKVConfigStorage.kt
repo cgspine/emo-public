@@ -16,11 +16,12 @@
 
 package cn.qhplus.emo.config.mmkv
 
+import cn.qhplus.emo.config.ConfigMeta
 import cn.qhplus.emo.config.ConfigStorage
 import com.tencent.mmkv.MMKV
 
 class MMKVConfigStorage(
-    version: Long,
+    version: Int,
     name: String = "emo-cfg-0",
     multiProcess: Boolean = false
 ) : ConfigStorage {
@@ -30,18 +31,7 @@ class MMKVConfigStorage(
     private val versionRelatedKeyPrefix = "$version-"
     private val nonVersionRelatedKeyPrefix = "forever-"
 
-    init {
-        // clear old version keys.
-        kv.allKeys()?.filter {
-            !it.startsWith(nonVersionRelatedKeyPrefix) && !it.startsWith(versionRelatedKeyPrefix)
-        }?.let {
-            if (it.isNotEmpty()) {
-                kv.removeValuesForKeys(it.toTypedArray())
-            }
-        }
-    }
-
-    private fun buildKey(name: String, versionRelated: Boolean): String {
+    private fun ConfigMeta.buildKey(): String {
         return if (versionRelated) {
             "$versionRelatedKeyPrefix$name"
         } else {
@@ -49,56 +39,71 @@ class MMKVConfigStorage(
         }
     }
 
-    override fun readBool(name: String, versionRelated: Boolean, default: Boolean): Boolean {
-        return kv.decodeBool(buildKey(name, versionRelated), default)
+    override fun readBool(meta: ConfigMeta, default: Boolean): Boolean {
+        return kv.decodeBool(meta.buildKey(), default)
     }
 
-    override fun writeBool(name: String, versionRelated: Boolean, value: Boolean) {
-        kv.encode(buildKey(name, versionRelated), value)
+    override fun writeBool(meta: ConfigMeta, value: Boolean) {
+        kv.encode(meta.buildKey(), value)
     }
 
-    override fun readInt(name: String, versionRelated: Boolean, default: Int): Int {
-        return kv.decodeInt(buildKey(name, versionRelated), default)
+    override fun readInt(meta: ConfigMeta, default: Int): Int {
+        return kv.decodeInt(meta.buildKey(), default)
     }
 
-    override fun writeInt(name: String, versionRelated: Boolean, value: Int) {
-        kv.encode(buildKey(name, versionRelated), value)
+    override fun writeInt(meta: ConfigMeta, value: Int) {
+        kv.encode(meta.buildKey(), value)
     }
 
-    override fun readLong(name: String, versionRelated: Boolean, default: Long): Long {
-        return kv.decodeLong(buildKey(name, versionRelated), default)
+    override fun readLong(meta: ConfigMeta, default: Long): Long {
+        return kv.decodeLong(meta.buildKey(), default)
     }
 
-    override fun writeLong(name: String, versionRelated: Boolean, value: Long) {
-        kv.encode(buildKey(name, versionRelated), value)
+    override fun writeLong(meta: ConfigMeta, value: Long) {
+        kv.encode(meta.buildKey(), value)
     }
 
-    override fun readFloat(name: String, versionRelated: Boolean, default: Float): Float {
-        return kv.decodeFloat(buildKey(name, versionRelated), default)
+    override fun readFloat(meta: ConfigMeta, default: Float): Float {
+        return kv.decodeFloat(meta.buildKey(), default)
     }
 
-    override fun writeFloat(name: String, versionRelated: Boolean, value: Float) {
-        kv.encode(buildKey(name, versionRelated), value)
+    override fun writeFloat(meta: ConfigMeta, value: Float) {
+        kv.encode(meta.buildKey(), value)
     }
 
-    override fun readDouble(name: String, versionRelated: Boolean, default: Double): Double {
-        return kv.decodeDouble(buildKey(name, versionRelated), default)
+    override fun readDouble(meta: ConfigMeta, default: Double): Double {
+        return kv.decodeDouble(meta.buildKey(), default)
     }
 
-    override fun writeDouble(name: String, versionRelated: Boolean, value: Double) {
-        kv.encode(buildKey(name, versionRelated), value)
+    override fun writeDouble(meta: ConfigMeta, value: Double) {
+        kv.encode(meta.buildKey(), value)
     }
 
-    override fun readString(name: String, versionRelated: Boolean, default: String): String {
-        return kv.decodeString(buildKey(name, versionRelated), default) ?: ""
+    override fun readString(meta: ConfigMeta, default: String): String {
+        return kv.decodeString(meta.buildKey(), default) ?: ""
     }
 
-    override fun writeString(name: String, versionRelated: Boolean, value: String) {
-        kv.encode(buildKey(name, versionRelated), value)
+    override fun writeString(meta: ConfigMeta, value: String) {
+        kv.encode(meta.buildKey(), value)
     }
 
-    override fun remove(name: String, versionRelated: Boolean) {
-        kv.removeValueForKey(buildKey(name, versionRelated))
+    override fun remove(meta: ConfigMeta) {
+        kv.removeValueForKey(meta.buildKey())
+    }
+
+    override fun remove(metas: List<ConfigMeta>) {
+        kv.removeValuesForKeys(metas.map { it.buildKey() }.toTypedArray())
+    }
+
+    override fun clearUp(exclude: List<ConfigMeta>) {
+        val excludeKeys = exclude.map { it.buildKey() }
+        kv.allKeys()
+            ?.filter { !excludeKeys.contains(it) }
+            ?.let {
+                if (it.isNotEmpty()) {
+                    kv.removeValuesForKeys(it.toTypedArray())
+                }
+            }
     }
 
     override fun flush() {

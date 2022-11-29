@@ -55,16 +55,18 @@ class ConfigMapProcessor(
         val osForConfigMapFactory: OutputStream = codeGenerator.createNewFile(
             dependencies = Dependencies(true, *inputFlies),
             packageName = ConfigMapFactory::class.java.packageName,
-            fileName = "ConfigMapFactoryGenerated.kt"
+            fileName = "ConfigMapFactoryGenerated"
         )
 
         val osForConfigCenterEx: OutputStream = codeGenerator.createNewFile(
             dependencies = Dependencies(true, *inputFlies),
             packageName = ConfigMapFactory::class.java.packageName,
-            fileName = "ConfigCenterEx.kt"
+            fileName = "ConfigCenterEx"
         )
 
         osForConfigMapFactory.writeLine("package ${ConfigMapFactory::class.java.packageName}")
+        osForConfigMapFactory.writeLine("import androidx.annotation.Keep")
+        osForConfigMapFactory.writeLine("@Keep")
         osForConfigMapFactory.write("class ConfigMapFactoryGenerated:${ConfigMapFactory::class.java.simpleName}")
         osForConfigMapFactory.writeBlock {
             osForConfigMapFactory.write("override fun factory(storage: ConfigStorage, prodMode: Boolean): ConfigMap")

@@ -16,17 +16,23 @@
 
 package cn.qhplus.emo.config
 
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
+
 class ConfigCenter(
     val storage: ConfigStorage,
-    val prodMode: Boolean = true
+    val prodMode: Boolean = true,
+    autoClearUp: Boolean = true
 ) {
 
     private val configMap by lazy {
         try {
-            val configMapFactoryClsName = ConfigMapFactory::class.java.name
-            val dot: Int = configMapFactoryClsName.lastIndexOf('.')
-            val packageName = if (dot != -1) configMapFactoryClsName.substring(0, dot) else ""
-            val cls = Class.forName("$packageName.ConfigMapFactoryGenerated")
+            val cls = Class.forName("cn.qhplus.emo.config.ConfigMapFactoryGenerated")
             val factory = cls.getDeclaredConstructor().newInstance() as ConfigMapFactory
             factory.factory(storage, prodMode)
         } catch (e: Throwable) {
@@ -34,6 +40,17 @@ class ConfigCenter(
                 throw e
             }
             ConfigMap(emptyMap(), emptyMap())
+        }
+    }
+
+    init {
+        if(autoClearUp){
+            @OptIn(DelicateCoroutinesApi::class)
+            GlobalScope.launch {
+                // delay to clear up
+                delay(15 * 1000)
+                clearUp()
+            }
         }
     }
 
@@ -45,6 +62,10 @@ class ConfigCenter(
         return configMap.actionByName(name)
     }
 
+    fun clearUp(){
+        storage.clearUp(configMap.actionMap.values.map { it.meta })
+    }
+
     fun getAll(): List<ConfigAction> {
         return configMap.actionMap.values.toList()
     }
@@ -53,18 +74,136 @@ class ConfigCenter(
         return getAll().groupBy { it.meta.category }
     }
 
-    fun getByCategory(category: String): List<ConfigAction>{
+    fun getByCategory(category: String): List<ConfigAction> {
         return getAll().filter { it.meta.category == category }
     }
 
-    fun getByTag(tag: String): List<ConfigAction>{
+    fun getByTag(tag: String): List<ConfigAction> {
         return getAll().filter { it.meta.tags.contains(tag) }
+    }
+
+    fun removeIf(predicate: (ConfigAction) -> Boolean) {
+        val metas = getAll().asSequence().filter(predicate).map { it.meta }.toList()
+        return storage.remove(metas)
+    }
+
+    suspend fun writeMap(
+        map: Map<String, Any>,
+        onConfigNotFind: OnConfigNotDefined = OnConfigNotDefined {_, _ -> false },
+        onValueTypeNotMatch: OnValueTypeNotMatched = OnValueTypeNotMatched { action, configCls, _, actual, expected ->
+            if (!prodMode) {
+                throw RuntimeException(
+                    "Value type for ${configCls.simpleName}[name = ${action.meta.name}] is not matched. expected ${expected.simpleName}, actual ${actual.simpleName}"
+                )
+            }
+            false
+        }
+    ) = withContext(Dispatchers.IO) {
+        for ((name, value) in map) {
+            val cls = configMap.clsByName(name)
+            val action = cls?.let { configMap.actionMap[it] } ?: if (onConfigNotFind.invoke(name, value)) {
+                break
+            } else {
+                continue
+            }
+            if(action is IntConfigAction){
+                if(value is Int){
+                    action.write(value)
+                } else if(value is String){
+                    try {
+                        action.write(value.toInt())
+                    }catch (ignore: Throwable){
+                        if(onValueTypeNotMatch.invoke(action, cls, value, Int::class.java, String::class.java)){
+                            break
+                        }
+                    }
+                }
+            } else if(action is BoolConfigAction) {
+                if(value is Boolean){
+                    action.write(value)
+                }else if(value == 0 || value == "false" || value == "0"){
+                    action.write(false)
+                }else if(value == 1 || value == "true" || value == "1"){
+                    action.write(true)
+                }else{
+                    if(onValueTypeNotMatch.invoke(action, cls, value, Boolean::class.java, value.javaClass)){
+                        break
+                    }
+                }
+            } else if (action is LongConfigAction){
+                if(value is Long){
+                    action.write(value)
+                }else if(value is Int){
+                    action.write(value.toLong())
+                }else if(value is String){
+                    try {
+                        action.write(value.toLong())
+                    }catch (ignore: Throwable){
+                        if(onValueTypeNotMatch.invoke(action, cls, value, Long::class.java, String::class.java)){
+                            break
+                        }
+                    }
+                }else{
+                    if(onValueTypeNotMatch.invoke(action, cls, value, Long::class.java, value.javaClass)){
+                        break
+                    }
+                }
+            } else if (action is FloatConfigAction){
+                if(value is Number){
+                    action.write(value.toFloat())
+                }else if(value is String){
+                    try {
+                        action.write(value.toFloat())
+                    }catch (ignore: Throwable){
+                        if(onValueTypeNotMatch.invoke(action, cls, value, Float::class.java, String::class.java)){
+                            break
+                        }
+                    }
+                }else{
+                    if(onValueTypeNotMatch.invoke(action, cls, value, Float::class.java, value.javaClass)){
+                        break
+                    }
+                }
+            } else if (action is DoubleConfigAction){
+                if(value is Number){
+                    action.write(value.toDouble())
+                }else if(value is String){
+                    try {
+                        action.write(value.toDouble())
+                    }catch (ignore: Throwable){
+                        if(onValueTypeNotMatch.invoke(action, cls, value, Double::class.java, String::class.java)){
+                            break
+                        }
+                    }
+                }else{
+                    if(onValueTypeNotMatch.invoke(action, cls, value, Double::class.java, value.javaClass)){
+                        break
+                    }
+                }
+            } else if(action is StringConfigAction){
+                if(value is String){
+                    action.write(value)
+                }else{
+                    if(onValueTypeNotMatch.invoke(action, cls, value, String::class.java, value.javaClass)){
+                        break
+                    }
+                }
+            }
+        }
     }
 
     @Suppress("UNCHECKED_CAST")
     fun <T> implOf(cls: Class<T>): T? {
         val resolver = configMap.implMap[cls] ?: return null
         return resolver.resolve() as T?
+    }
+
+    fun interface OnConfigNotDefined {
+        fun invoke(name: String, value: Any): Boolean
+    }
+
+    fun interface OnValueTypeNotMatched {
+        fun invoke(action: ConfigAction, configCls: Class<*>, value: Any, expectedType: Class<*>, actualType: Class<*>): Boolean
     }
 }
 

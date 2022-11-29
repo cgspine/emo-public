@@ -20,14 +20,18 @@ class ConfigMap(
     val actionMap: Map<Class<*>, ConfigAction>,
     val implMap: Map<Class<*>, ConfigImplResolver<*>>
 ) {
-    private val nameMap = mutableMapOf<String, ConfigAction>().apply {
-        actionMap.values.forEach {
-            put(it.meta.name, it)
+    private val nameMap = mutableMapOf<String, Class<*>>().apply {
+        actionMap.forEach { (cls, action) ->
+            put(action.meta.name, cls)
         }
     }
 
-    fun actionByName(name: String): ConfigAction? {
+    fun clsByName(name: String): Class<*>? {
         return nameMap[name]
+    }
+
+    fun actionByName(name: String): ConfigAction? {
+        return nameMap[name]?.let { actionMap[it] }
     }
 }
 
