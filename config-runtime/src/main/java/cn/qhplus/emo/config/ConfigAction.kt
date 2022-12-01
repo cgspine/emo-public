@@ -35,6 +35,10 @@ sealed class ConfigAction(
     fun remove() {
         storage.remove(meta)
     }
+
+    abstract fun readAsString(): String
+    abstract fun writeFromString(value: String): Boolean
+    abstract fun valueType(): Class<*>
 }
 
 class IntConfigAction(
@@ -52,6 +56,14 @@ class IntConfigAction(
         }
     }
 
+    override fun readAsString(): String {
+        return read().toString()
+    }
+
+    override fun writeFromString(value: String): Boolean {
+        return value.toIntOrNull()?.run { write(this); true  } ?: false
+    }
+
     fun read(): Int {
         return storage.readInt(meta, default)
     }
@@ -60,6 +72,8 @@ class IntConfigAction(
         storage.writeInt(meta, value)
         stateFlow?.get()?.value = value
     }
+
+    override fun valueType(): Class<*> = Int::class.java
 }
 
 class BoolConfigAction(
@@ -76,6 +90,24 @@ class BoolConfigAction(
             stateFlow?.get() ?: MutableStateFlow(read()).also { stateFlow = WeakReference(it) }
         }
     }
+
+    override fun readAsString(): String {
+        return read().toString()
+    }
+
+    override fun writeFromString(value: String): Boolean {
+        val lowercase = value.lowercase()
+        if(lowercase == "1" || lowercase == "true"){
+            write(true)
+            return true
+        }else if(lowercase == "0" || lowercase == "false"){
+            write(false)
+            return true
+        }
+        return false
+    }
+
+    override fun valueType(): Class<*> = Boolean::class.java
 
     fun read(): Boolean {
         return storage.readBool(meta, default)
@@ -102,6 +134,16 @@ class LongConfigAction(
         }
     }
 
+    override fun readAsString(): String {
+        return read().toString()
+    }
+
+    override fun writeFromString(value: String): Boolean {
+        return value.toLongOrNull()?.run { write(this); true  } ?: false
+    }
+
+    override fun valueType(): Class<*> = Long::class.java
+
     fun read(): Long {
         return storage.readLong(meta, default)
     }
@@ -126,6 +168,16 @@ class FloatConfigAction(
             stateFlow?.get() ?: MutableStateFlow(read()).also { stateFlow = WeakReference(it) }
         }
     }
+
+    override fun readAsString(): String {
+        return read().toString()
+    }
+
+    override fun writeFromString(value: String): Boolean {
+        return value.toFloatOrNull()?.run { write(this); true  } ?: false
+    }
+
+    override fun valueType(): Class<*> = Float::class.java
 
     fun read(): Float {
         return storage.readFloat(meta, default)
@@ -152,6 +204,16 @@ class DoubleConfigAction(
         }
     }
 
+    override fun readAsString(): String {
+        return read().toString()
+    }
+
+    override fun writeFromString(value: String): Boolean {
+        return value.toDoubleOrNull()?.run { write(this); true  } ?: false
+    }
+
+    override fun valueType(): Class<*> = Double::class.java
+
     fun read(): Double {
         return storage.readDouble(meta, default)
     }
@@ -176,6 +238,17 @@ class StringConfigAction(
             stateFlow?.get() ?: MutableStateFlow(read()).also { stateFlow = WeakReference(it) }
         }
     }
+
+    override fun readAsString(): String {
+        return read()
+    }
+
+    override fun writeFromString(value: String): Boolean {
+        write(value)
+        return true
+    }
+
+    override fun valueType(): Class<*> = String::class.java
 
     fun read(): String {
         return storage.readString(meta, default)

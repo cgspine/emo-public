@@ -95,6 +95,7 @@ dependencies {
     implementation(project(":permission"))
     implementation(project(":js-bridge"))
     implementation(project(":config-mmkv"))
+    implementation(project(":config-panel"))
     ksp(project(":config-ksp"))
 
     implementation(libs.androidx.activity.compose)

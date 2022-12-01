@@ -27,6 +27,7 @@ include(":report")
 include(":config-runtime")
 include(":config-ksp")
 include(":config-mmkv")
+include(":config-panel")
 include(":app")
 
 

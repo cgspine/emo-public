@@ -48,6 +48,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import cn.qhplus.emo.R
+import cn.qhplus.emo.config.panel.ConfigPanel
+import cn.qhplus.emo.configCenter
+import cn.qhplus.emo.modal.emoBottomSheet
 import cn.qhplus.emo.modal.emoToast
 import cn.qhplus.emo.ui.CommonItem
 import cn.qhplus.emo.ui.RouteConst
@@ -179,6 +182,16 @@ fun ComponentPage(navController: NavHostController) {
             CommonItem("JS Bridge") {
                 navController.navigate(RouteConst.ROUTE_JS_BRIDGE)
             }
+        }
+
+        item {
+            val view = LocalView.current
+            CommonItem("Config Panel") {
+                view.emoBottomSheet {
+                    ConfigPanel(configCenter)
+                }.show()
+            }
+
         }
     }
 }

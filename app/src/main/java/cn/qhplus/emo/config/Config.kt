@@ -1,5 +1,7 @@
 package cn.qhplus.emo.config
 
+import cn.qhplus.emo.config.panel.ConfigImplDisplayable
+
 @ConfigBasic(
     category = "action",
     name = "test_int",
@@ -79,6 +81,55 @@ object ConfigImplIntB : ConfigTestImplInt {
         return "ConfigImplIntB"
     }
 }
+
+
+@ConfigBasic(
+    category = "implementation",
+    name = "test_domain",
+    humanName = "请求环境",
+    versionRelated = true
+)
+@ConfigWithIntValue(default = 1)
+sealed interface ConfigTestImplDisplay: ConfigImplDisplayable {
+    fun getHost(): String
+}
+
+@ConfigWithIntValue(default = 1)
+object ConfigTestImplDisplayA : ConfigTestImplDisplay {
+
+    override fun displayName(): String {
+        return "现网环境"
+    }
+
+    override fun getHost(): String {
+        return "prod.qhplus.cn"
+    }
+}
+
+@ConfigWithIntValue(default = 2)
+object ConfigTestImplDisplayB : ConfigTestImplDisplay {
+
+    override fun displayName(): String {
+        return "开发环境"
+    }
+
+    override fun getHost(): String {
+        return "dev.qhplus.cn"
+    }
+}
+
+@ConfigWithIntValue(default = 3)
+object ConfigTestImplDisplayC : ConfigTestImplDisplay {
+
+    override fun displayName(): String {
+        return "测试环境"
+    }
+
+    override fun getHost(): String {
+        return "test.qhplus.cn"
+    }
+}
+
 
 
 @ConfigBasic(

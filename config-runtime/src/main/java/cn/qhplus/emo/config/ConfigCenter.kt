@@ -23,7 +23,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-
 class ConfigCenter(
     val storage: ConfigStorage,
     val prodMode: Boolean = true,
@@ -58,6 +57,21 @@ class ConfigCenter(
         return configMap.actionMap[cls] ?: throw RuntimeException("${cls.simpleName} is not a config interface")
     }
 
+    @Suppress("UNCHECKED_CAST")
+    fun <T> resolverOf(cls: Class<T>):ConfigImplResolver<T>? {
+        return configMap.implMap[cls] as? ConfigImplResolver<T>
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    fun <T> implOf(cls: Class<T>): T? {
+        val resolver = resolverOf(cls) ?: return null
+        return resolver.resolve()
+    }
+
+    fun clsByName(name: String): Class<*>? {
+        return configMap.clsByName(name)
+    }
+
     fun actionByName(name: String): ConfigAction? {
         return configMap.actionByName(name)
     }
@@ -66,19 +80,15 @@ class ConfigCenter(
         storage.clearUp(configMap.actionMap.values.map { it.meta })
     }
 
-    fun getAll(): List<ConfigAction> {
-        return configMap.actionMap.values.toList()
+    fun getAll(): Sequence<ConfigAction> {
+        return configMap.actionMap.values.asSequence()
     }
 
-    fun getAllAndGroupByCategory(): Map<String, List<ConfigAction>> {
-        return getAll().groupBy { it.meta.category }
-    }
-
-    fun getByCategory(category: String): List<ConfigAction> {
+    fun getByCategory(category: String): Sequence<ConfigAction> {
         return getAll().filter { it.meta.category == category }
     }
 
-    fun getByTag(tag: String): List<ConfigAction> {
+    fun getByTag(tag: String): Sequence<ConfigAction> {
         return getAll().filter { it.meta.tags.contains(tag) }
     }
 
@@ -86,6 +96,7 @@ class ConfigCenter(
         val metas = getAll().asSequence().filter(predicate).map { it.meta }.toList()
         return storage.remove(metas)
     }
+
 
     suspend fun writeMap(
         map: Map<String, Any>,
@@ -106,96 +117,50 @@ class ConfigCenter(
             } else {
                 continue
             }
-            if(action is IntConfigAction){
+            if(value is String){
+                if(action.writeFromString(value)){
+                    continue
+                }
+            } else if(action is IntConfigAction){
                 if(value is Int){
                     action.write(value)
-                } else if(value is String){
-                    try {
-                        action.write(value.toInt())
-                    }catch (ignore: Throwable){
-                        if(onValueTypeNotMatch.invoke(action, cls, value, Int::class.java, String::class.java)){
-                            break
-                        }
-                    }
+                    continue
                 }
             } else if(action is BoolConfigAction) {
                 if(value is Boolean){
                     action.write(value)
-                }else if(value == 0 || value == "false" || value == "0"){
+                    continue
+                }else if(value == 0){
                     action.write(false)
-                }else if(value == 1 || value == "true" || value == "1"){
+                    continue
+                }else if(value == 1){
                     action.write(true)
-                }else{
-                    if(onValueTypeNotMatch.invoke(action, cls, value, Boolean::class.java, value.javaClass)){
-                        break
-                    }
+                    continue
                 }
             } else if (action is LongConfigAction){
                 if(value is Long){
                     action.write(value)
+                    continue
                 }else if(value is Int){
                     action.write(value.toLong())
-                }else if(value is String){
-                    try {
-                        action.write(value.toLong())
-                    }catch (ignore: Throwable){
-                        if(onValueTypeNotMatch.invoke(action, cls, value, Long::class.java, String::class.java)){
-                            break
-                        }
-                    }
-                }else{
-                    if(onValueTypeNotMatch.invoke(action, cls, value, Long::class.java, value.javaClass)){
-                        break
-                    }
+                    continue
                 }
             } else if (action is FloatConfigAction){
                 if(value is Number){
                     action.write(value.toFloat())
-                }else if(value is String){
-                    try {
-                        action.write(value.toFloat())
-                    }catch (ignore: Throwable){
-                        if(onValueTypeNotMatch.invoke(action, cls, value, Float::class.java, String::class.java)){
-                            break
-                        }
-                    }
-                }else{
-                    if(onValueTypeNotMatch.invoke(action, cls, value, Float::class.java, value.javaClass)){
-                        break
-                    }
+                    continue
                 }
             } else if (action is DoubleConfigAction){
                 if(value is Number){
                     action.write(value.toDouble())
-                }else if(value is String){
-                    try {
-                        action.write(value.toDouble())
-                    }catch (ignore: Throwable){
-                        if(onValueTypeNotMatch.invoke(action, cls, value, Double::class.java, String::class.java)){
-                            break
-                        }
-                    }
-                }else{
-                    if(onValueTypeNotMatch.invoke(action, cls, value, Double::class.java, value.javaClass)){
-                        break
-                    }
-                }
-            } else if(action is StringConfigAction){
-                if(value is String){
-                    action.write(value)
-                }else{
-                    if(onValueTypeNotMatch.invoke(action, cls, value, String::class.java, value.javaClass)){
-                        break
-                    }
+                    continue
                 }
             }
-        }
-    }
 
-    @Suppress("UNCHECKED_CAST")
-    fun <T> implOf(cls: Class<T>): T? {
-        val resolver = configMap.implMap[cls] ?: return null
-        return resolver.resolve() as T?
+            if(onValueTypeNotMatch.invoke(action, cls, value, action.valueType(), String::class.java)){
+                break
+            }
+        }
     }
 
     fun interface OnConfigNotDefined {
@@ -209,6 +174,10 @@ class ConfigCenter(
 
 inline fun <reified T : Any> ConfigCenter.actionOf(): ConfigAction {
     return actionOf(T::class.java)
+}
+
+inline fun <reified T : Any> ConfigCenter.resolverOf(): ConfigImplResolver<T>? {
+    return resolverOf(T::class.java)
 }
 
 inline fun <reified T : Any> ConfigCenter.implOf(): T? {

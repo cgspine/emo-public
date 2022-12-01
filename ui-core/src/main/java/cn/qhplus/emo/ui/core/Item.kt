@@ -86,12 +86,17 @@ fun Item(
             .drawBehind {
                 drawBehind?.invoke(this)
             }
-            .throttleClick(
-                enabled = onClick != null,
-                interactionSource = remember { MutableInteractionSource() },
-                indication = indication
-            ) {
-                onClick?.invoke()
+            .let {
+                if(onClick != null){
+                    it.throttleClick(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = indication
+                    ) {
+                        onClick.invoke()
+                    }
+                } else {
+                    it
+                }
             }
             .padding(horizontal = paddingHor, vertical = paddingVer),
         verticalAlignment = Alignment.CenterVertically
