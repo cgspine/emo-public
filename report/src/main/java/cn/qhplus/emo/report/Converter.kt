@@ -18,22 +18,16 @@ package cn.qhplus.emo.report
 
 interface ReportMsgConverter<T> {
     fun encode(content: T): ByteArray
-    fun decode(content: ByteArray, offset: Int, len: Int): T
+    fun decode(content: ByteArray): T
 }
 
-class ReportStringMsgConverter private constructor() : ReportMsgConverter<String> {
-
-    companion object {
-        val instance by lazy {
-            ReportStringMsgConverter()
-        }
-    }
+object ReportStringMsgConverter : ReportMsgConverter<String> {
 
     override fun encode(content: String): ByteArray {
         return content.toByteArray()
     }
 
-    override fun decode(content: ByteArray, offset: Int, len: Int): String {
-        return String(content, offset, len)
+    override fun decode(content: ByteArray): String {
+        return String(content)
     }
 }

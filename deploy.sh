@@ -8,6 +8,8 @@
 #./deploy.sh network publishToMavenLocal
 #./deploy.sh permission publishToMavenLocal
 #./deploy.sh js-bridge publishToMavenLocal
+#./deploy.sh report publishToMavenLocal
+#./deploy.sh config publishToMavenLocal
 #./deploy.sh all publishToMavenLocal
 
 #./deploy.sh core publish
@@ -18,6 +20,8 @@
 #./deploy.sh network publish
 #./deploy.sh permission publish
 #./deploy.sh js-bridge publish
+#./deploy.sh report publish
+#./deploy.sh config publish
 #./deploy.sh all publish
 
 buildCore="./gradlew :core:clean :core:build core:$2"
@@ -29,6 +33,11 @@ buildPhotoCoil="./gradlew :photo-coil:clean :photo-coil:build :photo-coil:$2"
 buildNetwork="./gradlew :network:clean :network:build :network:$2"
 buildPermission="./gradlew :permission:clean :permission:build :permission:$2"
 buildJsBridge="./gradlew :js-bridge:clean :js-bridge:build :js-bridge:$2"
+buildReport="./gradlew :report:clean :report:build :report:$2"
+buildConfigRuntime="./gradlew :config-runtime:clean :config-runtime:build :config-runtime:$2"
+buildConfigMMKV="./gradlew :config-mmkv:clean :config-mmkv:build :config-mmkv:$2"
+buildConfigKsp="./gradlew :config-ksp:clean :config-ksp:build :config-ksp:$2"
+buildConfigPanel="./gradlew :config-panel:clean :config-panel:build :config-panel:$2"
 
 
 if [[ "core" == "$1" ]]
@@ -56,6 +65,15 @@ elif [[ "photo" == "$1" ]]
 then
     $buildPhoto
     $buildPhotoCoil
+elif [[ "report" == "$1" ]]
+then
+    $buildReport
+elif [[ "config" == "$1" ]]
+then
+    $buildConfigRuntime
+    $buildConfigKsp
+    $buildConfigMMKV
+    $buildConfigPanel
 elif [[ "all" == "$1" ]]
 then
     $buildCore
@@ -67,4 +85,9 @@ then
     $buildPhoto
     $buildPhotoCoil
     $buildJsBridge
+    $buildReport
+    $buildConfigRuntime
+    $buildConfigKsp
+    $buildConfigMMKV
+    $buildConfigPanel
 fi

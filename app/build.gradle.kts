@@ -22,6 +22,8 @@ plugins {
     id("emo.spotless")
     @Suppress("DSL_SCOPE_VIOLATION") // TODO: Remove once KTIJ-19369 is fixed
     alias(libs.plugins.ksp)
+    @Suppress("DSL_SCOPE_VIOLATION") // TODO: Remove once KTIJ-19369 is fixed
+    alias(libs.plugins.serialization)
 }
 
 fun runCommand(project: Project, command: String): String {
@@ -94,6 +96,7 @@ dependencies {
     implementation(project(":network"))
     implementation(project(":permission"))
     implementation(project(":js-bridge"))
+    implementation(project(":report"))
     implementation(project(":config-mmkv"))
     implementation(project(":config-panel"))
     ksp(project(":config-ksp"))
@@ -109,4 +112,6 @@ dependencies {
     implementation(libs.accompanist.webview)
 
     implementation(libs.material3)
+
+    implementation(libs.kotlinx.serialization.protobuf)
 }

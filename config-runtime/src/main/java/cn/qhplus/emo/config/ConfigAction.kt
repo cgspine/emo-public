@@ -61,7 +61,7 @@ class IntConfigAction(
     }
 
     override fun writeFromString(value: String): Boolean {
-        return value.toIntOrNull()?.run { write(this); true  } ?: false
+        return value.toIntOrNull()?.run { write(this); true } ?: false
     }
 
     fun read(): Int {
@@ -97,10 +97,10 @@ class BoolConfigAction(
 
     override fun writeFromString(value: String): Boolean {
         val lowercase = value.lowercase()
-        if(lowercase == "1" || lowercase == "true"){
+        if (lowercase == "1" || lowercase == "true") {
             write(true)
             return true
-        }else if(lowercase == "0" || lowercase == "false"){
+        } else if (lowercase == "0" || lowercase == "false") {
             write(false)
             return true
         }
@@ -139,7 +139,7 @@ class LongConfigAction(
     }
 
     override fun writeFromString(value: String): Boolean {
-        return value.toLongOrNull()?.run { write(this); true  } ?: false
+        return value.toLongOrNull()?.run { write(this); true } ?: false
     }
 
     override fun valueType(): Class<*> = Long::class.java
@@ -174,7 +174,7 @@ class FloatConfigAction(
     }
 
     override fun writeFromString(value: String): Boolean {
-        return value.toFloatOrNull()?.run { write(this); true  } ?: false
+        return value.toFloatOrNull()?.run { write(this); true } ?: false
     }
 
     override fun valueType(): Class<*> = Float::class.java
@@ -209,7 +209,7 @@ class DoubleConfigAction(
     }
 
     override fun writeFromString(value: String): Boolean {
-        return value.toDoubleOrNull()?.run { write(this); true  } ?: false
+        return value.toDoubleOrNull()?.run { write(this); true } ?: false
     }
 
     override fun valueType(): Class<*> = Double::class.java

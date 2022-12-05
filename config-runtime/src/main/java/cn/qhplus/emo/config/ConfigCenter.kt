@@ -16,6 +16,8 @@
 
 package cn.qhplus.emo.config
 
+import cn.qhplus.emo.config.ConfigCenter.OnConfigNotDefined
+import cn.qhplus.emo.config.ConfigCenter.OnValueTypeNotMatched
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -43,7 +45,7 @@ class ConfigCenter(
     }
 
     init {
-        if(autoClearUp){
+        if (autoClearUp) {
             @OptIn(DelicateCoroutinesApi::class)
             GlobalScope.launch {
                 // delay to clear up
@@ -58,7 +60,7 @@ class ConfigCenter(
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun <T> resolverOf(cls: Class<T>):ConfigImplResolver<T>? {
+    fun <T> resolverOf(cls: Class<T>): ConfigImplResolver<T>? {
         return configMap.implMap[cls] as? ConfigImplResolver<T>
     }
 
@@ -76,7 +78,7 @@ class ConfigCenter(
         return configMap.actionByName(name)
     }
 
-    fun clearUp(){
+    fun clearUp() {
         storage.clearUp(configMap.actionMap.values.map { it.meta })
     }
 
@@ -97,14 +99,14 @@ class ConfigCenter(
         return storage.remove(metas)
     }
 
-
     suspend fun writeMap(
         map: Map<String, Any>,
-        onConfigNotFind: OnConfigNotDefined = OnConfigNotDefined {_, _ -> false },
+        onConfigNotFind: OnConfigNotDefined = OnConfigNotDefined { _, _ -> false },
         onValueTypeNotMatch: OnValueTypeNotMatched = OnValueTypeNotMatched { action, configCls, _, actual, expected ->
             if (!prodMode) {
                 throw RuntimeException(
-                    "Value type for ${configCls.simpleName}[name = ${action.meta.name}] is not matched. expected ${expected.simpleName}, actual ${actual.simpleName}"
+                    "Value type for ${configCls.simpleName}[name = ${action.meta.name}] is not matched. " +
+                        "expected ${expected.simpleName}, actual ${actual.simpleName}"
                 )
             }
             false
@@ -117,47 +119,47 @@ class ConfigCenter(
             } else {
                 continue
             }
-            if(value is String){
-                if(action.writeFromString(value)){
+            if (value is String) {
+                if (action.writeFromString(value)) {
                     continue
                 }
-            } else if(action is IntConfigAction){
-                if(value is Int){
+            } else if (action is IntConfigAction) {
+                if (value is Int) {
                     action.write(value)
                     continue
                 }
-            } else if(action is BoolConfigAction) {
-                if(value is Boolean){
+            } else if (action is BoolConfigAction) {
+                if (value is Boolean) {
                     action.write(value)
                     continue
-                }else if(value == 0){
+                } else if (value == 0) {
                     action.write(false)
                     continue
-                }else if(value == 1){
+                } else if (value == 1) {
                     action.write(true)
                     continue
                 }
-            } else if (action is LongConfigAction){
-                if(value is Long){
+            } else if (action is LongConfigAction) {
+                if (value is Long) {
                     action.write(value)
                     continue
-                }else if(value is Int){
+                } else if (value is Int) {
                     action.write(value.toLong())
                     continue
                 }
-            } else if (action is FloatConfigAction){
-                if(value is Number){
+            } else if (action is FloatConfigAction) {
+                if (value is Number) {
                     action.write(value.toFloat())
                     continue
                 }
-            } else if (action is DoubleConfigAction){
-                if(value is Number){
+            } else if (action is DoubleConfigAction) {
+                if (value is Number) {
                     action.write(value.toDouble())
                     continue
                 }
             }
 
-            if(onValueTypeNotMatch.invoke(action, cls, value, action.valueType(), String::class.java)){
+            if (onValueTypeNotMatch.invoke(action, cls, value, action.valueType(), String::class.java)) {
                 break
             }
         }
@@ -168,7 +170,13 @@ class ConfigCenter(
     }
 
     fun interface OnValueTypeNotMatched {
-        fun invoke(action: ConfigAction, configCls: Class<*>, value: Any, expectedType: Class<*>, actualType: Class<*>): Boolean
+        fun invoke(
+            action: ConfigAction,
+            configCls: Class<*>,
+            value: Any,
+            expectedType: Class<*>,
+            actualType: Class<*>
+        ): Boolean
     }
 }
 

@@ -147,7 +147,6 @@ class ReporterMappedByteBufferSource<T>(
     ) {
         val miniLength = Integer.BYTES + MAGIC_END.size
         val end = ByteArray(MAGIC_END.size)
-        var buffer: ByteArray? = null
         while (mappedByteBuffer.remaining() >= miniLength) {
             val size = mappedByteBuffer.int
             if (size <= 0) {
@@ -156,15 +155,13 @@ class ReporterMappedByteBufferSource<T>(
             if (mappedByteBuffer.remaining() < size + MAGIC_END.size) {
                 return
             }
-            if (buffer == null || buffer.size < size) {
-                buffer = ByteArray(size.coerceAtLeast(DEFAULT_BUFFER_SIZE))
-            }
+            val buffer = ByteArray(size)
             mappedByteBuffer.get(buffer, 0, size)
             mappedByteBuffer.get(end)
             if (!end.contentEquals(MAGIC_END)) {
                 return
             }
-            transporter.transport(client, buffer, 0, size, converter, ReportStrategy.FileBatch)
+            transporter.transport(client, buffer, converter, ReportStrategy.FileBatch)
         }
     }
 
@@ -184,7 +181,6 @@ class ReporterStreamSource<T>(
     ) = withContext(Dispatchers.IO) {
         val sizeBuffer = ByteBuffer.allocate(Integer.BYTES)
         val end = ByteArray(MAGIC_END.size)
-        var contentBuffer: ByteArray? = null
         while (true) {
             var readCount = ins.read(sizeBuffer.array())
             if (readCount < Integer.BYTES) {
@@ -195,9 +191,7 @@ class ReporterStreamSource<T>(
             if (size <= 0) {
                 return@withContext
             }
-            if (contentBuffer == null || contentBuffer.size < size) {
-                contentBuffer = ByteArray(size.coerceAtLeast(DEFAULT_BUFFER_SIZE))
-            }
+            val contentBuffer = ByteArray(size)
             readCount = ins.read(contentBuffer, 0, size)
             if (readCount < size) {
                 return@withContext
@@ -206,7 +200,7 @@ class ReporterStreamSource<T>(
             if (!end.contentEquals(MAGIC_END)) {
                 return@withContext
             }
-            transporter.transport(client, contentBuffer, 0, size, converter, ReportStrategy.FileBatch)
+            transporter.transport(client, contentBuffer, converter, ReportStrategy.FileBatch)
         }
     }
 

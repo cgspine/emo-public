@@ -148,12 +148,10 @@ class TestStreamReportTrans : StreamReportTransporter<String> {
     override suspend fun transport(
         client: ReportClient<String>,
         buffer: ByteArray,
-        offset: Int,
-        len: Int,
         converter: ReportMsgConverter<String>,
         usedStrategy: ReportStrategy
     ) {
-        Log.i(TAG, "streamTransport:" + converter.decode(buffer, offset, len))
+        Log.i(TAG, "streamTransport:" + converter.decode(buffer))
     }
 
     override suspend fun flush(client: ReportClient<String>, usedStrategy: ReportStrategy) {

@@ -87,7 +87,7 @@ fun Item(
                 drawBehind?.invoke(this)
             }
             .let {
-                if(onClick != null){
+                if (onClick != null) {
                     it.throttleClick(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = indication

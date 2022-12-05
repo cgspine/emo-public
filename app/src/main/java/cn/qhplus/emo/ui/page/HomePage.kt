@@ -52,6 +52,7 @@ import cn.qhplus.emo.config.panel.ConfigPanel
 import cn.qhplus.emo.configCenter
 import cn.qhplus.emo.modal.emoBottomSheet
 import cn.qhplus.emo.modal.emoToast
+import cn.qhplus.emo.report.reportClick
 import cn.qhplus.emo.ui.CommonItem
 import cn.qhplus.emo.ui.RouteConst
 import cn.qhplus.emo.ui.core.TopBarTextItem
@@ -191,7 +192,6 @@ fun ComponentPage(navController: NavHostController) {
                     ConfigPanel(configCenter)
                 }.show()
             }
-
         }
     }
 }
@@ -212,6 +212,13 @@ fun HelperPage(navController: NavHostController) {
         item {
             CommonItem("Separator") {
                 view.emoToast("use Modifier.top/bottom/left/rightSeparator")
+            }
+        }
+
+        item {
+            CommonItem("Report") {
+                reportClick("test")
+                view.emoToast("see the log")
             }
         }
     }

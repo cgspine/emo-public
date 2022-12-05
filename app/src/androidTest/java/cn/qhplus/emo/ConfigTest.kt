@@ -122,8 +122,6 @@ class ConfigTest {
         assert(center.implOf<ConfigTestImplString>()?.getName() == "ConfigTestImplStringA")
         center.actionOf<ConfigTestImplString>().concreteString().write("b")
         assert(center.implOf<ConfigTestImplString>()?.getName() == "ConfigTestImplStringB")
-
-
     }
 
     @Test
@@ -155,7 +153,7 @@ class ConfigTest {
     }
 
     @Test
-    fun config_write_map_test() = runTest{
+    fun config_write_map_test() = runTest {
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
         MMKV.initialize(appContext)
         val center = configCenterWithMMKV(System.currentTimeMillis().toInt())
@@ -203,13 +201,12 @@ class ConfigTest {
             assert(name == "not_exist_key")
             assert(value == "haha")
             false
-        }){ _, cgfCls, value, expected, actual ->
+        }) { _, cgfCls, value, expected, actual ->
             assert(cgfCls == ConfigTestInt::class.java)
             assert(value == "haha")
             assert(expected == Int::class.java)
             assert(actual == String::class.java)
             false
         }
-
     }
 }

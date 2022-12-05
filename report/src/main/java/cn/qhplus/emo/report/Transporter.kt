@@ -27,13 +27,27 @@ interface ListReportTransporter<T> {
     ): Boolean
 }
 
+class WriteBackIfFailedListReportTransporter<T>(val delegate: ListReportTransporter<T>) : ListReportTransporter<T> {
+    override suspend fun transport(client: ReportClient<T>, batch: List<T>, usedStrategy: ReportStrategy): Boolean {
+        val ret = kotlin.runCatching {
+            delegate.transport(client, batch, usedStrategy)
+        }.getOrDefault(false)
+        if (!ret) {
+            client.batchReport(batch, ReportStrategy.WriteBackBecauseOfFailed)
+        }
+        return true
+    }
+}
+
+fun <T> writeBackIfFailed(delegate: ListReportTransporter<T>): ListReportTransporter<T> {
+    return WriteBackIfFailedListReportTransporter(delegate)
+}
+
 interface StreamReportTransporter<T> {
 
     suspend fun transport(
         client: ReportClient<T>,
         buffer: ByteArray,
-        offset: Int,
-        len: Int,
         converter: ReportMsgConverter<T>,
         usedStrategy: ReportStrategy
     )
@@ -52,13 +66,11 @@ internal class ListToStreamTransporterAdapter<T>(
     override suspend fun transport(
         client: ReportClient<T>,
         buffer: ByteArray,
-        offset: Int,
-        len: Int,
         converter: ReportMsgConverter<T>,
         usedStrategy: ReportStrategy
     ) {
         val batchTransport = mutex.withLock {
-            list.add(converter.decode(buffer, offset, len))
+            list.add(converter.decode(buffer))
             if (list.size >= batchCount) {
                 val local = list
                 list = mutableListOf()
@@ -95,7 +107,7 @@ internal class StreamToListTransporterAdapter<T>(
     ): Boolean {
         batch.forEach {
             val buffer = converter.encode(it)
-            delegate.transport(client, buffer, 0, buffer.size, converter, usedStrategy)
+            delegate.transport(client, buffer, converter, usedStrategy)
         }
         delegate.flush(client, usedStrategy)
         return true

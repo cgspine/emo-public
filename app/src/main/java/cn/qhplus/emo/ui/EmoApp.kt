@@ -159,7 +159,6 @@ fun EmoApp(windowSizeClass: WindowSizeClass) {
     }
 }
 
-
 @Composable
 fun BoxScope.DebugInfo() {
     var expend by remember {
@@ -230,7 +229,6 @@ fun BoxScope.DebugInfo() {
             )
         }
     }
-
 }
 
 @Composable

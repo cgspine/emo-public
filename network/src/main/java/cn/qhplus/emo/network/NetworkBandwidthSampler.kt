@@ -87,7 +87,7 @@ class NetworkBandwidthSampler private constructor(
     val bandwidthFlow = _bandwidthFlow.asStateFlow()
 
     fun startSampling() {
-        if (samplingCounter.getAndDecrement() == 0) {
+        if (samplingCounter.getAndIncrement() == 0) {
             val sampleId = samplingTaskId.incrementAndGet()
             scope.launch {
                 var previousRxBytes = -1L

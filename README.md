@@ -10,6 +10,8 @@ This repository contains series of libraries for android developers:
 - permission: Request permission with tip.
 - network: Get network state and Trace network traffic.
 - js-bridge: js bridge for WebView.
+- report: data report.
+- config: use annotation and ksp to manage configs.
 - more libraries are on the way.
 
 # design principles
@@ -40,6 +42,11 @@ This repository contains series of libraries for android developers:
  <tr>
   <td> 0.2.x </td>
   <td> BOM 2022.10.00 </td>
+  <td> 1.3.2 </td>
+ </tr>
+<tr>
+  <td> 0.3.x </td>
+  <td> BOM 2022.11.00 </td>
   <td> 1.3.2 </td>
  </tr>
 </table>

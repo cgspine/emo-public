@@ -23,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -94,7 +95,7 @@ fun ModalPage(navController: NavHostController) {
                         }
                         items
                     }
-                    val markIndex by remember {
+                    var markIndex by remember {
                         mutableStateOf(20)
                     }
                     EmoDialogMarkList(
@@ -103,6 +104,7 @@ fun ModalPage(navController: NavHostController) {
                         list = list,
                         markIndex = markIndex
                     ) { _, index ->
+                        markIndex = index
                         view.emoToast("你点了第${index + 1}项")
                     }
                 }.show()

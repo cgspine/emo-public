@@ -1,11 +1,11 @@
 [versions]
-accompanist = "0.27.0"
+accompanist = "0.28.0"
 androidDesugarJdkLibs = "1.1.5"
 androidGradlePlugin = "7.3.1"
 androidxActivity = "1.6.0"
 androidxAppCompat = "1.4.2"
-androidxComposeCompiler="1.4.0-alpha02"
-androidxComposeBom = "2022.10.00"
+androidxComposeCompiler="1.3.2"
+androidxComposeBom = "2022.11.00"
 androidxCore = "1.9.0"
 androidxCustomView = "1.0.0-beta02"
 androidxDataStore = "1.0.gr0"
@@ -28,11 +28,11 @@ hilt = "2.42"
 hiltExt = "1.0.0"
 jacoco = "0.8.7"
 junit4 = "4.13.2"
-kotlin = "1.7.21"
-ksp = "1.7.21-1.0.8"
+kotlin = "1.7.20"
+ksp = "1.7.20-1.0.8"
 kotlinxCoroutines = "1.6.2"
 kotlinxDatetime = "0.3.3"
-kotlinxSerializationJson = "1.4.1"
+kotlinxSerialization = "1.4.1"
 ktlint = "0.46.0"
 material3 = "1.6.1"
 okhttp = "4.9.3"
@@ -45,15 +45,16 @@ secrets = "2.0.1"
 spotless = "6.8.0"
 turbine = "0.8.0"
 mmkv = "1.2.14"
-emoCore = "0.2.0"
-emoUiCore = "0.2.0"
-emoFs = "0.2.0"
-emoModal = "0.2.0"
-emoPhoto = "0.2.1"
-emoNetwork = "0.2.0"
-emoPermission = "0.2.0"
-emoJsBridge = "0.2.1"
-emoConfig = "0.2.0"
+emoCore = "0.3.0"
+emoUiCore = "0.3.0"
+emoFs = "0.3.0"
+emoModal = "0.3.0"
+emoPhoto = "0.3.0"
+emoNetwork = "0.3.0"
+emoPermission = "0.3.0"
+emoJsBridge = "0.3.0"
+emoConfig = "0.3.0"
+emoReport = "0.3.0"
 
 [libraries]
 accompanist-flowlayout = { group = "com.google.accompanist", name = "accompanist-flowlayout", version.ref = "accompanist" }
@@ -112,12 +113,12 @@ hilt-android-testing = { group = "com.google.dagger", name = "hilt-android-testi
 hilt-gradlePlugin = { group = "com.google.dagger", name = "hilt-android-gradle-plugin", version.ref = "hilt" }
 junit4 = { group = "junit", name = "junit", version.ref = "junit4" }
 kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
-kotlin-serializationPlugin = { group = "org.jetbrains.kotlin", name = "kotlin-serialization", version.ref = "kotlin" }
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
 kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinxDatetime" }
-kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
+kotlinx-serialization-protobuf = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-protobuf", version.ref = "kotlinxSerialization" }
 material3 = { group = "com.google.android.material", name = "material", version.ref = "material3" }
 okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
 protobuf-protoc = { group = "com.google.protobuf", name = "protoc", version.ref = "protobuf" }
@@ -136,3 +137,4 @@ tencent-mmkv = { group = "com.tencent", name = "mmkv", version.ref = "mmkv" }
 [plugins]
 protobuf = { id = "com.google.protobuf", version.ref = "protobufPlugin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

@@ -85,7 +85,7 @@ fun PhotoPickerGridPage(
         }
     }
     val permission = rememberPermissionState(permission = Manifest.permission.READ_EXTERNAL_STORAGE)
-    when (val status = permission.status) {
+    when (permission.status) {
         PermissionStatus.Granted -> {
             LaunchedEffect("") {
                 viewModel.loadData()

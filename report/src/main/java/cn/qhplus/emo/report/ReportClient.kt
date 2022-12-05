@@ -21,26 +21,33 @@ import cn.qhplus.emo.core.coroutineLogExceptionHandler
 import cn.qhplus.emo.network.NetworkConnectivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 
-
 interface ReportClient<T> {
     val scope: CoroutineScope
-    fun report(msg: T, strategy: ReportStrategy = ReportStrategy.FileBatch)
+    fun report(msg: T, strategy: ReportStrategy = ReportStrategy.FileBatch) {
+        batchReport(listOf(msg), strategy)
+    }
+
+    fun batchReport(list: List<T>, strategy: ReportStrategy = ReportStrategy.FileBatch)
+    fun flush()
     fun destroy()
 }
 
 // For Test
-class DummyReportClient<T>(override val scope: CoroutineScope): ReportClient<T> {
+class DummyReportClient<T>(override val scope: CoroutineScope) : ReportClient<T> {
 
     override fun report(msg: T, strategy: ReportStrategy) {
+    }
 
+    override fun batchReport(list: List<T>, strategy: ReportStrategy) {
+    }
+
+    override fun flush() {
     }
 
     override fun destroy() {
-
     }
 }
 
@@ -54,7 +61,7 @@ class EmoReportClient<T> internal constructor(
     val memBatchCount: Int,
     val fileBatchDirName: String,
     val fileBatchFileSize: Long
-): ReportClient<T> {
+) : ReportClient<T> {
 
     private val applicationContext = context.applicationContext
 
@@ -86,7 +93,30 @@ class EmoReportClient<T> internal constructor(
             ReportStrategy.Immediately -> immediatelyReporter.report(msg)
             ReportStrategy.MemBach -> memBatchReporter.report(msg)
             ReportStrategy.FileBatch -> fileBatchReporter.report(msg)
+            ReportStrategy.WriteBackBecauseOfFailed -> {
+                fileBatchReporter.blockTransport(30 * 1000)
+            }
         }
+    }
+
+    override fun batchReport(list: List<T>, strategy: ReportStrategy) {
+        if (!NetworkConnectivity.of(applicationContext).getNetworkState().isConnected) {
+            fileBatchReporter.batchReport(list)
+            return
+        }
+        when (strategy) {
+            ReportStrategy.Immediately -> immediatelyReporter.batchReport(list)
+            ReportStrategy.MemBach -> memBatchReporter.batchReport(list)
+            ReportStrategy.FileBatch -> fileBatchReporter.batchReport(list)
+            ReportStrategy.WriteBackBecauseOfFailed -> {
+                fileBatchReporter.blockTransport(30 * 1000)
+            }
+        }
+    }
+
+    override fun flush() {
+        memBatchReporter.flush()
+        fileBatchReporter.flush()
     }
 
     override fun destroy() {
@@ -95,49 +125,58 @@ class EmoReportClient<T> internal constructor(
     }
 }
 
-fun <T> newReportClient(init: ReportClientBuilder<T>.() -> Unit): ReportClient<T> {
-    val builder = ReportClientBuilder<T>()
-    builder.init()
-    val context = builder.context ?: throw RuntimeException("context is required!")
-    val listReportTransporter = builder.listReportTransporter ?: throw RuntimeException("listReportTransporter is required!")
-    val msgContentConverter = builder.converter ?: throw RuntimeException("converter is required!")
-    val scope = builder.scope ?: CoroutineScope(
+fun <T> newReportClient(
+    context: Context,
+    listReportTransporter: ListReportTransporter<T>,
+    converter: ReportMsgConverter<T>,
+    scope: CoroutineScope = CoroutineScope(
         SupervisorJob() +
-                Dispatchers.IO +
-                coroutineLogExceptionHandler("ReportClient")
-    )
-
-    val streamReportTransporter = builder.streamReportTransporter ?: listReportTransporter.wrapToStreamTransporter(builder.memBatchCount)
+            Dispatchers.IO +
+            coroutineLogExceptionHandler("ReportClient")
+    ),
+    streamReportTransporter: StreamReportTransporter<T>? = null,
+    batchInterval: Long = 5 * 60 * 1000,
+    memBatchCount: Int = 50,
+    fileBatchDirName: String = "emo-report",
+    fileBatchFileSize: Long = 150 * 1024
+): ReportClient<T> {
     return EmoReportClient(
         scope,
         context,
         listReportTransporter,
-        streamReportTransporter,
-        msgContentConverter,
-        builder.batchInterval,
-        builder.memBatchCount,
-        builder.fileBatchDirName,
-        builder.fileBatchFileSize
+        streamReportTransporter ?: listReportTransporter.wrapToStreamTransporter(memBatchCount),
+        converter,
+        batchInterval,
+        memBatchCount,
+        fileBatchDirName,
+        fileBatchFileSize
     )
 }
 
-fun simpleReportClient(init: ReportClientBuilder<String>.() -> Unit): ReportClient<String> {
-    return newReportClient {
-        init()
-        if (converter == null) {
-            converter = ReportStringMsgConverter.instance
-        }
-    }
-}
-
-class ReportClientBuilder<T> internal constructor() {
-    var context: Context? = null
-    var scope: CoroutineScope? = null
-    var listReportTransporter: ListReportTransporter<T>? = null
-    var streamReportTransporter: StreamReportTransporter<T>? = null
-    var converter: ReportMsgConverter<T>? = null
-    var batchInterval: Long = 5 * 60 * 1000
-    var memBatchCount: Int = 50
-    var fileBatchDirName: String = "emo-report"
-    var fileBatchFileSize: Long = 150 * 1024
+fun simpleReportClient(
+    context: Context,
+    listReportTransporter: ListReportTransporter<String>,
+    converter: ReportMsgConverter<String> = ReportStringMsgConverter,
+    scope: CoroutineScope = CoroutineScope(
+        SupervisorJob() +
+            Dispatchers.IO +
+            coroutineLogExceptionHandler("ReportClient")
+    ),
+    streamReportTransporter: StreamReportTransporter<String>? = null,
+    batchInterval: Long = 5 * 60 * 1000,
+    memBatchCount: Int = 50,
+    fileBatchDirName: String = "emo-report",
+    fileBatchFileSize: Long = 150 * 1024
+): ReportClient<String> {
+    return newReportClient(
+        context,
+        listReportTransporter,
+        converter,
+        scope,
+        streamReportTransporter,
+        batchInterval,
+        memBatchCount,
+        fileBatchDirName,
+        fileBatchFileSize
+    )
 }

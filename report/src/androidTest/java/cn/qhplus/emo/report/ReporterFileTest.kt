@@ -120,7 +120,7 @@ class ReporterFileTest {
         sourceProvider: (File) -> ReporterFileSource<String>
     ) {
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        val converter = ReportStringMsgConverter.instance
+        val converter = ReportStringMsgConverter
         val file = File(appContext.filesDir, "test-${System.currentTimeMillis()}")
         val sink = sinkProvider(file, 50)
         var ret = sink.write("aaaaaaaaaaa", converter)
@@ -137,12 +137,10 @@ class ReporterFileTest {
             override suspend fun transport(
                 client: ReportClient<String>,
                 buffer: ByteArray,
-                offset: Int,
-                len: Int,
                 converter: ReportMsgConverter<String>,
                 usedStrategy: ReportStrategy
             ) {
-                list.add(converter.decode(buffer, offset, len))
+                list.add(converter.decode(buffer))
             }
 
             override suspend fun flush(client: ReportClient<String>, usedStrategy: ReportStrategy) {
@@ -163,7 +161,7 @@ class ReporterFileTest {
     ): Speed {
         val start = SystemClock.elapsedRealtime()
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        val converter = ReportStringMsgConverter.instance
+        val converter = ReportStringMsgConverter
         val dir = File(appContext.filesDir, "test").apply {
             mkdirs()
         }
@@ -181,14 +179,12 @@ class ReporterFileTest {
             override suspend fun transport(
                 client: ReportClient<String>,
                 buffer: ByteArray,
-                offset: Int,
-                len: Int,
                 converter: ReportMsgConverter<String>,
                 usedStrategy: ReportStrategy
             ) {
             }
 
-            override suspend fun flush(client: ReportClient<String>,usedStrategy: ReportStrategy) {
+            override suspend fun flush(client: ReportClient<String>, usedStrategy: ReportStrategy) {
             }
         }
         partStart = SystemClock.elapsedRealtime()

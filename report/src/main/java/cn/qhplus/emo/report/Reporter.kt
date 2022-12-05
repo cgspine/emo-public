@@ -18,11 +18,11 @@ package cn.qhplus.emo.report
 
 import android.content.Context
 import android.os.Process
+import android.os.SystemClock
 import cn.qhplus.emo.core.EmoLog
 import cn.qhplus.emo.core.LogTag
 import cn.qhplus.emo.core.currentSimpleProcessName
 import cn.qhplus.emo.network.NetworkConnectivity
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
@@ -35,9 +35,13 @@ import java.io.Closeable
 import java.io.File
 import java.io.FileFilter
 import java.io.IOException
+import java.util.concurrent.atomic.AtomicLong
 
 interface Reporter<T> {
-    fun report(msg: T)
+    fun report(msg: T) {
+        batchReport(listOf(msg))
+    }
+    fun batchReport(list: List<T>)
 }
 
 interface BatchReporter<T> : Reporter<T> {
@@ -47,16 +51,18 @@ interface BatchReporter<T> : Reporter<T> {
 enum class ReportStrategy {
     Immediately,
     MemBach,
-    FileBatch
+    FileBatch,
+    WriteBackBecauseOfFailed
 }
 
 class ImmediatelyReporter<T>(
     private val client: ReportClient<T>,
     private val transporter: ListReportTransporter<T>
 ) : Reporter<T> {
-    override fun report(msg: T) {
+
+    override fun batchReport(list: List<T>) {
         client.scope.launch {
-            transporter.transport(client, listOf(msg), ReportStrategy.Immediately)
+            transporter.transport(client, list, ReportStrategy.Immediately)
         }
     }
 }
@@ -109,14 +115,14 @@ class MemBatchReporter<T>(
 ) : IntervalBatchReporter<T>(client, batchInterval) {
 
     @Volatile
-    private var list = mutableListOf<T>()
+    private var reportList = mutableListOf<T>()
     private val mutex = Mutex()
 
     override fun report(msg: T) {
         client.scope.launch {
             val shouldFlush = mutex.withLock {
-                list.add(msg)
-                list.size >= batchCount
+                reportList.add(msg)
+                reportList.size >= batchCount
             }
             if (shouldFlush) {
                 flush()
@@ -124,10 +130,24 @@ class MemBatchReporter<T>(
         }
     }
 
+    override fun batchReport(list: List<T>) {
+        client.scope.launch {
+            list.forEach {
+                val shouldFlush = mutex.withLock {
+                    reportList.add(it)
+                    reportList.size >= batchCount
+                }
+                if (shouldFlush) {
+                    flush()
+                }
+            }
+        }
+    }
+
     override suspend fun doFlush() {
         val toFlush = mutex.withLock {
-            val local = list
-            list = mutableListOf()
+            val local = reportList
+            reportList = mutableListOf()
             local
         }
         if (toFlush.isNotEmpty()) {
@@ -159,6 +179,7 @@ class FileBatchReporter<T>(
     private var currentFile = newFile()
     private var currentWriter = currentFile.createReportSink<T>(fileSize)
     private val transportChannel = Channel<Unit>(1, onBufferOverflow = BufferOverflow.DROP_LATEST)
+    private val blockTransportUntil = AtomicLong(0)
 
     init {
         client.scope.launch(Dispatchers.IO) {
@@ -166,9 +187,12 @@ class FileBatchReporter<T>(
             val deleteFailedFileList = mutableListOf<File>()
 
             for (i in transportChannel) {
-                if(deleteFailedFileList.isNotEmpty()){
-                    for(j in deleteFailedFileList.size-1 downTo 0){
-                        if(deleteFailedFileList[j].delete()){
+                if (blockTransportUntil.get() > SystemClock.elapsedRealtime()) {
+                    continue
+                }
+                if (deleteFailedFileList.isNotEmpty()) {
+                    for (j in deleteFailedFileList.size - 1 downTo 0) {
+                        if (deleteFailedFileList[j].delete()) {
                             deleteFailedFileList.removeAt(j)
                         }
                     }
@@ -188,7 +212,7 @@ class FileBatchReporter<T>(
                                 return@FileFilter false
                             }
 
-                            if(deleteFailedFileList.find { it.name == file.name } != null){
+                            if (deleteFailedFileList.find { it.name == file.name } != null) {
                                 return@FileFilter false
                             }
 
@@ -213,7 +237,7 @@ class FileBatchReporter<T>(
                             }.getOrDefault(false)
                             source.close()
                             if (success) {
-                                if(!file.delete()){
+                                if (!file.delete()) {
                                     // handle if MappedByteBuffer not recycled.
                                     deleteFailedFileList.add(file)
                                 } else {
@@ -231,31 +255,47 @@ class FileBatchReporter<T>(
         }
     }
 
+    fun blockTransport(time: Long) {
+        blockTransportUntil.set(SystemClock.elapsedRealtime() + time)
+    }
+
     private fun newFile(): File {
         return File(dir, "report-${Process.myPid()}-${System.currentTimeMillis()}")
     }
 
+    override fun batchReport(list: List<T>) {
+        client.scope.launch {
+            list.forEach {
+                doReport(it)
+            }
+        }
+    }
+
     override fun report(msg: T) {
         client.scope.launch {
-            try {
-                var ret = mutex.withLock {
+            doReport(msg)
+        }
+    }
+
+    private suspend fun doReport(msg: T) {
+        try {
+            var ret = mutex.withLock {
+                currentWriter.write(msg, converter)
+            }
+            if (!ret) {
+                doFlush()
+                ret = mutex.withLock {
                     currentWriter.write(msg, converter)
                 }
                 if (!ret) {
-                    doFlush()
-                    ret = mutex.withLock {
-                        currentWriter.write(msg, converter)
-                    }
-                    if (!ret) {
-                        EmoLog.w(TAG, "msg is too big, failed to write to file failed: $msg")
-                    }
+                    EmoLog.w(TAG, "msg is too big, failed to write to file failed: $msg")
                 }
-            } catch (e: IOException) {
-                doFlush()
-                // try again
-                mutex.withLock {
-                    currentWriter.write(msg, converter)
-                }
+            }
+        } catch (e: IOException) {
+            doFlush()
+            // try again
+            mutex.withLock {
+                currentWriter.write(msg, converter)
             }
         }
     }

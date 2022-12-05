@@ -1,3 +1,19 @@
+/*
+ * Copyright 2022 emo Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package cn.qhplus.emo.config.panel
 
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -5,11 +21,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.ime
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
@@ -27,13 +39,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.findRootCoordinates
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInRoot
-import androidx.compose.ui.layout.positionInWindow
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -82,7 +88,6 @@ fun ConfigPanel(configCenter: ConfigCenter) {
             }
             configList = list.groupBy { it.meta.category }.toList()
         }
-
     }
     val derivedConfigList by remember {
         derivedStateOf {
@@ -124,7 +129,6 @@ fun ConfigPanel(configCenter: ConfigCenter) {
                         key = action.meta.name,
                         contentType = action.javaClass
                     ) {
-
                         when (action) {
                             is BoolConfigAction -> {
                                 BoolConfigActionItem(action)
@@ -160,7 +164,6 @@ fun BoolConfigActionItem(action: BoolConfigAction) {
     )
 }
 
-
 @Composable
 fun GeneralConfigActionItem(configCenter: ConfigCenter, action: ConfigAction) {
     var value by remember {
@@ -174,7 +177,9 @@ fun GeneralConfigActionItem(configCenter: ConfigCenter, action: ConfigAction) {
         accessory = {
             ConfigItemValueAccessory(
                 configCenter,
-                KeyboardOptions(keyboardType = if (Number::class.java.isAssignableFrom(action.valueType())) KeyboardType.Number else KeyboardType.Text),
+                KeyboardOptions(
+                    keyboardType = if (Number::class.java.isAssignableFrom(action.valueType())) KeyboardType.Number else KeyboardType.Text
+                ),
                 action.meta.name,
                 value
             ) {
@@ -194,7 +199,6 @@ fun ConfigItemValueAccessory(
     value: String,
     onValueChange: (value: String) -> Unit
 ) {
-
     val cls = configCenter.clsByName(configName)
     if (cls != null && ConfigImplDisplayable::class.java.isAssignableFrom(cls)) {
         val resolver = configCenter.resolverOf(cls)
@@ -227,9 +231,8 @@ fun ConfigDisplayInfo(resolver: ConfigImplResolver<*>) {
             .throttleClick {
                 display = resolver.setToNext() as ConfigImplDisplayable
             }
-            .padding(start = 32.dp, top = 8.dp, bottom = 8.dp)) {
+            .padding(start = 32.dp, top = 8.dp, bottom = 8.dp)
+    ) {
         Text(text = display.displayName())
     }
-
 }
-

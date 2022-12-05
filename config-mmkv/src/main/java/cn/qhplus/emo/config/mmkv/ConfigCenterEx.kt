@@ -28,5 +28,3 @@ fun configCenterWithMMKV(
     val storage = MMKVConfigStorage(version, name, multiProcess)
     return ConfigCenter(storage, prodMode, autoClearUp)
 }
-
-

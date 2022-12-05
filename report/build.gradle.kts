@@ -19,7 +19,7 @@ plugins {
     id("emo.publish")
 }
 
-version = "0.0.1"
+version = libs.versions.emoReport.get()
 
 android {
     buildTypes {
