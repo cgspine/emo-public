@@ -16,6 +16,8 @@
 
 package cn.qhplus.emo.ui.page
 
+import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
@@ -37,6 +39,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -60,6 +63,7 @@ import cn.qhplus.emo.modal.emoToast
 import cn.qhplus.emo.report.reportClick
 import cn.qhplus.emo.scheme.ComposeScheme
 import cn.qhplus.emo.scheme.SchemeStringArg
+import cn.qhplus.emo.scheme.impl.SchemeKeys
 import cn.qhplus.emo.ui.CommonItem
 import cn.qhplus.emo.ui.core.TopBarTextItem
 import cn.qhplus.emo.ui.core.modifier.windowInsetsCommonNavPadding
@@ -108,6 +112,10 @@ fun HomePage(navBackStackEntry: NavBackStackEntry) {
         ?: SchemeConst.VALUE_TAB_HOME_COMPONENT
     val currentTab = rememberSaveable(tab) {
         mutableStateOf(tab)
+    }
+
+    LaunchedEffect(""){
+        Log.i("EmoDemo", "exposure for scheme: ${navBackStackEntry.arguments?.getString(SchemeKeys.KEY_ORIGIN)?.let { Uri.decode(it) }}")
     }
 
     Scaffold(

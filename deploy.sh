@@ -10,6 +10,7 @@
 #./deploy.sh js-bridge publishToMavenLocal
 #./deploy.sh report publishToMavenLocal
 #./deploy.sh config publishToMavenLocal
+#./deploy.sh scheme publishToMavenLocal
 #./deploy.sh all publishToMavenLocal
 
 #./deploy.sh core publish
@@ -22,6 +23,7 @@
 #./deploy.sh js-bridge publish
 #./deploy.sh report publish
 #./deploy.sh config publish
+#./deploy.sh scheme publish
 #./deploy.sh all publish
 
 buildCore="./gradlew :core:clean :core:build core:$2"
@@ -38,6 +40,9 @@ buildConfigRuntime="./gradlew :config-runtime:clean :config-runtime:build :confi
 buildConfigMMKV="./gradlew :config-mmkv:clean :config-mmkv:build :config-mmkv:$2"
 buildConfigKsp="./gradlew :config-ksp:clean :config-ksp:build :config-ksp:$2"
 buildConfigPanel="./gradlew :config-panel:clean :config-panel:build :config-panel:$2"
+buildSchemeRuntime="./gradlew :scheme-runtime:clean :scheme-runtime:build :scheme-runtime:$2"
+buildSchemeKsp="./gradlew :scheme-ksp:clean :scheme-ksp:build :scheme-ksp:$2"
+buildSchemeImpl="./gradlew :scheme-impl:clean :scheme-impl:build :scheme-impl:$2"
 
 
 if [[ "core" == "$1" ]]
@@ -74,6 +79,11 @@ then
     $buildConfigKsp
     $buildConfigMMKV
     $buildConfigPanel
+elif [[ "scheme" == "$1" ]]
+then
+    $buildSchemeRuntime
+    $buildSchemeKsp
+    $buildSchemeImpl
 elif [[ "all" == "$1" ]]
 then
     $buildCore
@@ -90,4 +100,7 @@ then
     $buildConfigKsp
     $buildConfigMMKV
     $buildConfigPanel
+    $buildSchemeRuntime
+    $buildSchemeKsp
+    $buildSchemeImpl
 fi

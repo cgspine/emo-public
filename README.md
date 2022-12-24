@@ -12,6 +12,7 @@ This repository contains series of libraries for android developers:
 - js-bridge: js bridge for WebView.
 - report: data report.
 - config: use annotation and ksp to manage configs.
+- scheme: a route library based on annotation and ksp.
 - more libraries are on the way.
 
 # design principles
@@ -55,19 +56,26 @@ This repository contains series of libraries for android developers:
 
 ```kts
 // core
-implementation("cn.qhplus.emo:core:0.2.0")
+implementation("cn.qhplus.emo:core:0.3.0")
 // ui-core
-implementation("cn.qhplus.emo:ui-core:0.2.0")
+implementation("cn.qhplus.emo:ui-core:0.3.0")
 // photo
-implementation("cn.qhplus.emo:photo-coil:0.2.1")
+implementation("cn.qhplus.emo:photo-coil:0.3.0")
 // modal
-implementation("cn.qhplus.emo:modal:0.2.0")
+implementation("cn.qhplus.emo:modal:0.3.0")
 // permission
-implementation("cn.qhplus.emo:permission:0.2.0")
+implementation("cn.qhplus.emo:permission:0.3.0")
 // network
-implementation("cn.qhplus.emo:network:0.2.0")
+implementation("cn.qhplus.emo:network:0.3.0")
 // js-bridge
-implementation("cn.qhplus.emo:js-bridge:0.2.1")
+implementation("cn.qhplus.emo:js-bridge:0.3.0")
+// config
+implementation("cn.qhplus.emo:config-mmkv:0.3.0")
+implementation("cn.qhplus.emo:config-panel:0.3.0")
+ksp("cn.qhplus.emo:config-ksp:0.3.0")
+// scheme
+implementation("cn.qhplus.emo:scheme-impl:0.3.0")
+ksp("cn.qhplus.emo:scheme-ksp:0.3.0")
 ```
 
 # Demo apk

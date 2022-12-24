@@ -36,7 +36,7 @@ object AppListReportTransporter : ListReportTransporter<ReportMsg> {
     }
 }
 
-object ReportStringMsgConverter : ReportMsgConverter<ReportMsg> {
+object ReportProtoBufMsgConverter : ReportMsgConverter<ReportMsg> {
 
     override fun encode(content: ReportMsg): ByteArray {
         return ProtoBuf.encodeToByteArray(content)
@@ -51,7 +51,7 @@ val reportClient by lazy {
     newReportClient(
         context = EmoApp.instance,
         listReportTransporter = writeBackIfFailed(AppListReportTransporter),
-        converter = ReportStringMsgConverter,
+        converter = ReportProtoBufMsgConverter,
         fileBatchFileSize = 300 // for test
     )
 }

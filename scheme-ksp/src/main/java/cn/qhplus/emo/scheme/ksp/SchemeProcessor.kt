@@ -16,7 +16,6 @@
 
 package cn.qhplus.emo.scheme.ksp
 
-
 import cn.qhplus.emo.scheme.AbstractSchemeDefStorage
 import cn.qhplus.emo.scheme.ActivityScheme
 import cn.qhplus.emo.scheme.ComposeScheme
@@ -106,8 +105,8 @@ class SchemeProcessor(
                     schemes.forEach {
                         writeLine(
                             "add(SchemeDef(${nextSchemeId++}, \"${it.action}\", " +
-                                    "emptyList(), $args, \"${cls.qualifiedName!!.asString()}\"," +
-                                    "${it.enterTransition}, ${it.exitTransition}, ${it.enterTransition}, ${it.exitTransition}))"
+                                "emptyList(), $args, \"${cls.qualifiedName!!.asString()}\"," +
+                                "${it.enterTransition}, ${it.exitTransition}, ${it.enterTransition}, ${it.exitTransition}))"
                         )
                     }
                 }
@@ -134,8 +133,8 @@ class SchemeProcessor(
                         }
                         writeLine(
                             "add(SchemeDef($nextSchemeId, \"${action}\", " +
-                                    "listOf($alternativeHosts), $args, \"${SchemeDef.COMPOSE_CLASS_SUFFIX}\", " +
-                                    "${enterTransition}, ${exitTransition}, ${popEnterTransition}, ${popExitTransition}))"
+                                "listOf($alternativeHosts), $args, \"${SchemeDef.COMPOSE_CLASS_SUFFIX}\", " +
+                                "$enterTransition, $exitTransition, $popEnterTransition, $popExitTransition))"
                         )
                         host.forEach { h ->
                             composeGraph.add(ComposeGraphItem(fn, h as KSType, nextSchemeId))
@@ -210,22 +209,26 @@ class SchemeProcessor(
             os.write("class $clsName: ComposeSchemeNavGraphBuilder")
             os.writeBlock {
                 os.writeLine("@OptIn(ExperimentalAnimationApi::class)")
-                os.write("override fun build(" +
+                os.write(
+                    "override fun build(" +
                         "client: SchemeClient, " +
                         "navGraphBuilder: NavGraphBuilder, " +
-                        "transitionConverter: SchemeTransitionConverter)")
+                        "transitionConverter: SchemeTransitionConverter)"
+                )
                 os.writeBlock {
                     items.forEach { item ->
                         os.write("client.storage.findById(${item.schemeId})!!.let")
                         os.writeBlock {
-                            os.write("navGraphBuilder.composable(" +
+                            os.write(
+                                "navGraphBuilder.composable(" +
                                     "it.toComposeRouteDefine()," +
                                     "it.toComposeNavArg()," +
                                     "enterTransition = transitionConverter.enterTransition(it.enterTransition)," +
                                     "exitTransition = transitionConverter.exitTransition(it.exitTransition)," +
                                     "popEnterTransition = transitionConverter.enterTransition(it.popEnterTransition)," +
                                     "popExitTransition = transitionConverter.exitTransition(it.popExitTransition)" +
-                                    "){")
+                                    "){"
+                            )
                             if (item.fn.parameters.size == 1) {
                                 os.writeLine(" entry ->")
                                 os.writeLine("${item.fn.qualifiedName!!.asString()}(entry)")
@@ -239,7 +242,6 @@ class SchemeProcessor(
                             os.writeLine("}")
                         }
                     }
-
                 }
             }
             os.close()
