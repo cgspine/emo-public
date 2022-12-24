@@ -47,7 +47,8 @@ class ConfigMapProcessor(
         val configs = resolver
             .getSymbolsWithAnnotation(ConfigBasic::class.java.name)
             .filterIsInstance<KSClassDeclaration>()
-            .toList()
+            .toSet()
+            .sortedBy { it.simpleName.getShortName() }
 
         if (configs.isEmpty()) return emptyList()
 

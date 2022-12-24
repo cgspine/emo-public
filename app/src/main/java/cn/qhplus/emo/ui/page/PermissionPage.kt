@@ -34,18 +34,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
+import cn.qhplus.emo.EmoScheme
+import cn.qhplus.emo.MainActivity
+import cn.qhplus.emo.config.SchemeConst
 import cn.qhplus.emo.modal.emoToast
 import cn.qhplus.emo.rememberEmoMultiplePermissionsState
 import cn.qhplus.emo.rememberEmoPermissionState
+import cn.qhplus.emo.scheme.ComposeScheme
 import cn.qhplus.emo.ui.CommonItem
 import cn.qhplus.emo.ui.core.TopBar
 import cn.qhplus.emo.ui.core.TopBarBackIconItem
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionStatus
 
+@ComposeScheme(
+    action = SchemeConst.SCHEME_ACTION_PERMISSION,
+    alternativeHosts = [MainActivity::class]
+)
 @Composable
-fun PermissionPage(navController: NavHostController) {
+fun PermissionPage() {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -56,7 +63,7 @@ fun PermissionPage(navController: NavHostController) {
             leftItems = remember(topBarIconColor) {
                 listOf(
                     TopBarBackIconItem(tint = topBarIconColor) {
-                        navController.popBackStack()
+                        EmoScheme.pop()
                     }
                 )
             }

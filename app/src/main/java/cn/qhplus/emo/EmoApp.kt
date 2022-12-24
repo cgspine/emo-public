@@ -29,6 +29,8 @@ import cn.qhplus.emo.core.EmoLog
 import cn.qhplus.emo.core.EmoLogDelegate
 import cn.qhplus.emo.network.NetworkBandwidthSampler
 import cn.qhplus.emo.report.reportWake
+import cn.qhplus.emo.scheme.SchemeClient
+import cn.qhplus.emo.scheme.impl.schemeClient
 import coil.ImageLoader
 import coil.ImageLoaderFactory
 import com.tencent.mmkv.MMKV
@@ -37,6 +39,9 @@ import kotlinx.coroutines.launch
 val configCenter by lazy {
     configCenterWithMMKV(BuildConfig.VERSION_CODE)
 }
+
+lateinit var EmoScheme: SchemeClient
+    private set
 
 class EmoApp : Application(), ImageLoaderFactory {
 
@@ -53,6 +58,9 @@ class EmoApp : Application(), ImageLoaderFactory {
     override fun onCreate() {
         super.onCreate()
         EmoConfig.debug = BuildConfig.DEBUG
+        EmoScheme = schemeClient(this) {
+            debug = BuildConfig.DEBUG
+        }
         EmoLog.delegate = object : EmoLogDelegate {
             override fun e(tag: String, msg: String, throwable: Throwable?) {
                 Log.e(tag, msg, throwable)

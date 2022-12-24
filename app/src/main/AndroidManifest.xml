@@ -28,15 +28,33 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Emo">
         <activity
-            android:name=".MainActivity"
+            android:name=".LauncherActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize"
-            android:theme="@style/Theme.Emo.Main">
+            android:theme="@style/Theme.Emo.Launcher">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".MainActivity"
+            android:windowSoftInputMode="adjustResize">
+        </activity>
+
+        <activity
+            android:name=".WebViewActivity"
+            android:windowSoftInputMode="adjustResize"/>
+
+        <activity
+            android:name=".SingleActivity"
+            android:windowSoftInputMode="adjustResize"/>
+
+        <activity
+            android:name=".SpecialActivity"
+            android:windowSoftInputMode="adjustResize"/>
+
     </application>
 
 </manifest>

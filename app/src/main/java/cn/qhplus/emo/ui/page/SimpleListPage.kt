@@ -29,7 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
+import cn.qhplus.emo.EmoScheme
 import cn.qhplus.emo.ui.core.TopBarBackIconItem
 import cn.qhplus.emo.ui.core.TopBarItem
 import cn.qhplus.emo.ui.core.TopBarWithLazyListScrollState
@@ -37,11 +37,10 @@ import cn.qhplus.emo.ui.core.modifier.windowInsetsCommonHorPadding
 
 @Composable
 fun SimpleListPage(
-    navController: NavHostController,
     title: CharSequence,
     topBarLeftItems: List<TopBarItem> = emptyList(),
     topBarRightItems: List<TopBarItem> = emptyList(),
-    content: LazyListScope.(NavHostController) -> Unit
+    content: LazyListScope.() -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -63,7 +62,7 @@ fun SimpleListPage(
                 .windowInsetsCommonHorPadding(),
             contentPadding = PaddingValues(top = 8.dp),
             content = {
-                content(navController)
+                content()
             }
         )
     }
@@ -71,18 +70,16 @@ fun SimpleListPage(
 
 @Composable
 fun OnlyBackListPage(
-    navController: NavHostController,
     title: CharSequence,
-    content: LazyListScope.(NavHostController) -> Unit
+    content: LazyListScope.() -> Unit
 ) {
     val topBarIconColor = MaterialTheme.colorScheme.onPrimary
     SimpleListPage(
-        navController = navController,
         title = title,
         topBarLeftItems = remember(topBarIconColor) {
             listOf(
                 TopBarBackIconItem(tint = topBarIconColor) {
-                    navController.popBackStack()
+                    EmoScheme.pop()
                 }
             )
         },

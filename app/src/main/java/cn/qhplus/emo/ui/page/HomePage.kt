@@ -39,6 +39,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
@@ -46,15 +47,20 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
+import androidx.navigation.NavBackStackEntry
+import cn.qhplus.emo.MainActivity
 import cn.qhplus.emo.R
+import cn.qhplus.emo.config.SchemeConst
 import cn.qhplus.emo.config.panel.ConfigPanel
+import cn.qhplus.emo.config.runQuietly
+import cn.qhplus.emo.config.schemeBuilder
 import cn.qhplus.emo.configCenter
 import cn.qhplus.emo.modal.emoBottomSheet
 import cn.qhplus.emo.modal.emoToast
 import cn.qhplus.emo.report.reportClick
+import cn.qhplus.emo.scheme.ComposeScheme
+import cn.qhplus.emo.scheme.SchemeStringArg
 import cn.qhplus.emo.ui.CommonItem
-import cn.qhplus.emo.ui.RouteConst
 import cn.qhplus.emo.ui.core.TopBarTextItem
 import cn.qhplus.emo.ui.core.modifier.windowInsetsCommonNavPadding
 
@@ -63,34 +69,44 @@ data class HomeDestination(
     val selectedIcon: ImageVector,
     val unselectedIcon: ImageVector,
     val iconTextId: Int,
-    val content: @Composable (navController: NavHostController) -> Unit
+    val content: @Composable () -> Unit
 )
 
 val HOME_DESTINATIONS = listOf(
     HomeDestination(
-        route = RouteConst.ROUTE_HOME_COMPONENT,
+        route = SchemeConst.VALUE_TAB_HOME_COMPONENT,
         selectedIcon = Icons.Filled.Widgets,
         unselectedIcon = Icons.Outlined.Widgets,
         iconTextId = R.string.component,
         content = {
-            ComponentPage(it)
+            ComponentPage()
         }
     ),
     HomeDestination(
-        route = RouteConst.ROUTE_HOME_HELPER,
+        route = SchemeConst.VALUE_TAB_HOME_TEST,
         selectedIcon = Icons.Filled.Grid3x3,
         unselectedIcon = Icons.Outlined.Grid3x3,
-        iconTextId = R.string.helper,
+        iconTextId = R.string.test,
         content = {
-            HelperPage(it)
+            TestPage()
         }
     )
 )
 
+@ComposeScheme(
+    action = SchemeConst.SCHEME_ACTION_HOME,
+    alternativeHosts = [MainActivity::class]
+)
+@SchemeStringArg(
+    name = SchemeConst.SCHEME_ARG_TAB,
+    default = SchemeConst.VALUE_TAB_HOME_COMPONENT
+)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun HomePage(navController: NavHostController, tab: String) {
-    val currentTab = remember(tab) {
+fun HomePage(navBackStackEntry: NavBackStackEntry) {
+    val tab = navBackStackEntry.arguments?.getString(SchemeConst.SCHEME_ARG_TAB)
+        ?: SchemeConst.VALUE_TAB_HOME_COMPONENT
+    val currentTab = rememberSaveable(tab) {
         mutableStateOf(tab)
     }
 
@@ -136,11 +152,11 @@ fun HomePage(navController: NavHostController, tab: String) {
                 .consumedWindowInsets(padding)
         ) {
             when (currentTab.value) {
-                RouteConst.ROUTE_HOME_HELPER -> {
-                    HelperPage(navController)
+                SchemeConst.VALUE_TAB_HOME_TEST -> {
+                    TestPage()
                 }
                 else -> {
-                    ComponentPage(navController)
+                    ComponentPage()
                 }
             }
         }
@@ -148,40 +164,39 @@ fun HomePage(navController: NavHostController, tab: String) {
 }
 
 @Composable
-fun ComponentPage(navController: NavHostController) {
+fun ComponentPage() {
     val topBarIconColor = MaterialTheme.colorScheme.onPrimary
     SimpleListPage(
-        navController = navController,
         title = "Components",
         topBarRightItems = remember(topBarIconColor) {
             listOf(
                 TopBarTextItem(text = "About", color = topBarIconColor) {
-                    navController.navigate(RouteConst.ROUTE_ABOUT)
+                    schemeBuilder(SchemeConst.SCHEME_ACTION_ABOUT).runQuietly()
                 }
             )
         }
     ) {
         item {
             CommonItem("Modal") {
-                navController.navigate(RouteConst.ROUTE_MODAL)
+                schemeBuilder(SchemeConst.SCHEME_ACTION_MODAL).runQuietly()
             }
         }
 
         item {
             CommonItem("Photo") {
-                navController.navigate(RouteConst.ROUTE_PHOTO)
+                schemeBuilder(SchemeConst.SCHEME_ACTION_PHOTO).runQuietly()
             }
         }
 
         item {
             CommonItem("Permission") {
-                navController.navigate(RouteConst.ROUTE_PERMISSION)
+                schemeBuilder(SchemeConst.SCHEME_ACTION_PERMISSION).runQuietly()
             }
         }
 
         item {
             CommonItem("JS Bridge") {
-                navController.navigate(RouteConst.ROUTE_JS_BRIDGE)
+                schemeBuilder(SchemeConst.SCHEME_ACTION_JS_BRIDGE).runQuietly()
             }
         }
 
@@ -193,14 +208,19 @@ fun ComponentPage(navController: NavHostController) {
                 }.show()
             }
         }
+
+        item {
+            CommonItem("Scheme") {
+                schemeBuilder(SchemeConst.SCHEME_ACTION_SCHEME).runQuietly()
+            }
+        }
     }
 }
 
 @Composable
-fun HelperPage(navController: NavHostController) {
+fun TestPage() {
     val view = LocalView.current
     SimpleListPage(
-        navController = navController,
         title = "Components"
     ) {
         item {

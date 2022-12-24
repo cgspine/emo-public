@@ -20,7 +20,7 @@
         <item name="android:statusBarColor">#4D000000</item>
     </style>
 
-    <style name="Theme.Emo.Main">
+    <style name="Theme.Emo.Launcher">
         <item name="android:windowBackground">@drawable/launch_window_bg</item>
     </style>
 </resources>

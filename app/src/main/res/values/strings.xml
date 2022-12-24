@@ -17,5 +17,5 @@
 <resources>
     <string name="app_name">emo</string>
     <string name="component">Component</string>
-    <string name="helper">Helper</string>
+    <string name="test">Test</string>
 </resources>

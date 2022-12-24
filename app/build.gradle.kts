@@ -101,6 +101,9 @@ dependencies {
     implementation(project(":config-panel"))
     ksp(project(":config-ksp"))
 
+    implementation(project(":scheme-impl"))
+    ksp(project(":scheme-ksp"))
+
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)

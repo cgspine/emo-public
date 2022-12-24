@@ -27,10 +27,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavHostController
+import cn.qhplus.emo.EmoScheme
+import cn.qhplus.emo.WebViewActivity
+import cn.qhplus.emo.config.SchemeConst
 import cn.qhplus.emo.js.bridge.EmoBridgeWebViewClientHelper
 import cn.qhplus.emo.js.bridge.EmoJsBridgeHandler
 import cn.qhplus.emo.js.bridge.EmoReflectJsBridgeHandler
+import cn.qhplus.emo.scheme.ComposeScheme
 import cn.qhplus.emo.ui.core.TopBar
 import cn.qhplus.emo.ui.core.TopBarBackIconItem
 import com.google.accompanist.web.AccompanistWebViewClient
@@ -40,8 +43,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+@ComposeScheme(
+    action = SchemeConst.SCHEME_ACTION_JS_BRIDGE,
+    alternativeHosts = [WebViewActivity::class]
+)
 @Composable
-fun JsBridgePage(navController: NavHostController) {
+fun JsBridgePage() {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -52,7 +59,7 @@ fun JsBridgePage(navController: NavHostController) {
             leftItems = remember(topBarIconColor) {
                 listOf(
                     TopBarBackIconItem(tint = topBarIconColor) {
-                        navController.popBackStack()
+                        EmoScheme.pop()
                     }
                 )
             }

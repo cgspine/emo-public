@@ -13,21 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+plugins {
+    kotlin("jvm")
+    id("emo.spotless")
+    id("emo.publish")
+}
 
-package cn.qhplus.emo.ui
+version = libs.versions.emoScheme.get()
 
-object RouteConst {
-    const val ROUTE_HOME = "home"
-    const val ROUTE_HOME_COMPONENT = "component"
-    const val ROUTE_HOME_HELPER = "helper"
-    const val ROUTE_MODAL = "modal"
-    const val ROUTE_ABOUT = "about"
-    const val ROUTE_PHOTO = "photo"
-    const val ROUTE_PERMISSION = "permission"
-    const val ROUTE_PHOTO_VIEWER = "photoViewer"
-    const val ROUTE_PHOTO_PICKER = "photoPicker"
-    const val ROUTE_PHOTO_CLIPPER = "photoClipper"
-    const val ROUTE_JS_BRIDGE = "jsBridge"
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
 
-    const val PARAM_TAB = "tab"
+dependencies {
+    implementation(project(":scheme-runtime"))
+    implementation(libs.ksp.api)
 }

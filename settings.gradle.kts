@@ -28,6 +28,9 @@ include(":config-runtime")
 include(":config-ksp")
 include(":config-mmkv")
 include(":config-panel")
+include(":scheme-runtime")
+include(":scheme-impl")
+include(":scheme-ksp")
 include(":app")
 
 

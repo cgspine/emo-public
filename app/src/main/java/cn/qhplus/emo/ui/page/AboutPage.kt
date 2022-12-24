@@ -23,14 +23,21 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavHostController
+import cn.qhplus.emo.EmoScheme
+import cn.qhplus.emo.WebViewActivity
+import cn.qhplus.emo.config.SchemeConst
+import cn.qhplus.emo.scheme.ComposeScheme
 import cn.qhplus.emo.ui.core.TopBar
 import cn.qhplus.emo.ui.core.TopBarBackIconItem
 import com.google.accompanist.web.WebView
 import com.google.accompanist.web.rememberWebViewState
 
+@ComposeScheme(
+    action = SchemeConst.SCHEME_ACTION_ABOUT,
+    alternativeHosts = [WebViewActivity::class]
+)
 @Composable
-fun AboutPage(navController: NavHostController) {
+fun AboutPage() {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -41,7 +48,7 @@ fun AboutPage(navController: NavHostController) {
             leftItems = remember(topBarIconColor) {
                 listOf(
                     TopBarBackIconItem(tint = topBarIconColor) {
-                        navController.popBackStack()
+                        EmoScheme.pop()
                     }
                 )
             }

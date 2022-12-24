@@ -26,15 +26,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
-import androidx.navigation.NavHostController
+import cn.qhplus.emo.MainActivity
+import cn.qhplus.emo.config.SchemeConst
+import cn.qhplus.emo.config.runQuietly
+import cn.qhplus.emo.config.schemeBuilder
 import cn.qhplus.emo.photo.activity.PhotoClipperActivity
 import cn.qhplus.emo.photo.activity.PhotoClipperResult
 import cn.qhplus.emo.photo.activity.PhotoPickResult
@@ -44,40 +45,46 @@ import cn.qhplus.emo.photo.activity.getPhotoPickResult
 import cn.qhplus.emo.photo.coil.CoilMediaPhotoProviderFactory
 import cn.qhplus.emo.photo.coil.CoilPhotoProvider
 import cn.qhplus.emo.photo.ui.PhotoThumbnailWithViewer
+import cn.qhplus.emo.scheme.ComposeScheme
 import cn.qhplus.emo.ui.CommonItem
-import cn.qhplus.emo.ui.RouteConst
 import coil.compose.AsyncImage
 
+@ComposeScheme(
+    action = SchemeConst.SCHEME_ACTION_PHOTO,
+    alternativeHosts = [MainActivity::class]
+)
 @Composable
-fun PhotoPage(navController: NavHostController) {
+fun PhotoPage() {
     OnlyBackListPage(
-        navController = navController,
         title = "Photo"
     ) {
         item {
             CommonItem("Photo Viewer") {
-                navController.navigate(RouteConst.ROUTE_PHOTO_VIEWER)
+                schemeBuilder(SchemeConst.SCHEME_ACTION_PHOTO_VIEWER).runQuietly()
             }
         }
 
         item {
             CommonItem("Photo Picker") {
-                navController.navigate(RouteConst.ROUTE_PHOTO_PICKER)
+                schemeBuilder(SchemeConst.SCHEME_ACTION_PHOTO_PICKER).runQuietly()
             }
         }
 
         item {
             CommonItem("Photo Clipper") {
-                navController.navigate(RouteConst.ROUTE_PHOTO_CLIPPER)
+                schemeBuilder(SchemeConst.SCHEME_ACTION_PHOTO_CLIPPER).runQuietly()
             }
         }
     }
 }
 
+@ComposeScheme(
+    action = SchemeConst.SCHEME_ACTION_PHOTO_VIEWER,
+    alternativeHosts = [MainActivity::class]
+)
 @Composable
-fun PhotoViewerPage(navController: NavHostController) {
+fun PhotoViewerPage() {
     OnlyBackListPage(
-        navController = navController,
         title = "Photo Viewer"
     ) {
         item {
@@ -278,8 +285,12 @@ fun PhotoViewerPage(navController: NavHostController) {
     }
 }
 
+@ComposeScheme(
+    action = SchemeConst.SCHEME_ACTION_PHOTO_PICKER,
+    alternativeHosts = [MainActivity::class]
+)
 @Composable
-fun PhotoPickerPage(navController: NavHostController) {
+fun PhotoPickerPage() {
     val pickResult = remember {
         mutableStateOf<PhotoPickResult?>(null)
     }
@@ -293,7 +304,6 @@ fun PhotoPickerPage(navController: NavHostController) {
     }
 
     OnlyBackListPage(
-        navController = navController,
         title = "Photo Viewer"
     ) {
         item(key = "pick-photo") {
@@ -336,8 +346,12 @@ fun PhotoPickerPage(navController: NavHostController) {
     }
 }
 
+@ComposeScheme(
+    action = SchemeConst.SCHEME_ACTION_PHOTO_CLIPPER,
+    alternativeHosts = [MainActivity::class]
+)
 @Composable
-fun PhotoClipperPage(navController: NavHostController) {
+fun PhotoClipperPage() {
     val clipperResult = remember {
         mutableStateOf<PhotoClipperResult?>(null)
     }
@@ -351,7 +365,6 @@ fun PhotoClipperPage(navController: NavHostController) {
     }
 
     OnlyBackListPage(
-        navController = navController,
         title = "Photo Clipper"
     ) {
         item(key = "clipper-photo") {

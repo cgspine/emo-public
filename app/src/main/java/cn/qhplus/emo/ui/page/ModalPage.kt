@@ -26,7 +26,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
+import cn.qhplus.emo.MainActivity
+import cn.qhplus.emo.config.SchemeConst
 import cn.qhplus.emo.modal.EmoBottomSheetList
 import cn.qhplus.emo.modal.EmoDialogActions
 import cn.qhplus.emo.modal.EmoDialogList
@@ -37,15 +38,19 @@ import cn.qhplus.emo.modal.EmoModalAction
 import cn.qhplus.emo.modal.emoBottomSheet
 import cn.qhplus.emo.modal.emoDialog
 import cn.qhplus.emo.modal.emoToast
+import cn.qhplus.emo.scheme.ComposeScheme
 import cn.qhplus.emo.theme.EmoTheme
 import cn.qhplus.emo.ui.CommonItem
 import cn.qhplus.emo.ui.core.Item
 
+@ComposeScheme(
+    action = SchemeConst.SCHEME_ACTION_MODAL,
+    alternativeHosts = [MainActivity::class]
+)
 @Composable
-fun ModalPage(navController: NavHostController) {
+fun ModalPage() {
     val view = LocalView.current
     OnlyBackListPage(
-        navController = navController,
         title = "Modal"
     ) {
         item {
