@@ -30,6 +30,10 @@ import cn.qhplus.emo.core.EmoLogDelegate
 import cn.qhplus.emo.network.NetworkBandwidthSampler
 import cn.qhplus.emo.report.reportWake
 import cn.qhplus.emo.scheme.SchemeClient
+import cn.qhplus.emo.scheme.SchemeHandler
+import cn.qhplus.emo.scheme.SchemeInterceptor
+import cn.qhplus.emo.scheme.SchemeParts
+import cn.qhplus.emo.scheme.SchemeTransaction
 import cn.qhplus.emo.scheme.impl.schemeClient
 import coil.ImageLoader
 import coil.ImageLoaderFactory
@@ -60,6 +64,15 @@ class EmoApp : Application(), ImageLoaderFactory {
         EmoConfig.debug = BuildConfig.DEBUG
         EmoScheme = schemeClient(this) {
             debug = BuildConfig.DEBUG
+            addInterceptor(object: SchemeInterceptor {
+                override suspend fun intercept(env: SchemeTransaction, schemeParts: SchemeParts, next: SchemeHandler): Boolean {
+                    Log.i("EmoDemo", "begin handle scheme: ${schemeParts.origin}")
+                    val ret = next.run(env, schemeParts)
+                    Log.i("EmoDemo", "after handle scheme: ${schemeParts.origin}, ret = $ret")
+                    return ret
+                }
+
+            })
         }
         EmoLog.delegate = object : EmoLogDelegate {
             override fun e(tag: String, msg: String, throwable: Throwable?) {
