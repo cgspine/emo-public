@@ -80,7 +80,7 @@ ksp("cn.qhplus.emo:scheme-ksp:0.3.0")
 
 # Demo apk
 
-[Download apk](apk/emo.apk) or scan the qrcode below(pay attention to the wall):
+[Download apk](https://emo.qhplus.cn/apks/emo.apk) or scan the qrcode below(pay attention to the wall):
 
 ![apk](image/apk-qr.png)
 
