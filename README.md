@@ -74,8 +74,8 @@ implementation("cn.qhplus.emo:config-mmkv:0.3.0")
 implementation("cn.qhplus.emo:config-panel:0.3.0")
 ksp("cn.qhplus.emo:config-ksp:0.3.0")
 // scheme
-implementation("cn.qhplus.emo:scheme-impl:0.3.0")
-ksp("cn.qhplus.emo:scheme-ksp:0.3.0")
+implementation("cn.qhplus.emo:scheme-impl:0.3.1")
+ksp("cn.qhplus.emo:scheme-ksp:0.3.1")
 ```
 
 # Demo apk

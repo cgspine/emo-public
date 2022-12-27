@@ -91,7 +91,7 @@ fun Scheme.toComposeRouteValue(): String {
         builder.append("/")
         builder.append(path)
     }
-    val query = args.entries.filter { entity -> special.find { it.name == entity.key} == null }.joinToString("&") { "${it.key}=${it.value}" }
+    val query = args.entries.filter { entity -> special.find { it.name == entity.key } == null }.joinToString("&") { "${it.key}=${it.value}" }
     builder.append("?")
     if (query.isNotBlank()) {
         builder.append(query)
