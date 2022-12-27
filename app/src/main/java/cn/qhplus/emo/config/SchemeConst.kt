@@ -35,6 +35,7 @@ object SchemeConst {
     const val SCHEME_ACTION_SCHEME_ARG = "scheme_arg"
     const val SCHEME_ACTION_SCHEME_ACTIVITY = "activity"
     const val SCHEME_ACTION_SCHEME_HOST_ARG = "host_arg"
+    const val SCHEME_ACTION_SCHEME_SPECIAL_ARG = "scheme_special_arg"
     const val SCHEME_ACTION_SCHEME_ALPHA = "scheme_alpha"
     const val SCHEME_ACTION_SCHEME_SLIDE_BOTTOM = "scheme_slide_bottom"
 

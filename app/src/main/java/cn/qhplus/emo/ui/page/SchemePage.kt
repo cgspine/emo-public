@@ -76,6 +76,22 @@ fun SchemePage() {
         }
 
         item {
+            CommonItem("Special Arg, Type = 1") {
+                schemeBuilder(SchemeConst.SCHEME_ACTION_SCHEME_SPECIAL_ARG)
+                    .arg("type", 1)
+                    .runQuietly()
+            }
+        }
+
+        item {
+            CommonItem("Special Arg, Type = 2") {
+                schemeBuilder(SchemeConst.SCHEME_ACTION_SCHEME_SPECIAL_ARG)
+                    .arg("type", 2)
+                    .runQuietly()
+            }
+        }
+
+        item {
             CommonItem("Alpha Transition") {
                 schemeBuilder(SchemeConst.SCHEME_ACTION_SCHEME_ALPHA).runQuietly()
             }
@@ -186,5 +202,35 @@ fun SchemeSlideFromBottomPage() {
     OnlyBackListPage(
         title = "SchemeSlideFromBottom"
     ) {
+    }
+}
+
+@ComposeScheme(
+    action = SchemeConst.SCHEME_ACTION_SCHEME_SPECIAL_ARG,
+    alternativeHosts = [MainActivity::class]
+)
+@SchemeIntArg(name = "type", special = true, default = 1)
+@Composable
+fun SchemeSpecialArgType1(navBackStackEntry: NavBackStackEntry) {
+
+    OnlyBackListPage(
+        title = "SchemeSpecialArg(Type = 1)"
+    ) {
+
+    }
+}
+
+@ComposeScheme(
+    action = SchemeConst.SCHEME_ACTION_SCHEME_SPECIAL_ARG,
+    alternativeHosts = [MainActivity::class]
+)
+@SchemeIntArg(name = "type", special = true, default = 2)
+@Composable
+fun SchemeSpecialArgType2(navBackStackEntry: NavBackStackEntry) {
+
+    OnlyBackListPage(
+        title = "SchemeSpecialArg(Type = 2)"
+    ) {
+
     }
 }

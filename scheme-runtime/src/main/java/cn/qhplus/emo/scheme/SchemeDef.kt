@@ -20,7 +20,7 @@ import kotlin.reflect.KClass
 
 data class SchemeArgDefine<T : Any>(
     val name: String,
-    val required: Boolean,
+    val special: Boolean,
     val parser: SchemeArgParser<T>,
     val default: T
 )
@@ -51,11 +51,17 @@ data class SchemeDef(
 
     fun match(schemeParts: SchemeParts): Boolean {
         return schemeParts.action == action &&
-            matchRequiredArgs(schemeParts)
+            matchSpecialArgs(schemeParts)
     }
 
-    internal fun matchRequiredArgs(schemeParts: SchemeParts): Boolean {
-        return args.asSequence().filter { it.required }.all { schemeParts.queries.containsKey(it.name) }
+    internal fun matchSpecialArgs(schemeParts: SchemeParts): Boolean {
+        return args.asSequence()
+            .filter { it.special }
+            .all { def ->
+                schemeParts.queries[def.name].let {
+                    it != null && def.parser.parse(def.name, it) == def.default
+                }
+            }
     }
 }
 
@@ -80,7 +86,7 @@ abstract class AbstractSchemeDefStorage : SchemeDefStorage {
 
     override fun find(schemeParts: SchemeParts): SchemeDef? {
         val subMap = map.entries.find { schemeParts.action == it.key }?.value ?: return null
-        return subMap.find { it.matchRequiredArgs(schemeParts) }
+        return subMap.find { it.matchSpecialArgs(schemeParts) }
     }
 
     override fun findById(id: Int): SchemeDef? {

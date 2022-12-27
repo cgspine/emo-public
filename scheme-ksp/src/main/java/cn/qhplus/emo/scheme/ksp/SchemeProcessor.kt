@@ -152,23 +152,23 @@ class SchemeProcessor(
     private fun KSDeclaration.buildArgDefineList(): String {
         val boolArg = getAnnotationsByType(SchemeBoolArg::class)
             .map {
-                "SchemeArgDefine(\"${it.name}\", ${it.required}, ${SchemeBoolArgParser::class.qualifiedName}, ${it.default})"
+                "SchemeArgDefine(\"${it.name}\", ${it.special}, ${SchemeBoolArgParser::class.qualifiedName}, ${it.default})"
             }
         val intArg = getAnnotationsByType(SchemeIntArg::class)
             .map {
-                "SchemeArgDefine(\"${it.name}\", ${it.required}, ${SchemeIntArgParser::class.qualifiedName}, ${it.default})"
+                "SchemeArgDefine(\"${it.name}\", ${it.special}, ${SchemeIntArgParser::class.qualifiedName}, ${it.default})"
             }
         val longArg = getAnnotationsByType(SchemeLongArg::class)
             .map {
-                "SchemeArgDefine(\"${it.name}\", ${it.required}, ${SchemeLongArgParser::class.qualifiedName}, ${it.default})"
+                "SchemeArgDefine(\"${it.name}\", ${it.special}, ${SchemeLongArgParser::class.qualifiedName}, ${it.default})"
             }
         val floatArg = getAnnotationsByType(SchemeFloatArg::class)
             .map {
-                "SchemeArgDefine(\"${it.name}\", ${it.required}, ${SchemeFloatArgParser::class.qualifiedName}, ${it.default}f)"
+                "SchemeArgDefine(\"${it.name}\", ${it.special}, ${SchemeFloatArgParser::class.qualifiedName}, ${it.default}f)"
             }
         val stringArg = getAnnotationsByType(SchemeStringArg::class)
             .map {
-                "SchemeArgDefine(\"${it.name}\", ${it.required}, ${SchemeStringArgParser::class.qualifiedName}, \"${it.default}\")"
+                "SchemeArgDefine(\"${it.name}\", ${it.special}, ${SchemeStringArgParser::class.qualifiedName}, \"${it.default}\")"
             }
         val list = sequenceOf(boolArg, intArg, longArg, floatArg, stringArg)
             .flatMap { it.asSequence() }

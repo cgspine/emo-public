@@ -34,8 +34,8 @@ fun SchemeDef.toComposeRouteDefine(): String {
         return cache
     }
     val builder = StringBuilder("/").append(action)
-    val group = args.groupBy { it.required }
-    val path = group.getOrDefault(true, emptyList()).sortedBy { it.name }.joinToString("/") { "{${it.name}}" }
+    val group = args.groupBy { it.special }
+    val path = group.getOrDefault(true, emptyList()).sortedBy { it.name }.joinToString("/") { "${it.name}_${it.default}" }
     if (path.isNotBlank()) {
         builder.append("/")
         builder.append(path)
@@ -60,7 +60,7 @@ fun SchemeDef.toComposeNavArg(): List<NamedNavArgument> {
     if (cache != null) {
         return cache
     }
-    val ret = args.map {
+    val ret = args.filter { !it.special }.map {
         navArgument(it.name) {
             type = when (it.default::class.java) {
                 Int::class.java, java.lang.Integer::class.java -> NavType.IntType
@@ -85,13 +85,13 @@ fun SchemeDef.toComposeNavArg(): List<NamedNavArgument> {
 
 fun Scheme.toComposeRouteValue(): String {
     val builder = StringBuilder("/").append(action)
-    val required = def.args.asSequence().filter { it.required }.map { it.name }.toMutableList().sorted()
-    val path = required.joinToString("/") { args[it].toString() }
+    val special = def.args.asSequence().filter { it.special }.sortedBy { it.name }
+    val path = special.sortedBy { it.name }.joinToString("/") { "${it.name}_${it.default}" }
     if (path.isNotBlank()) {
         builder.append("/")
         builder.append(path)
     }
-    val query = args.entries.filter { !required.contains(it.key) }.joinToString("&") { "${it.key}=${it.value}" }
+    val query = args.entries.filter { entity -> special.find { it.name == entity.key} == null }.joinToString("&") { "${it.key}=${it.value}" }
     builder.append("?")
     if (query.isNotBlank()) {
         builder.append(query)

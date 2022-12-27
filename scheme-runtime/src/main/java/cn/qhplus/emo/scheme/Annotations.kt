@@ -47,7 +47,7 @@ annotation class SchemeHost(
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 annotation class SchemeBoolArg(
     val name: String,
-    val required: Boolean = false,
+    val special: Boolean = false,
     val default: Boolean = false
 )
 
@@ -55,7 +55,7 @@ annotation class SchemeBoolArg(
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 annotation class SchemeIntArg(
     val name: String,
-    val required: Boolean = false,
+    val special: Boolean = false,
     val default: Int = 0
 )
 
@@ -63,7 +63,7 @@ annotation class SchemeIntArg(
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 annotation class SchemeLongArg(
     val name: String,
-    val required: Boolean = false,
+    val special: Boolean = false,
     val default: Long = 0
 )
 
@@ -71,7 +71,7 @@ annotation class SchemeLongArg(
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 annotation class SchemeFloatArg(
     val name: String,
-    val required: Boolean = false,
+    val special: Boolean = false,
     val default: Float = 0.0f
 )
 
@@ -79,6 +79,6 @@ annotation class SchemeFloatArg(
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 annotation class SchemeStringArg(
     val name: String,
-    val required: Boolean = false,
+    val special: Boolean = false,
     val default: String = ""
 )
