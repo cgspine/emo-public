@@ -103,6 +103,9 @@ fun PhotoClipper(
             val func: () -> Bitmap? = lambda@{
                 val origin = photoInfo.drawable?.toBitmap() ?: return@lambda null
                 val rect = photoInfo.rect ?: return@lambda null
+                if(rect.width < photoInfo.clipArea.width || rect.height < photoInfo.clipArea.height){
+                    return@lambda null
+                }
                 val scale = rect.width / origin.width
                 val clipRect = photoInfo.clipArea.translate(Offset(-rect.left, -rect.top))
                 val imageArea = Rect(
