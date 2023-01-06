@@ -9,8 +9,8 @@ buildscript {
     dependencies {
         classpath(libs.android.gradlePlugin)
         classpath(libs.kotlin.gradlePlugin)
-        classpath(libs.hilt.gradlePlugin)
         classpath(libs.secrets.gradlePlugin)
+        classpath("androidx.benchmark:benchmark-gradle-plugin:1.1.0-beta04")
     }
 
 }

@@ -11,6 +11,7 @@ dependencyResolutionManagement {
     repositories {
         mavenCentral()
         google()
+        mavenLocal()
     }
 }
 rootProject.name = "emo"
@@ -31,7 +32,10 @@ include(":config-panel")
 include(":scheme-runtime")
 include(":scheme-impl")
 include(":scheme-ksp")
+include(":kv")
 include(":app")
 
 
 
+include(":benchmark")
+include(":microbenchmark")

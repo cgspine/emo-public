@@ -71,6 +71,11 @@ android {
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             signingConfig = signingConfigs.getByName("release")
         }
+        create("benchmark") {
+            signingConfig = signingConfigs.getByName("debug")
+            matchingFallbacks += listOf("release")
+            isDebuggable = false
+        }
     }
 
     applicationVariants.all {
@@ -103,6 +108,8 @@ dependencies {
 
     implementation(project(":scheme-impl"))
     ksp(project(":scheme-ksp"))
+
+    implementation(project(":kv"))
 
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.appcompat)

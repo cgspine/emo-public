@@ -11,6 +11,7 @@
 #./deploy.sh report publishToMavenLocal
 #./deploy.sh config publishToMavenLocal
 #./deploy.sh scheme publishToMavenLocal
+#./deploy.sh kv publishToMavenLocal
 #./deploy.sh all publishToMavenLocal
 
 #./deploy.sh core publish
@@ -24,6 +25,7 @@
 #./deploy.sh report publish
 #./deploy.sh config publish
 #./deploy.sh scheme publish
+#./deploy.sh kv publish
 #./deploy.sh all publish
 
 buildCore="./gradlew :core:clean :core:build core:$2"
@@ -43,7 +45,7 @@ buildConfigPanel="./gradlew :config-panel:clean :config-panel:build :config-pane
 buildSchemeRuntime="./gradlew :scheme-runtime:clean :scheme-runtime:build :scheme-runtime:$2"
 buildSchemeKsp="./gradlew :scheme-ksp:clean :scheme-ksp:build :scheme-ksp:$2"
 buildSchemeImpl="./gradlew :scheme-impl:clean :scheme-impl:build :scheme-impl:$2"
-
+buildKv="./gradlew :kv:clean :kv:build :kv:$2"
 
 if [[ "core" == "$1" ]]
 then
@@ -84,6 +86,9 @@ then
     $buildSchemeRuntime
     $buildSchemeKsp
     $buildSchemeImpl
+elif [[ "kv" == "$1" ]]
+then
+    $buildKv
 elif [[ "all" == "$1" ]]
 then
     $buildCore
@@ -103,4 +108,5 @@ then
     $buildSchemeRuntime
     $buildSchemeKsp
     $buildSchemeImpl
+    $buildKv
 fi

@@ -3,14 +3,13 @@ accompanist = "0.28.0"
 androidDesugarJdkLibs = "1.1.5"
 androidGradlePlugin = "7.3.1"
 androidxActivity = "1.6.0"
+androidxAnnotation = "1.5.0"
 androidxAppCompat = "1.4.2"
 androidxComposeCompiler="1.3.2"
 androidxComposeBom = "2022.11.00"
 androidxCore = "1.9.0"
 androidxCustomView = "1.0.0-beta02"
-androidxDataStore = "1.0.gr0"
 androidxEspresso = "3.5.0"
-androidxHiltNavigationCompose = "1.0.0"
 androidxLifecycle = "2.6.0-alpha02"
 androidxMacroBenchmark = "1.1.0-rc03"
 androidxNavigation = "2.5.0"
@@ -23,19 +22,17 @@ androidxTestExt = "1.1.4"
 androidxUiAutomator = "2.2.0"
 androidxWork = "2.7.1"
 androidxConstraintLayoutCompose="1.1.0-alpha01"
-coil = "2.1.0"
-hilt = "2.42"
-hiltExt = "1.0.0"
+coil = "2.2.2"
 jacoco = "0.8.7"
 junit4 = "4.13.2"
 kotlin = "1.7.20"
 ksp = "1.7.20-1.0.8"
-kotlinxCoroutines = "1.6.2"
+kotlinxCoroutines = "1.6.4"
 kotlinxDatetime = "0.3.3"
 kotlinxSerialization = "1.4.1"
 ktlint = "0.46.0"
 material3 = "1.6.1"
-okhttp = "4.9.3"
+okhttp = "4.10.0"
 protobuf = "3.21.1"
 protobufPlugin = "0.8.18"
 retrofit = "2.9.0"
@@ -56,8 +53,10 @@ emoJsBridge = "0.3.0"
 emoConfig = "0.3.0"
 emoReport = "0.3.0"
 emoScheme = "0.3.1"
+emoKv = "0.3.0"
 
 [libraries]
+emo-remote-kv = { group = "cn.qhplus.emo", name = "kv", version.ref = "emoKv" }
 accompanist-flowlayout = { group = "com.google.accompanist", name = "accompanist-flowlayout", version.ref = "accompanist" }
 accompanist-navigation = { group = "com.google.accompanist", name = "accompanist-navigation-animation", version.ref = "accompanist" }
 accompanist-pager = { group = "com.google.accompanist", name = "accompanist-pager", version.ref = "accompanist" }
@@ -68,6 +67,7 @@ android-desugarJdkLibs = { group = "com.android.tools", name = "desugar_jdk_libs
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePlugin" }
 androidx-constraintlayout-compose = { group = "androidx.constraintlayout", name = "constraintlayout-compose", version.ref = "androidxConstraintLayoutCompose" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidxActivity" }
+androidx-annotation = { group = "androidx.annotation", name = "annotation", version.ref = "androidxAnnotation"}
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidxAppCompat" }
 androidx-benchmark-macro = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "androidxMacroBenchmark" }
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "androidxComposeBom" }
@@ -84,9 +84,6 @@ androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "u
 androidx-compose-ui-util = { group = "androidx.compose.ui", name = "ui-util"}
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidxCore" }
 androidx-customview-poolingcontainer = { group = "androidx.customview", name = "customview-poolingcontainer", version.ref = "androidxCustomView"}
-androidx-dataStore-core = { group = "androidx.datastore", name = "datastore", version.ref = "androidxDataStore" }
-androidx-dataStore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "androidxDataStore" }
-androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "androidxHiltNavigationCompose" }
 androidx-lifecycle-viewModelCompose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "androidxLifecycle" }
 androidx-lifecycle-runtimeCompose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidxLifecycle" }
 androidx-lifecycle-process = { group = "androidx.lifecycle", name = "lifecycle-process", version.ref = "androidxLifecycle" }
@@ -106,12 +103,6 @@ androidx-work-testing = { group = "androidx.work", name = "work-testing", versio
 coil-kt = { group = "io.coil-kt", name = "coil", version.ref = "coil"}
 coil-kt-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil"}
 coil-kt-svg = { group = "io.coil-kt", name = "coil-svg", version.ref = "coil"}
-hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
-hilt-ext-work = { group = "androidx.hilt", name = "hilt-work", version.ref = "hiltExt" }
-hilt-ext-compiler = { group = "androidx.hilt", name = "hilt-compiler", version.ref = "hiltExt" }
-hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
-hilt-android-testing = { group = "com.google.dagger", name = "hilt-android-testing", version.ref = "hilt" }
-hilt-gradlePlugin = { group = "com.google.dagger", name = "hilt-android-gradle-plugin", version.ref = "hilt" }
 junit4 = { group = "junit", name = "junit", version.ref = "junit4" }
 kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
