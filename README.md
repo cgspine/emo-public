@@ -15,6 +15,10 @@ This repository contains series of libraries for android developers:
 - scheme: a route library based on annotation and ksp.
 - more libraries are on the way.
 
+# Documentation
+
+https://emo.qhplus.cn
+
 # design principles
 
 - Support API Level 24+.
