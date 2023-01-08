@@ -22,5 +22,6 @@ object Mem {
                 }.joinToString(",\n")
             )
         }
+        Log.i(tag, "native allocated size = ${Debug.getNativeHeapAllocatedSize() / 1024}")
     }
 }

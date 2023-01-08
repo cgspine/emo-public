@@ -38,24 +38,28 @@ class KvBenchmarkWrite {
     @Test
     fun measureEmoKvWrite() {
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
+        Mem.logCurrent(appContext, "measureEmoKvWrite_s")
         val count = 10000
         KvRW.emoKvWrite(appContext, count)
-        Mem.logCurrent(appContext, "measureEmoKvWrite")
+        Thread.sleep(3000)
+        Mem.logCurrent(appContext, "measureEmoKvWrite_e")
     }
 
     @Test
     fun measureMmkvWrite() {
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
+        Mem.logCurrent(appContext, "measureMmkvWrite_s")
         val count = 10000
         KvRW.mmkvWrite(appContext, count)
-        Mem.logCurrent(appContext, "measureMmkvWrite")
+        Mem.logCurrent(appContext, "measureMmkvWrite_e")
     }
 
     @Test
     fun measureLevelDbWrite() {
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
+        Mem.logCurrent(appContext, "measureLevelDbWrite_s")
         val count = 10000
         KvRW.levelDbWrite(appContext, count)
-        Mem.logCurrent(appContext, "measureLevelDbWrite")
+        Mem.logCurrent(appContext, "measureLevelDbWrite_e")
     }
 }

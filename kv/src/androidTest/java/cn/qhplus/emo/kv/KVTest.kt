@@ -16,6 +16,7 @@
 
 package cn.qhplus.emo.kv
 
+import android.os.Debug
 import android.util.Log
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -74,6 +75,7 @@ class KVTest {
     fun w_kv_write_read() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
+        Log.i("w_kv_write_read_s", "native allocated size = ${Debug.getNativeHeapAllocatedSize() / 1024}")
         val emoKV = EmoKV(appContext, "test2", indexInitSpace = 4096 * 128, crc = false, compress = false) { key, e ->
             Log.i("EmoKV", e.message ?: "")
             true
@@ -86,6 +88,8 @@ class KVTest {
             assertEquals(ret, "$i$VALUE_SUFFIX")
         }
         emoKV.close()
+        Thread.sleep(10)
+        Log.i("w_kv_write_read_e", "native allocated size = ${Debug.getNativeHeapAllocatedSize() / 1024}")
     }
 
     @Test

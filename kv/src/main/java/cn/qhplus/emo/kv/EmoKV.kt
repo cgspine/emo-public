@@ -62,7 +62,9 @@ class EmoKV(
 
     init {
         checkLoadLibrary()
-        val root = File(context.filesDir, "emo-kv")
+        val emoDir = File(context.filesDir, "emo")
+        emoDir.mkdir()
+        val root = File(emoDir, "kv")
         root.mkdir()
         val dir = File(root, name)
         dir.mkdir()

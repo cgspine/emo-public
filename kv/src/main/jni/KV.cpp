@@ -210,7 +210,6 @@ namespace EmoKV {
     }
 
     void KV::msg_runner() {
-        std::this_thread::sleep_for(std::chrono::seconds(5));
         while (true){
             int local_msg;
             {

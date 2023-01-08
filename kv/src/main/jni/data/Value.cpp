@@ -4,6 +4,7 @@
 
 #include <cstring>
 #include <memory>
+#include <sys/mman.h>
 #include "Value.h"
 
 namespace EmoKV {
@@ -13,7 +14,9 @@ namespace EmoKV {
 
     }
 
-    Value::~Value() = default;
+    Value::~Value(){
+        munmap(start_, size_);
+    }
 
     std::unique_ptr<Buf> Value::get(uint64_t offset, size_t len){
         auto* data = static_cast<uint8_t *>(malloc(len));

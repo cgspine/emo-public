@@ -103,7 +103,7 @@ static void compact(JNIEnv *env, jobject instance, jlong handle){
 
 static void close(JNIEnv *env, jobject instance, jlong handle){
     KV* kv =  reinterpret_cast<KV *>(handle);
-    free(kv);
+    delete kv;
 }
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void* reserved) {
