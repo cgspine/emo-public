@@ -27,6 +27,7 @@ import cn.qhplus.emo.config.mmkv.configCenterWithMMKV
 import cn.qhplus.emo.core.EmoConfig
 import cn.qhplus.emo.core.EmoLog
 import cn.qhplus.emo.core.EmoLogDelegate
+import cn.qhplus.emo.kv.EmoKV
 import cn.qhplus.emo.network.NetworkBandwidthSampler
 import cn.qhplus.emo.report.reportWake
 import cn.qhplus.emo.scheme.SchemeClient
@@ -45,6 +46,9 @@ val configCenter by lazy {
 }
 
 lateinit var EmoScheme: SchemeClient
+    private set
+
+lateinit var EmoKvInstance: EmoKV
     private set
 
 class EmoApp : Application(), ImageLoaderFactory {
@@ -74,6 +78,7 @@ class EmoApp : Application(), ImageLoaderFactory {
 
             })
         }
+        EmoKvInstance = EmoKV(this, "demo")
         EmoLog.delegate = object : EmoLogDelegate {
             override fun e(tag: String, msg: String, throwable: Throwable?) {
                 Log.e(tag, msg, throwable)

@@ -51,6 +51,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavBackStackEntry
+import cn.qhplus.emo.EmoKvInstance
 import cn.qhplus.emo.MainActivity
 import cn.qhplus.emo.R
 import cn.qhplus.emo.config.SchemeConst
@@ -247,6 +248,7 @@ fun TestPage() {
             CommonItem("Report") {
                 reportClick("test")
                 view.emoToast("see the log")
+                EmoKvInstance.put("hehe", "xx")
             }
         }
     }
