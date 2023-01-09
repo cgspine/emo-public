@@ -76,7 +76,10 @@ class KVTest {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
         Log.i("w_kv_write_read_s", "native allocated size = ${Debug.getNativeHeapAllocatedSize() / 1024}")
-        val emoKV = EmoKV(appContext, "test2", indexInitSpace = 4096 * 128, crc = false, compress = false) { key, e ->
+        val emoKV = EmoKV(
+            appContext,
+            "test3"
+        ) { key, e ->
             Log.i("EmoKV", e.message ?: "")
             true
         }
@@ -88,7 +91,6 @@ class KVTest {
             assertEquals(ret, "$i$VALUE_SUFFIX")
         }
         emoKV.close()
-        Thread.sleep(10)
         Log.i("w_kv_write_read_e", "native allocated size = ${Debug.getNativeHeapAllocatedSize() / 1024}")
     }
 

@@ -114,6 +114,7 @@ namespace EmoKV {
     }
     int Index::write(Value* key_storage, Value* value_storage, Buf* key, Buf* value){
         uint32_t index = key->hash(capability());
+        bool is_update = false;
         while (true){
             size_t init_offset = INDEX_HEADER_LEN + index * item_size();
             size_t offset = init_offset;
@@ -139,6 +140,7 @@ namespace EmoKV {
                 memcpy(start + INDEX_HEADER_LEN - item_size() - sizeof(uint32_t), start + offset, item_size());
                 set_flag_editing(flag, true);
                 *static_cast<uint8_t *>(start + offset) = flag;
+                is_update = true;
             }else{
                 offset += sizeof(uint8_t);
                 *static_cast<uint8_t *>(start + offset) = static_cast<uint8_t>(key->len());
@@ -173,7 +175,9 @@ namespace EmoKV {
                 *reinterpret_cast<uint64_t *>(start + offset) = pos;
                 update_value_pos(pos + value->len());
             }
-            update_updated_count(updated_count() + 1);
+            if(is_update){
+                update_updated_count(updated_count() + 1);
+            }
             offset = init_offset;
             set_flag_set(flag, true);
             set_flag_deleted(flag, false);

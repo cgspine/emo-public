@@ -35,6 +35,7 @@ object KvRW {
     }
 
     fun emoKvReadSingleThread(context: Context, count: Int){
+        Mem.logCurrent(context, "emoKvReadSingleThread_s")
         val kv = EmoKV(context, "emo-$testCommonName", indexInitSpace = 4096 * 128, crc = false, compress = false)
         for(i in 0 until count){
             val ret = kv.getString("$KEY_PREFIX$i")
@@ -42,6 +43,7 @@ object KvRW {
                 throw RuntimeException("not matched")
             }
         }
+        Mem.logCurrent(context, "emoKvReadSingleThread_e")
         kv.close()
     }
 
@@ -77,6 +79,7 @@ object KvRW {
     }
 
     fun mmkvReadSingleThread(context: Context, count: Int){
+        Mem.logCurrent(context, "mmkvReadSingleThread_s")
         MMKV.initialize(context)
         val kv = MMKV.mmkvWithID("mmkv-$testCommonName")
         for(i in 0 until count){
@@ -85,6 +88,7 @@ object KvRW {
                 throw RuntimeException("not matched")
             }
         }
+        Mem.logCurrent(context, "mmkvReadSingleThread_e")
         kv.close()
     }
 
@@ -124,6 +128,7 @@ object KvRW {
     }
 
     fun levelDbReadSingleThread(context: Context, count: Int){
+        Mem.logCurrent(context, "levelDbReadSingleThread_s")
         val dir = File(context.filesDir, "leveldb-$testCommonName")
         dir.mkdir()
         val kv = LevelDB.open(dir.path, LevelDB.configure().createIfMissing(true))
@@ -133,6 +138,7 @@ object KvRW {
                 throw RuntimeException("not matched")
             }
         }
+        Mem.logCurrent(context, "levelDbReadSingleThread_s")
         kv.close()
     }
 

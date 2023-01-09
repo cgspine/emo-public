@@ -81,6 +81,7 @@ class EmoKV(
         }
     }
 
+    // will release the resources. recommend call this in worker thread.
     @Synchronized
     fun close() {
         if (nativePtr != 0L) {
