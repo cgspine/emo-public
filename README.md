@@ -64,7 +64,7 @@ implementation("cn.qhplus.emo:core:0.3.0")
 // ui-core
 implementation("cn.qhplus.emo:ui-core:0.3.0")
 // photo
-implementation("cn.qhplus.emo:photo-coil:0.3.0")
+implementation("cn.qhplus.emo:photo-coil:0.3.1")
 // modal
 implementation("cn.qhplus.emo:modal:0.3.0")
 // permission
@@ -80,6 +80,8 @@ ksp("cn.qhplus.emo:config-ksp:0.3.0")
 // scheme
 implementation("cn.qhplus.emo:scheme-impl:0.3.1")
 ksp("cn.qhplus.emo:scheme-ksp:0.3.1")
+// kv
+implementation("cn.qhplus.emo:kv:0.3.0")
 ```
 
 # Demo apk
