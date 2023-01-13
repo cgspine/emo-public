@@ -129,7 +129,7 @@ class ConfigMapProcessor(
         return cls.getAnnotationsByType(annotationKClass).firstOrNull()?.let {
             write("fun ConfigCenter.actionOf${cls.simpleName.getShortName()}(): ${type}ConfigAction")
             writeBlock {
-                writeLine("return actionOf(${cls.simpleName.getShortName()}::class.java).concrete$type()")
+                writeLine("return actionOf(${cls.qualifiedName!!.asString()}::class.java).concrete$type()")
             }
         } != null
     }
