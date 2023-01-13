@@ -162,17 +162,21 @@ class FileBatchReporter<T>(
     batchInterval: Long,
     private val converter: ReportMsgConverter<T>,
     private val transporter: StreamReportTransporter<T>,
-    dirName: String = "emo-report",
+    dirName: String = "report",
     private val fileSize: Long = 150 * 1024
 ) : IntervalBatchReporter<T>(client, batchInterval), LogTag {
 
     private val applicationContext = context.applicationContext
-    private val rootDir = File(applicationContext.filesDir, dirName).apply {
+    private val emoDir = File(applicationContext.filesDir, "emo").apply {
         mkdirs()
     }
 
+    private val rootDir = File(emoDir, dirName).apply {
+        mkdir()
+    }
+
     private val dir = File(rootDir, applicationContext.currentSimpleProcessName()).apply {
-        mkdirs()
+        mkdir()
     }
 
     private val mutex = Mutex()
