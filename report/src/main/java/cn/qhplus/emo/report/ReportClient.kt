@@ -137,7 +137,7 @@ fun <T> newReportClient(
     streamReportTransporter: StreamReportTransporter<T>? = null,
     batchInterval: Long = 5 * 60 * 1000,
     memBatchCount: Int = 50,
-    fileBatchDirName: String = "emo-report",
+    fileBatchDirName: String = "report",
     fileBatchFileSize: Long = 150 * 1024
 ): ReportClient<T> {
     return EmoReportClient(
@@ -165,7 +165,7 @@ fun simpleReportClient(
     streamReportTransporter: StreamReportTransporter<String>? = null,
     batchInterval: Long = 5 * 60 * 1000,
     memBatchCount: Int = 50,
-    fileBatchDirName: String = "emo-report",
+    fileBatchDirName: String = "report",
     fileBatchFileSize: Long = 150 * 1024
 ): ReportClient<String> {
     return newReportClient(
