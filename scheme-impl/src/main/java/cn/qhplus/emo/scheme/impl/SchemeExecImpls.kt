@@ -219,7 +219,9 @@ private fun Scheme.createIntentForCompose(activity: Activity): Pair<Intent, KCla
                 SchemeKeys.KEY_START_ARGUMENTS,
                 Bundle().apply {
                     args.forEach { (key, value) ->
-                        putAny(key, value)
+                        if(def.args.find { it.name == key }?.special != true){
+                            putAny(key, value)
+                        }
                     }
                     putString(SchemeKeys.KEY_ORIGIN, Uri.encode(origin))
                 }
