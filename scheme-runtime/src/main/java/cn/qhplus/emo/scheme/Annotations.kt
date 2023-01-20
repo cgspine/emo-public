@@ -43,6 +43,7 @@ annotation class SchemeHost(
     val requiredArgs: Array<String>
 )
 
+@Repeatable
 @Retention(AnnotationRetention.SOURCE)
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 annotation class SchemeBoolArg(
@@ -51,6 +52,7 @@ annotation class SchemeBoolArg(
     val default: Boolean = false
 )
 
+@Repeatable
 @Retention(AnnotationRetention.SOURCE)
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 annotation class SchemeIntArg(
@@ -59,6 +61,7 @@ annotation class SchemeIntArg(
     val default: Int = 0
 )
 
+@Repeatable
 @Retention(AnnotationRetention.SOURCE)
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 annotation class SchemeLongArg(
@@ -67,6 +70,7 @@ annotation class SchemeLongArg(
     val default: Long = 0
 )
 
+@Repeatable
 @Retention(AnnotationRetention.SOURCE)
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 annotation class SchemeFloatArg(
@@ -75,6 +79,7 @@ annotation class SchemeFloatArg(
     val default: Float = 0.0f
 )
 
+@Repeatable
 @Retention(AnnotationRetention.SOURCE)
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 annotation class SchemeStringArg(
