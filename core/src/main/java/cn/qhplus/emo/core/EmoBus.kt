@@ -82,7 +82,11 @@ class EmoBus {
             }
             (flow as MutableSharedFlow<T>).emit(event)
         } else {
-            (weakFlowMap[cls]?.get() as? MutableSharedFlow<T>)?.emit(event)
+            if(prop != null && prop.keepChannelAlive){
+                (strongFlowMap[cls] as? MutableSharedFlow<T>)?.emit(event)
+            }else{
+                (weakFlowMap[cls]?.get() as? MutableSharedFlow<T>)?.emit(event)
+            }
         }
     }
 
