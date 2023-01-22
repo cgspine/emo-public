@@ -107,7 +107,7 @@ fun NavGraphBuilder.getStartDestinationArgsFromBundle(bundle: Bundle) {
     bundle.keySet().forEach { name ->
         bundle.get(name)?.let {
             argument(name) {
-                type = when (it) {
+                type = when (it.javaClass) {
                     Int::class.java, java.lang.Integer::class.java -> NavType.IntType
                     Boolean::class.java, java.lang.Boolean::class.java -> NavType.BoolType
                     Long::class.java, java.lang.Long::class.java -> NavType.LongType
