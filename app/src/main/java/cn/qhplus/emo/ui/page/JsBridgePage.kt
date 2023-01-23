@@ -55,7 +55,7 @@ fun JsBridgePage() {
     ) {
         val topBarIconColor = MaterialTheme.colorScheme.onPrimary
         TopBar(
-            title = "JSBridge",
+            title = { "JSBridge" },
             leftItems = remember(topBarIconColor) {
                 listOf(
                     TopBarBackIconItem(tint = topBarIconColor) {

@@ -18,8 +18,10 @@ package cn.qhplus.emo.ui.core
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -34,6 +36,8 @@ import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -71,7 +75,7 @@ fun interface TopBarItem {
 
 interface TopBarTitleLayout {
     @Composable
-    fun Compose(title: CharSequence, subTitle: CharSequence, alignTitleCenter: Boolean)
+    fun Compose(titleGetter: () -> CharSequence, subTitleGetter: () -> CharSequence, alignTitleCenter: Boolean)
 }
 
 class DefaultTopBarTitleLayout(
@@ -86,8 +90,8 @@ class DefaultTopBarTitleLayout(
 ) : TopBarTitleLayout {
     @Composable
     override fun Compose(
-        title: CharSequence,
-        subTitle: CharSequence,
+        titleGetter: () -> CharSequence,
+        subTitleGetter: () -> CharSequence,
         alignTitleCenter: Boolean
     ) {
         Column(
@@ -98,6 +102,8 @@ class DefaultTopBarTitleLayout(
                 Alignment.Start
             }
         ) {
+            val title = titleGetter()
+            val subTitle = subTitleGetter()
             Text(
                 title.toString(),
                 color = MaterialTheme.colorScheme.onPrimary,
@@ -205,8 +211,8 @@ open class TopBarTextItem(
 @Composable
 fun TopBarWithLazyListScrollState(
     scrollState: LazyListState,
-    title: CharSequence = "",
-    subTitle: CharSequence = "",
+    title: () -> CharSequence = { "" },
+    subTitle: () -> CharSequence = { "" },
     alignTitleCenter: Boolean = true,
     height: Dp = emoTopBarHeight,
     zIndex: Float = emoTopBarZIndex,
@@ -224,31 +230,27 @@ fun TopBarWithLazyListScrollState(
     rightItems: List<TopBarItem> = emptyList(),
     titleLayout: TopBarTitleLayout = remember { DefaultTopBarTitleLayout() }
 ) {
-    val percent = with(LocalDensity.current) {
+    val percentGetter: Density.() -> Float = {
         if (scrollState.firstVisibleItemIndex > 0 ||
             scrollState.firstVisibleItemScrollOffset.toDp() > scrollAlphaChangeMaxOffset
         ) {
             1f
         } else scrollState.firstVisibleItemScrollOffset.toDp() / scrollAlphaChangeMaxOffset
     }
-    TopBar(
-        title, subTitle,
-        alignTitleCenter, height, zIndex,
-        if (changeWithBackground) {
-            backgroundColor.copy(backgroundColor.alpha * percent)
-        } else backgroundColor,
-        shadowElevation, shadowAlpha * percent,
-        separatorHeight, separatorColor.copy(separatorColor.alpha * percent),
-        paddingStart, paddingEnd,
-        titleBoxPaddingHor, leftItems, rightItems, titleLayout
+    TopBarWithPercent(
+        percentGetter, title, subTitle, alignTitleCenter, height,
+        zIndex, backgroundColor, changeWithBackground,
+        shadowElevation, shadowAlpha, separatorHeight, separatorColor,
+        paddingStart, paddingEnd, titleBoxPaddingHor,
+        leftItems, rightItems, titleLayout
     )
 }
 
 @Composable
 fun TopBarWithLazyGridScrollState(
     scrollState: LazyGridState,
-    title: CharSequence = "",
-    subTitle: CharSequence = "",
+    title: () -> CharSequence = { "" },
+    subTitle: () -> CharSequence = { "" },
     alignTitleCenter: Boolean = true,
     height: Dp = emoTopBarHeight,
     zIndex: Float = emoTopBarZIndex,
@@ -266,12 +268,86 @@ fun TopBarWithLazyGridScrollState(
     rightItems: List<TopBarItem> = emptyList(),
     titleLayout: TopBarTitleLayout = remember { DefaultTopBarTitleLayout() }
 ) {
-    val percent = with(LocalDensity.current) {
+    val percentGetter: Density.() -> Float = {
         if (scrollState.firstVisibleItemIndex > 0 ||
             scrollState.firstVisibleItemScrollOffset.toDp() > scrollAlphaChangeMaxOffset
         ) {
             1f
         } else scrollState.firstVisibleItemScrollOffset.toDp() / scrollAlphaChangeMaxOffset
+    }
+    TopBarWithPercent(
+        percentGetter, title, subTitle, alignTitleCenter, height,
+        zIndex, backgroundColor, changeWithBackground,
+        shadowElevation, shadowAlpha, separatorHeight, separatorColor,
+        paddingStart, paddingEnd, titleBoxPaddingHor,
+        leftItems, rightItems, titleLayout
+    )
+}
+
+@Composable
+fun TopBarWithScrollState(
+    scrollState: ScrollState,
+    title: () -> CharSequence = { "" },
+    subTitle: () -> CharSequence = { "" },
+    alignTitleCenter: Boolean = true,
+    height: Dp = emoTopBarHeight,
+    zIndex: Float = emoTopBarZIndex,
+    backgroundColor: Color = MaterialTheme.colorScheme.primary,
+    changeWithBackground: Boolean = false,
+    scrollAlphaChangeMaxOffset: Dp = emoScrollAlphaChangeMaxOffset,
+    shadowElevation: Dp = 16.dp,
+    shadowAlpha: Float = 0.6f,
+    separatorHeight: Dp = OnePx(),
+    separatorColor: Color = MaterialTheme.colorScheme.outline,
+    paddingStart: Dp = 4.dp,
+    paddingEnd: Dp = 4.dp,
+    titleBoxPaddingHor: Dp = 8.dp,
+    leftItems: List<TopBarItem> = emptyList(),
+    rightItems: List<TopBarItem> = emptyList(),
+    titleLayout: TopBarTitleLayout = remember { DefaultTopBarTitleLayout() }
+){
+    val percentGetter: Density.() -> Float = {
+        if (scrollState.value.toDp() >= scrollAlphaChangeMaxOffset ) {
+            1f
+        } else scrollState.value.toDp() / scrollAlphaChangeMaxOffset
+    }
+    TopBarWithPercent(
+        percentGetter, title, subTitle, alignTitleCenter, height,
+        zIndex, backgroundColor, changeWithBackground,
+        shadowElevation, shadowAlpha, separatorHeight, separatorColor,
+        paddingStart, paddingEnd, titleBoxPaddingHor,
+        leftItems, rightItems, titleLayout
+    )
+}
+
+@Composable
+fun TopBarWithPercent(
+    percentGetter: Density.() -> Float,
+    title: () -> CharSequence,
+    subTitle: () -> CharSequence = { "" },
+    alignTitleCenter: Boolean = true,
+    height: Dp = emoTopBarHeight,
+    zIndex: Float = emoTopBarZIndex,
+    backgroundColor: Color = MaterialTheme.colorScheme.primary,
+    changeWithBackground: Boolean = false,
+    shadowElevation: Dp = 16.dp,
+    shadowAlpha: Float = 0.6f,
+    separatorHeight: Dp = OnePx(),
+    separatorColor: Color = MaterialTheme.colorScheme.outline,
+    paddingStart: Dp = 4.dp,
+    paddingEnd: Dp = 4.dp,
+    titleBoxPaddingHor: Dp = 8.dp,
+    leftItems: List<TopBarItem> = emptyList(),
+    rightItems: List<TopBarItem> = emptyList(),
+    titleLayout: TopBarTitleLayout = remember { DefaultTopBarTitleLayout() }
+) {
+    val density = LocalDensity.current
+    val percent by remember {
+        derivedStateOf {
+            with(density) {
+                percentGetter()
+            }
+        }
     }
     TopBar(
         title, subTitle,
@@ -279,25 +355,26 @@ fun TopBarWithLazyGridScrollState(
         if (changeWithBackground) {
             backgroundColor.copy(backgroundColor.alpha * percent)
         } else backgroundColor,
-        shadowElevation, shadowAlpha * percent,
-        separatorHeight, separatorColor.copy(separatorColor.alpha * percent),
+        shadowElevation, { shadowAlpha * percent },
+        separatorHeight, { separatorColor.copy(separatorColor.alpha * percent) },
         paddingStart, paddingEnd,
         titleBoxPaddingHor, leftItems, rightItems, titleLayout
     )
 }
 
+
 @Composable
 fun TopBar(
-    title: CharSequence,
-    subTitle: CharSequence = "",
+    title: () -> CharSequence,
+    subTitle: () -> CharSequence = { "" },
     alignTitleCenter: Boolean = true,
     height: Dp = emoTopBarHeight,
     zIndex: Float = emoTopBarZIndex,
     backgroundColor: Color = MaterialTheme.colorScheme.primary,
     shadowElevation: Dp = 16.dp,
-    shadowAlpha: Float = 0.4f,
+    shadowAlpha: () -> Float = { 0.4f },
     separatorHeight: Dp = OnePx(),
-    separatorColor: Color = MaterialTheme.colorScheme.outline,
+    separatorColor: () -> Color = { Color.Transparent },
     paddingStart: Dp = 4.dp,
     paddingEnd: Dp = 4.dp,
     titleBoxPaddingHor: Dp = 8.dp,
@@ -315,7 +392,7 @@ fun TopBar(
             modifier = Modifier
                 .fillMaxSize()
                 .graphicsLayer {
-                    this.alpha = shadowAlpha
+                    this.alpha = shadowAlpha()
                     this.shadowElevation = shadowElevation.toPx()
                     this.shape = RectangleShape
                     this.clip = shadowElevation > 0.dp
@@ -340,23 +417,29 @@ fun TopBar(
                 rightItems,
                 titleLayout
             )
-            if (separatorHeight > 0.dp && separatorColor != Color.Transparent) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(separatorHeight)
-                        .align(Alignment.BottomStart)
-                        .background(separatorColor)
-                )
-            }
+            TopBarSeparator(separatorHeight, separatorColor)
         }
     }
 }
 
 @Composable
+fun BoxScope.TopBarSeparator(height: Dp, colorGetter: () -> Color){
+    val color = colorGetter()
+    if (height > 0.dp && color != Color.Transparent) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(height)
+                .align(Alignment.BottomStart)
+                .background(color)
+        )
+    }
+}
+
+@Composable
 fun TopBarContent(
-    title: CharSequence,
-    subTitle: CharSequence,
+    title: () -> CharSequence,
+    subTitle: () -> CharSequence,
     alignTitleCenter: Boolean,
     height: Dp = emoTopBarHeight,
     paddingStart: Dp = 4.dp,

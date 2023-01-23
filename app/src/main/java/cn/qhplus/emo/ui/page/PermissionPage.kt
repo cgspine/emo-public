@@ -59,7 +59,7 @@ fun PermissionPage() {
     ) {
         val topBarIconColor = MaterialTheme.colorScheme.onPrimary
         TopBar(
-            title = "Permission",
+            title = { "Permission" },
             leftItems = remember(topBarIconColor) {
                 listOf(
                     TopBarBackIconItem(tint = topBarIconColor) {

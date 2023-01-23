@@ -44,7 +44,7 @@ fun AboutPage() {
     ) {
         val topBarIconColor = MaterialTheme.colorScheme.onPrimary
         TopBar(
-            title = "About",
+            title = { "About" },
             leftItems = remember(topBarIconColor) {
                 listOf(
                     TopBarBackIconItem(tint = topBarIconColor) {

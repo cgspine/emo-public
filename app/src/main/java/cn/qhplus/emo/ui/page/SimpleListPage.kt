@@ -49,7 +49,7 @@ fun SimpleListPage(
         val scrollState = rememberLazyListState()
         TopBarWithLazyListScrollState(
             scrollState,
-            title = title,
+            title = { title },
             leftItems = topBarLeftItems,
             rightItems = topBarRightItems
         )
