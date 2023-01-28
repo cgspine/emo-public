@@ -21,7 +21,7 @@ import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.consumedWindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsIgnoringVisibility
 import androidx.compose.foundation.layout.padding
@@ -70,57 +70,42 @@ import cn.qhplus.emo.ui.core.TopBarTextItem
 import cn.qhplus.emo.ui.core.modifier.windowInsetsCommonNavPadding
 
 data class HomeDestination(
-    val route: String,
-    val selectedIcon: ImageVector,
-    val unselectedIcon: ImageVector,
-    val iconTextId: Int,
-    val content: @Composable () -> Unit
+    val route: String, val selectedIcon: ImageVector, val unselectedIcon: ImageVector, val iconTextId: Int, val content: @Composable () -> Unit
 )
 
-val HOME_DESTINATIONS = listOf(
-    HomeDestination(
-        route = SchemeConst.VALUE_TAB_HOME_COMPONENT,
-        selectedIcon = Icons.Filled.Widgets,
-        unselectedIcon = Icons.Outlined.Widgets,
-        iconTextId = R.string.component,
-        content = {
-            ComponentPage()
-        }
-    ),
-    HomeDestination(
-        route = SchemeConst.VALUE_TAB_HOME_TEST,
-        selectedIcon = Icons.Filled.Grid3x3,
-        unselectedIcon = Icons.Outlined.Grid3x3,
-        iconTextId = R.string.test,
-        content = {
-            TestPage()
-        }
-    )
-)
+val HOME_DESTINATIONS = listOf(HomeDestination(route = SchemeConst.VALUE_TAB_HOME_COMPONENT,
+    selectedIcon = Icons.Filled.Widgets,
+    unselectedIcon = Icons.Outlined.Widgets,
+    iconTextId = R.string.component,
+    content = {
+        ComponentPage()
+    }), HomeDestination(route = SchemeConst.VALUE_TAB_HOME_TEST,
+    selectedIcon = Icons.Filled.Grid3x3,
+    unselectedIcon = Icons.Outlined.Grid3x3,
+    iconTextId = R.string.test,
+    content = {
+        TestPage()
+    }))
 
 @ComposeScheme(
-    action = SchemeConst.SCHEME_ACTION_HOME,
-    alternativeHosts = [MainActivity::class]
+    action = SchemeConst.SCHEME_ACTION_HOME, alternativeHosts = [MainActivity::class]
 )
 @SchemeStringArg(
-    name = SchemeConst.SCHEME_ARG_TAB,
-    default = SchemeConst.VALUE_TAB_HOME_COMPONENT
+    name = SchemeConst.SCHEME_ARG_TAB, default = SchemeConst.VALUE_TAB_HOME_COMPONENT
 )
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun HomePage(navBackStackEntry: NavBackStackEntry) {
-    val tab = navBackStackEntry.arguments?.getString(SchemeConst.SCHEME_ARG_TAB)
-        ?: SchemeConst.VALUE_TAB_HOME_COMPONENT
+    val tab = navBackStackEntry.arguments?.getString(SchemeConst.SCHEME_ARG_TAB) ?: SchemeConst.VALUE_TAB_HOME_COMPONENT
     val currentTab = rememberSaveable(tab) {
         mutableStateOf(tab)
     }
 
-    LaunchedEffect(""){
+    LaunchedEffect("") {
         Log.i("EmoDemo", "exposure for scheme: ${navBackStackEntry.arguments?.getString(SchemeKeys.KEY_ORIGIN)?.let { Uri.decode(it) }}")
     }
 
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
+    Scaffold(modifier = Modifier.fillMaxSize(),
         containerColor = Color.Transparent,
         contentColor = MaterialTheme.colorScheme.onBackground,
         contentWindowInsets = WindowInsets.navigationBarsIgnoringVisibility,
@@ -129,36 +114,28 @@ fun HomePage(navBackStackEntry: NavBackStackEntry) {
                 modifier = Modifier
                     .shadow(16.dp)
                     .background(MaterialTheme.colorScheme.surface)
-                    .windowInsetsCommonNavPadding(),
-                tonalElevation = 0.dp
+                    .windowInsetsCommonNavPadding(), tonalElevation = 0.dp
             ) {
                 HOME_DESTINATIONS.forEach { destination ->
                     val selected = currentTab.value == destination.route
-                    NavigationBarItem(
-                        selected = selected,
-                        onClick = {
-                            currentTab.value = destination.route
-                        },
-                        icon = {
-                            Icon(
-                                if (selected) {
-                                    destination.selectedIcon
-                                } else {
-                                    destination.unselectedIcon
-                                },
-                                contentDescription = null
-                            )
-                        },
-                        label = { Text(stringResource(destination.iconTextId)) }
-                    )
+                    NavigationBarItem(selected = selected, onClick = {
+                        currentTab.value = destination.route
+                    }, icon = {
+                        Icon(
+                            if (selected) {
+                                destination.selectedIcon
+                            } else {
+                                destination.unselectedIcon
+                            }, contentDescription = null
+                        )
+                    }, label = { Text(stringResource(destination.iconTextId)) })
                 }
             }
-        }
-    ) { padding ->
+        }) { padding ->
         Surface(
             modifier = Modifier
                 .padding(padding)
-                .consumedWindowInsets(padding)
+                .consumeWindowInsets(padding)
         ) {
             when (currentTab.value) {
                 SchemeConst.VALUE_TAB_HOME_TEST -> {
@@ -175,16 +152,11 @@ fun HomePage(navBackStackEntry: NavBackStackEntry) {
 @Composable
 fun ComponentPage() {
     val topBarIconColor = MaterialTheme.colorScheme.onPrimary
-    SimpleListPage(
-        title = "Components",
-        topBarRightItems = remember(topBarIconColor) {
-            listOf(
-                TopBarTextItem(text = "About", color = topBarIconColor) {
-                    schemeBuilder(SchemeConst.SCHEME_ACTION_ABOUT).runQuietly()
-                }
-            )
-        }
-    ) {
+    SimpleListPage(title = "Components", topBarRightItems = remember(topBarIconColor) {
+        listOf(TopBarTextItem(text = "About", color = topBarIconColor) {
+            schemeBuilder(SchemeConst.SCHEME_ACTION_ABOUT).runQuietly()
+        })
+    }) {
         item {
             CommonItem("Modal") {
                 schemeBuilder(SchemeConst.SCHEME_ACTION_MODAL).runQuietly()

@@ -156,7 +156,7 @@ fun PhotoPickerPreviewPage(
             exit = slideOutVertically(targetOffsetY = { -it })
         ) {
             TopBar(
-                title = "${pagerState.currentPage + 1}/${list.size}",
+                title = { "${pagerState.currentPage + 1}/${list.size}" },
                 separatorHeight = 0.dp,
                 paddingEnd = 16.dp,
                 backgroundColor = config.topBarBgColor,

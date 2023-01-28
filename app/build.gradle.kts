@@ -16,6 +16,7 @@
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 import java.io.ByteArrayOutputStream
 
+
 plugins {
     id("emo.android.application")
     id("emo.android.application.compose")

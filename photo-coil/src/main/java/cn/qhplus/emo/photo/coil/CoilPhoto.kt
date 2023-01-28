@@ -311,6 +311,7 @@ open class CoilPhotoProvider(
 }
 
 class CoilPhotoShotRecover : PhotoShotRecover {
+    @Suppress("DEPRECATION")
     override fun recover(bundle: Bundle): PhotoShot? {
         val uri = bundle.getParcelable<Uri>(CoilPhotoProvider.META_URI_KEY) ?: return null
         val thumbUri = bundle.getParcelable(CoilPhotoProvider.META_THUMB_URI_KEY) ?: uri

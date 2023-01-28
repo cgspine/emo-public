@@ -25,8 +25,8 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.forEachGesture
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -786,34 +786,32 @@ private fun PhotoPaintCanvas(
             .fillMaxSize()
             .pointerInput(editLayers, editPaint, layoutInfo) {
                 coroutineScope {
-                    forEachGesture {
-                        awaitPointerEventScope {
-                            val down = awaitFirstDown(requireUnconsumed = true)
+                    awaitEachGesture {
+                        val down = awaitFirstDown(requireUnconsumed = true)
 
-                            if (down.pressed != down.previousPressed) {
-                                down.consume()
-                            }
-                            currentLayer.path.moveTo(
-                                (down.position.x - layoutInfo.rect.left) / layoutInfo.scale,
-                                (down.position.y - layoutInfo.rect.top) / layoutInfo.scale
-                            )
-                            onTouchBegin()
-                            do {
-                                val event = awaitPointerEvent()
-                                val change = event.changes.find { it.id.value == down.id.value }
-                                if (change != null) {
-                                    if (change.positionChange() != Offset.Zero) {
-                                        change.consume()
-                                    }
-                                    currentLayer.path.lineTo(
-                                        (change.position.x - layoutInfo.rect.left) / layoutInfo.scale,
-                                        (change.position.y - layoutInfo.rect.top) / layoutInfo.scale
-                                    )
-                                    currentLayerState.value = currentLayer
-                                }
-                            } while (change == null || change.pressed)
-                            onTouchEnd(currentLayer)
+                        if (down.pressed != down.previousPressed) {
+                            down.consume()
                         }
+                        currentLayer.path.moveTo(
+                            (down.position.x - layoutInfo.rect.left) / layoutInfo.scale,
+                            (down.position.y - layoutInfo.rect.top) / layoutInfo.scale
+                        )
+                        onTouchBegin()
+                        do {
+                            val event = awaitPointerEvent()
+                            val change = event.changes.find { it.id.value == down.id.value }
+                            if (change != null) {
+                                if (change.positionChange() != Offset.Zero) {
+                                    change.consume()
+                                }
+                                currentLayer.path.lineTo(
+                                    (change.position.x - layoutInfo.rect.left) / layoutInfo.scale,
+                                    (change.position.y - layoutInfo.rect.top) / layoutInfo.scale
+                                )
+                                currentLayerState.value = currentLayer
+                            }
+                        } while (change == null || change.pressed)
+                        onTouchEnd(currentLayer)
                     }
                 }
             }

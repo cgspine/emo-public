@@ -69,7 +69,9 @@ class PhotoClipperResult(
     val height: Int,
     val uri: Uri
 )
+
 fun Intent.getPhotoClipperResult(): PhotoClipperResult? {
+    @Suppress("DEPRECATION")
     val uri = getParcelableExtra<Uri>(PHOTO_CLIPPER_RESULT_URI) ?: return null
     val width = getIntExtra(PHOTO_CLIPPER_RESULT_WIDTH, -1)
     val height = getIntExtra(PHOTO_CLIPPER_RESULT_HEIGHT, -1)

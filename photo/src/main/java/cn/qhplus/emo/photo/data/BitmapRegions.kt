@@ -209,6 +209,7 @@ private fun <T> loadLongImage(
     val regionDecoder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         BitmapRegionDecoder.newInstance(bufferedIns)
     } else {
+        @Suppress("DEPRECATION")
         BitmapRegionDecoder.newInstance(bufferedIns, false)
     }
     checkNotNull(regionDecoder) { "BitmapRegionDecoder newInstance failed." }

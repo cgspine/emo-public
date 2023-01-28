@@ -305,9 +305,9 @@ fun TopBarWithScrollState(
     leftItems: List<TopBarItem> = emptyList(),
     rightItems: List<TopBarItem> = emptyList(),
     titleLayout: TopBarTitleLayout = remember { DefaultTopBarTitleLayout() }
-){
+) {
     val percentGetter: Density.() -> Float = {
-        if (scrollState.value.toDp() >= scrollAlphaChangeMaxOffset ) {
+        if (scrollState.value.toDp() >= scrollAlphaChangeMaxOffset) {
             1f
         } else scrollState.value.toDp() / scrollAlphaChangeMaxOffset
     }
@@ -361,7 +361,6 @@ fun TopBarWithPercent(
         titleBoxPaddingHor, leftItems, rightItems, titleLayout
     )
 }
-
 
 @Composable
 fun TopBar(
@@ -423,7 +422,7 @@ fun TopBar(
 }
 
 @Composable
-fun BoxScope.TopBarSeparator(height: Dp, colorGetter: () -> Color){
+fun BoxScope.TopBarSeparator(height: Dp, colorGetter: () -> Color) {
     val color = colorGetter()
     if (height > 0.dp && color != Color.Transparent) {
         Box(

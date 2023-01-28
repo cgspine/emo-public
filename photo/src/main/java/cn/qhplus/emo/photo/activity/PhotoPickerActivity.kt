@@ -108,6 +108,7 @@ class PhotoPickItemInfo(
         parcel.readString()!!,
         parcel.readInt(),
         parcel.readInt(),
+        @Suppress("DEPRECATION")
         parcel.readParcelable(Uri::class.java.classLoader)!!,
         parcel.readInt()
     )
@@ -139,6 +140,7 @@ class PhotoPickItemInfo(
 class PhotoPickResult(val list: List<PhotoPickItemInfo>, val isOriginOpen: Boolean)
 
 fun Intent.getPhotoPickResult(): PhotoPickResult? {
+    @Suppress("DEPRECATION")
     val list = getParcelableArrayListExtra<PhotoPickItemInfo>(PHOTO_RESULT_URI_LIST) ?: return null
     if (list.isEmpty()) {
         return null

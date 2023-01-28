@@ -26,13 +26,13 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.calculateCentroidSize
 import androidx.compose.foundation.gestures.calculatePan
 import androidx.compose.foundation.gestures.calculateRotation
 import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.forEachGesture
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -313,76 +313,74 @@ internal class TextEditLayer(
                                 )
                             }
                             launch {
-                                forEachGesture {
-                                    awaitPointerEventScope {
-                                        var rotation = 0f
-                                        var zoom = 1f
-                                        var pan = Offset.Zero
-                                        var pastTouchSlop = false
-                                        val touchSlop = viewConfiguration.touchSlop
+                                awaitEachGesture {
+                                    var rotation = 0f
+                                    var zoom = 1f
+                                    var pan = Offset.Zero
+                                    var pastTouchSlop = false
+                                    val touchSlop = viewConfiguration.touchSlop
 
-                                        awaitFirstDown(requireUnconsumed = false)
-                                        do {
-                                            val event = awaitPointerEvent()
-                                            val canceled = event.changes.any { it.isConsumed }
-                                            if (!canceled) {
-                                                val zoomChange = event.calculateZoom()
-                                                val rotationChange = event.calculateRotation()
-                                                val panChange = event.calculatePan()
+                                    awaitFirstDown(requireUnconsumed = false)
+                                    do {
+                                        val event = awaitPointerEvent()
+                                        val canceled = event.changes.any { it.isConsumed }
+                                        if (!canceled) {
+                                            val zoomChange = event.calculateZoom()
+                                            val rotationChange = event.calculateRotation()
+                                            val panChange = event.calculatePan()
 
-                                                if (!pastTouchSlop) {
-                                                    zoom *= zoomChange
-                                                    rotation += rotationChange
-                                                    pan += panChange
+                                            if (!pastTouchSlop) {
+                                                zoom *= zoomChange
+                                                rotation += rotationChange
+                                                pan += panChange
 
-                                                    val centroidSize = event.calculateCentroidSize(useCurrent = false)
-                                                    val zoomMotion = abs(1 - zoom) * centroidSize
-                                                    val rotationMotion = abs(rotation * PI.toFloat() * centroidSize / 180f)
-                                                    val panMotion = pan.getDistance()
+                                                val centroidSize = event.calculateCentroidSize(useCurrent = false)
+                                                val zoomMotion = abs(1 - zoom) * centroidSize
+                                                val rotationMotion = abs(rotation * PI.toFloat() * centroidSize / 180f)
+                                                val panMotion = pan.getDistance()
 
-                                                    if (zoomMotion > touchSlop ||
-                                                        rotationMotion > touchSlop ||
-                                                        panMotion > touchSlop
-                                                    ) {
-                                                        pastTouchSlop = true
-                                                    }
-                                                }
-
-                                                if (pastTouchSlop) {
-                                                    if (rotationChange != 0f ||
-                                                        zoomChange != 1f ||
-                                                        panChange != Offset.Zero
-                                                    ) {
-                                                        if (panChange != Offset.Zero) {
-                                                            if (!isDragging) {
-                                                                isDragging = true
-                                                                onToggleDragging(true)
-                                                            }
-                                                        }
-                                                        offsetFlow.value = offsetFlow.value + panChange
-                                                        scaleFlow.value = scaleFlow.value * zoomChange
-                                                        rotationFlow.value = rotationFlow.value + rotationChange
-                                                        if (isDragging) {
-                                                            isInDeleteArea = dragInfo.isInDeleteArea(offsetFlow.value)
-                                                        }
-                                                    }
-                                                    event.changes.forEach {
-                                                        if (it.positionChanged()) {
-                                                            it.consume()
-                                                        }
-                                                    }
+                                                if (zoomMotion > touchSlop ||
+                                                    rotationMotion > touchSlop ||
+                                                    panMotion > touchSlop
+                                                ) {
+                                                    pastTouchSlop = true
                                                 }
                                             }
-                                        } while (!canceled && event.changes.any { it.pressed })
-                                        if (isDragging) {
-                                            if (isInDeleteArea) {
-                                                onDelete()
+
+                                            if (pastTouchSlop) {
+                                                if (rotationChange != 0f ||
+                                                    zoomChange != 1f ||
+                                                    panChange != Offset.Zero
+                                                ) {
+                                                    if (panChange != Offset.Zero) {
+                                                        if (!isDragging) {
+                                                            isDragging = true
+                                                            onToggleDragging(true)
+                                                        }
+                                                    }
+                                                    offsetFlow.value = offsetFlow.value + panChange
+                                                    scaleFlow.value = scaleFlow.value * zoomChange
+                                                    rotationFlow.value = rotationFlow.value + rotationChange
+                                                    if (isDragging) {
+                                                        isInDeleteArea = dragInfo.isInDeleteArea(offsetFlow.value)
+                                                    }
+                                                }
+                                                event.changes.forEach {
+                                                    if (it.positionChanged()) {
+                                                        it.consume()
+                                                    }
+                                                }
                                             }
                                         }
-                                        isInDeleteArea = false
-                                        isDragging = false
-                                        onToggleDragging(false)
+                                    } while (!canceled && event.changes.any { it.pressed })
+                                    if (isDragging) {
+                                        if (isInDeleteArea) {
+                                            onDelete()
+                                        }
                                     }
+                                    isInDeleteArea = false
+                                    isDragging = false
+                                    onToggleDragging(false)
                                 }
                             }
                         }

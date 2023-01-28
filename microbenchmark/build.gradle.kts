@@ -44,7 +44,7 @@ dependencies {
     androidTestImplementation("androidx.test:runner:1.5.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.benchmark:benchmark-junit4:1.2.0-alpha08")
+    androidTestImplementation("androidx.benchmark:benchmark-junit4:1.2.0-alpha09")
     androidTestImplementation(libs.kotlinx.coroutines.core)
     androidTestImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.core.ktx)
