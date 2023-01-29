@@ -28,38 +28,13 @@ https://emo.qhplus.cn
 
 # compose versions
 
-<table>
- <th>
-  <td>emo library version</td>
-  <td>Compose Version</td>
-  <td>Compose Compiler Version</td>
- </th>
- <tr>
-  <td> 0.0.x </td>
-  <td> 1.2.x </td>
-  <td> - </td>
- </tr>
- <tr>
-  <td> 0.1.x </td>
-  <td> 1.3.0-beta03 </td>
-  <td> 1.3.1 </td>
- </tr>
- <tr>
-  <td> 0.2.x </td>
-  <td> BOM 2022.10.00 </td>
-  <td> 1.3.2 </td>
- </tr>
- <tr>
-  <td> 0.3.x </td>
-  <td> BOM 2022.11.00 </td>
-  <td> 1.3.2 </td>
- </tr>
- <tr>
-  <td> 0.4.x </td>
-  <td> BOM 2023.01.00 </td>
-  <td> 1.4.0 </td>
- </tr>
-</table>
+| emo library version | Compose Version | Compose Compiler Version |
+|---------------------|-----------------|--------------------------|
+| 0.0.x               | 1.2.x           | -                        |
+| 0.1.x               | 1.3.0-beta03    | 1.3.1                    |
+| 0.2.x               | BOM 2022.10.00  | 1.3.2                    |
+| 0.3.x               | BOM 2022.11.00  | 1.3.2                    |
+| 0.3.x               | BOM 2023.01.00  | 1.4.0                    |
 
 # Download
 
