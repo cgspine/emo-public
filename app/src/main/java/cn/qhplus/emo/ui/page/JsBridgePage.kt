@@ -86,6 +86,7 @@ fun JsBridgePage() {
     }
 }
 
+@Suppress("UNUSED_PARAMETER", "unused")
 @Keep
 class BusinessJsReflect {
     fun normal(scope: CoroutineScope, dataPicker: EmoJsBridgeHandler.JsonDataPicker, callback: EmoJsBridgeHandler.ResponseCallback?) {
@@ -108,6 +109,7 @@ class BusinessJsReflect {
     }
 }
 
+@Suppress("unused")
 class BusinessJsBridgeHandler(scope: CoroutineScope) : EmoJsBridgeHandler(scope) {
     override fun getSupportedCmdList(): List<String> {
         return listOf("normal", "timeout", "nativeError")

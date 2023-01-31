@@ -172,6 +172,10 @@ open class PhotoPickerActivity : ComponentActivity() {
         }
     }
 
+    private val dataProviderInstance by lazy {
+        dataProvider()
+    }
+
     private val viewModel by viewModels<PhotoPickerViewModel>(factoryProducer = {
         object : AbstractSavedStateViewModelFactory(this@PhotoPickerActivity, intent?.extras) {
             override fun <T : ViewModel> create(key: String, modelClass: Class<T>, handle: SavedStateHandle): T {
@@ -184,7 +188,7 @@ open class PhotoPickerActivity : ComponentActivity() {
                 return constructor.newInstance(
                     this@PhotoPickerActivity.application,
                     handle,
-                    dataProvider(),
+                    dataProviderInstance,
                     supportedMimeTypes()
                 )
             }
@@ -281,7 +285,7 @@ open class PhotoPickerActivity : ComponentActivity() {
         navController: NavHostController,
         viewModel: PhotoPickerViewModel
     ) {
-        PhotoPickerGridPage(navController, viewModel)
+        PhotoPickerGridPage(navController, viewModel, dataProviderInstance.permissions())
     }
 
     @Composable

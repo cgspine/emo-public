@@ -16,11 +16,12 @@
 
 package cn.qhplus.emo.photo.data
 
+import android.Manifest
 import android.content.ContentUris
 import android.content.Context
 import android.database.Cursor
-import android.graphics.Bitmap
 import android.net.Uri
+import android.os.Build
 import android.provider.MediaStore
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getLongOrNull
@@ -94,6 +95,8 @@ interface MediaDataProvider {
         context: Context,
         supportedMimeTypes: Array<String>
     ): List<MediaPhotoBucket>
+
+    fun permissions(): List<String>
 }
 
 class EmoDefaultImagesProvider : MediaDataProvider {
@@ -123,6 +126,14 @@ class EmoDefaultImagesProvider : MediaDataProvider {
             MediaStore.Images.Media.BUCKET_ID,
             MediaStore.Images.Media.BUCKET_DISPLAY_NAME
         )
+    }
+
+    override fun permissions(): List<String> {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            listOf(Manifest.permission.READ_MEDIA_IMAGES)
+        } else {
+            listOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+        }
     }
 
     override suspend fun provide(
@@ -225,15 +236,11 @@ private fun <T> Cursor.getColumnIndexAndDoAction(columnName: String, block: (Int
 fun Cursor.readLong(columnName: String): Long = getColumnIndexAndDoAction(columnName) {
     getLongOrNull(it)
 } ?: 0
+
 fun Cursor.readString(columnName: String): String = getColumnIndexAndDoAction(columnName) {
     getStringOrNull(it)
 } ?: ""
+
 fun Cursor.readInt(columnName: String): Int = getColumnIndexAndDoAction(columnName) {
     getIntOrNull(it)
 } ?: 0
-
-class ImageItem(
-    val url: String,
-    val thumbnailUrl: String?,
-    val thumbnail: Bitmap?
-)

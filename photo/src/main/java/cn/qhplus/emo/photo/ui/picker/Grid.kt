@@ -16,7 +16,6 @@
 
 package cn.qhplus.emo.photo.ui.picker
 
-import android.Manifest
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -66,8 +65,7 @@ import cn.qhplus.emo.ui.core.helper.OnePx
 import cn.qhplus.emo.ui.core.modifier.throttleClick
 import cn.qhplus.emo.ui.core.modifier.windowInsetsCommonNavPadding
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.PermissionStatus
-import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -76,7 +74,8 @@ import kotlinx.coroutines.flow.StateFlow
 @Composable
 fun PhotoPickerGridPage(
     navController: NavHostController,
-    viewModel: PhotoPickerViewModel
+    viewModel: PhotoPickerViewModel,
+    permissions: List<String>
 ) {
     val systemUiController = rememberSystemUiController()
     SideEffect {
@@ -84,9 +83,9 @@ fun PhotoPickerGridPage(
             systemUiController.isSystemBarsVisible = true
         }
     }
-    val permission = rememberPermissionState(permission = Manifest.permission.READ_EXTERNAL_STORAGE)
-    when (permission.status) {
-        PermissionStatus.Granted -> {
+    val permission = rememberMultiplePermissionsState(permissions = permissions)
+    when {
+        permission.allPermissionsGranted -> {
             LaunchedEffect("") {
                 viewModel.loadData()
             }
@@ -114,10 +113,10 @@ fun PhotoPickerGridPage(
                 }
             }
         }
-        is PermissionStatus.Denied -> {
-            CommonPickerTip("选择图片需要存储权限\n请先打开存储权限")
+        else -> {
+            CommonPickerTip("选择图片需要相册权限\n请先打开权限")
             LaunchedEffect("") {
-                permission.launchPermissionRequest()
+                permission.launchMultiplePermissionRequest()
             }
         }
     }
