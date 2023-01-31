@@ -44,7 +44,7 @@ implementation("cn.qhplus.emo:core:0.4.0")
 // ui-core
 implementation("cn.qhplus.emo:ui-core:0.4.0")
 // photo
-implementation("cn.qhplus.emo:photo-coil:0.4.0")
+implementation("cn.qhplus.emo:photo-coil:0.4.1")
 // modal
 implementation("cn.qhplus.emo:modal:0.4.0")
 // permission
