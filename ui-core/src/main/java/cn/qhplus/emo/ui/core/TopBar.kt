@@ -36,6 +36,7 @@ import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -45,6 +46,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Measurable
@@ -77,7 +80,7 @@ interface TopBarTitleLayout {
     @Composable
     fun Compose(titleGetter: () -> CharSequence, subTitleGetter: () -> CharSequence, alignTitleCenter: Boolean)
 }
-
+@Stable
 class DefaultTopBarTitleLayout(
     val titleFontWeight: FontWeight = FontWeight.Bold,
     val titleFontFamily: FontFamily? = null,
@@ -127,7 +130,7 @@ class DefaultTopBarTitleLayout(
         }
     }
 }
-
+@Stable
 open class TopBarBackIconItem(
     tint: Color = Color.White,
     pressAlpha: Float = 0.5f,
@@ -144,6 +147,7 @@ open class TopBarBackIconItem(
     onClick
 )
 
+@Stable
 open class TopBarIconItem(
     @DrawableRes val icon: Int,
     val contentDescription: String = "",
@@ -166,6 +170,36 @@ open class TopBarIconItem(
             Image(
                 modifier = Modifier.fillMaxSize(),
                 painter = painterResource(icon),
+                contentDescription = contentDescription,
+                colorFilter = ColorFilter.tint(tint),
+                contentScale = ContentScale.Inside
+            )
+        }
+    }
+}
+@Stable
+open class TopBarImageVectorItem(
+    val icon: ImageVector,
+    val contentDescription: String = "",
+    val tint: Color = Color.White,
+    val pressAlpha: Float = 0.5f,
+    val disableAlpha: Float = 0.5f,
+    val enable: Boolean = true,
+    val onClick: () -> Unit
+) : TopBarItem {
+
+    @Composable
+    override fun Compose(topBarHeight: Dp) {
+        PressWithAlphaBox(
+            modifier = Modifier.size(topBarHeight),
+            enable = enable,
+            pressAlpha = pressAlpha,
+            disableAlpha = disableAlpha,
+            onClick = onClick
+        ) {
+            Image(
+                modifier = Modifier.fillMaxSize(),
+                painter = rememberVectorPainter(image = icon),
                 contentDescription = contentDescription,
                 colorFilter = ColorFilter.tint(tint),
                 contentScale = ContentScale.Inside
