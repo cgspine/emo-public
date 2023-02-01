@@ -215,6 +215,8 @@ namespace EmoKV {
                     }
                     ret = true;
                 }
+            }else{
+                return;
             }
         } while (!ret);
     }
