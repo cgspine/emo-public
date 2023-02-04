@@ -61,9 +61,11 @@ internal abstract class ModalPresent(
         visibility = View.GONE
     }
 
-    private val onBackPressedCallback = object : OnBackPressedCallback(systemCancellable) {
+    private val onBackPressedCallback = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
-            dismiss()
+            if(systemCancellable){
+                dismiss()
+            }
         }
     }
 
