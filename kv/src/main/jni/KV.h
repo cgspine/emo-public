@@ -22,7 +22,7 @@ namespace EmoKV {
     class KV {
     public:
         static KV* make(
-                std::string dir,
+                std::string& dir,
                 size_t index_init_space,
                 size_t key_init_space,
                 size_t value_init_space,

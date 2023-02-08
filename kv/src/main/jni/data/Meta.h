@@ -9,7 +9,7 @@
 namespace EmoKV {
     class Meta {
     public:
-        Meta(std::string dir);
+        Meta(std::string& dir);
         ~Meta();
         void updateAllPath(std::string index, std::string key, std::string value);
         void updateIndexPath(std::string path);

@@ -9,8 +9,8 @@
 #include <chrono>
 
 namespace EmoKV {
-    Meta::Meta(std::string dir) :
-            dir_(std::move(dir)),
+    Meta::Meta(std::string& dir) :
+            dir_(dir),
             meta_path_(dir_ + "/meta") {
         std::ifstream meta_file;
         meta_file.open(meta_path_, std::ios::in);

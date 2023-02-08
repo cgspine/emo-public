@@ -42,7 +42,7 @@ static jlong initKV(
 ){
     auto kv_dir = jstringToString(env, dir);
     KV* kv = KV::make(
-            std::move(kv_dir),
+            kv_dir,
             index_init_space,
             key_init_space,
             value_init_space,

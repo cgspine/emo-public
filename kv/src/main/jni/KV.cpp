@@ -14,14 +14,14 @@
 
 namespace EmoKV {
     KV* KV::make(
-            std::string dir,
+            std::string& dir,
             size_t index_init_space,
             size_t key_init_space,
             size_t value_init_space,
             float hash_factor,
             int update_count_to_auto_compact
     ) {
-        std::unique_ptr<Meta> meta(new Meta(std::move(dir)));
+        std::unique_ptr<Meta> meta(new Meta(dir));
         size_t index_file_size;
         void* index_start = make_mmap(meta->index_path(), index_init_space, index_file_size);
         if(index_start == nullptr){
