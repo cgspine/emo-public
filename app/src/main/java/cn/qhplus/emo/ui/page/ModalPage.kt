@@ -23,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
@@ -35,13 +36,18 @@ import cn.qhplus.emo.modal.EmoDialogMarkList
 import cn.qhplus.emo.modal.EmoDialogMsg
 import cn.qhplus.emo.modal.EmoDialogMutiCheckList
 import cn.qhplus.emo.modal.EmoModalAction
+import cn.qhplus.emo.modal.TipStatus
 import cn.qhplus.emo.modal.emoBottomSheet
 import cn.qhplus.emo.modal.emoDialog
+import cn.qhplus.emo.modal.emoTip
 import cn.qhplus.emo.modal.emoToast
 import cn.qhplus.emo.scheme.ComposeScheme
 import cn.qhplus.emo.theme.EmoTheme
 import cn.qhplus.emo.ui.CommonItem
 import cn.qhplus.emo.ui.core.Item
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 
 @ComposeScheme(
     action = SchemeConst.SCHEME_ACTION_MODAL,
@@ -182,6 +188,33 @@ fun ModalPage() {
                         }
                     }
                 }.show()
+            }
+        }
+
+        item {
+            val scope = rememberCoroutineScope()
+            CommonItem("Tip - Done") {
+                val flow = MutableStateFlow<TipStatus>(TipStatus.Loading())
+                val tip = view.emoTip(status = flow).show()
+                scope.launch {
+                    delay(1000)
+                    flow.value = TipStatus.Done()
+                    delay(100)
+                    tip.dismiss()
+                }
+            }
+        }
+        item {
+            val scope = rememberCoroutineScope()
+            CommonItem("Tip - Error") {
+                val flow = MutableStateFlow<TipStatus>(TipStatus.Loading())
+                val tip = view.emoTip(status = flow).show()
+                scope.launch {
+                    delay(1000)
+                    flow.value = TipStatus.Error()
+                    delay(100)
+                    tip.dismiss()
+                }
             }
         }
     }
