@@ -42,6 +42,7 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -213,7 +214,8 @@ fun View.emoBottomSheet(
     widthLimit: (maxWidth: Dp) -> Dp = { it.coerceAtMost(420.dp) },
     heightLimit: (maxHeight: Dp) -> Dp = { if (it < 640.dp) it - 40.dp else it * 0.85f },
     radius: Dp = 12.dp,
-    background: Color = Color.White,
+    background: @Composable () -> Color = { MaterialTheme.colorScheme.background },
+    themeProvider: @Composable (@Composable () -> Unit) -> Unit = { inner -> inner() },
     content: @Composable (EmoModal) -> Unit
 ): EmoModal {
     return emoModal(
@@ -222,7 +224,8 @@ fun View.emoBottomSheet(
         maskTouchBehavior,
         modalHostProvider = modalHostProvider,
         enter = EnterTransition.None,
-        exit = ExitTransition.None
+        exit = ExitTransition.None,
+        themeProvider = themeProvider
     ) { modal ->
         EmoBottomSheet(
             modal,
@@ -230,7 +233,7 @@ fun View.emoBottomSheet(
             widthLimit,
             heightLimit,
             radius,
-            background,
+            background(),
             mask,
             Modifier.animateEnterExit(
                 enter = enter,

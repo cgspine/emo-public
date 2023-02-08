@@ -48,7 +48,8 @@ internal abstract class ModalPresent(
     private val onBackPressedDispatcher: OnBackPressedDispatcher,
     val mask: Color = DefaultMaskColor,
     val systemCancellable: Boolean = true,
-    val maskTouchBehavior: MaskTouchBehavior = MaskTouchBehavior.Dismiss
+    val maskTouchBehavior: MaskTouchBehavior = MaskTouchBehavior.Dismiss,
+    val themeWrapper: @Composable (@Composable () -> Unit) -> Unit
 ) : EmoModal {
 
     private val onShowListeners = arrayListOf<EmoModal.Action>()
@@ -63,7 +64,7 @@ internal abstract class ModalPresent(
 
     private val onBackPressedCallback = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
-            if(systemCancellable){
+            if (systemCancellable) {
                 dismiss()
             }
         }
@@ -71,10 +72,12 @@ internal abstract class ModalPresent(
 
     init {
         composeLayout.setContent {
-            Box(modifier = Modifier.fillMaxSize()) {
-                ModalContent(visible = visibleState.value) {
-                    if (isDismissing) {
-                        doAfterDismiss()
+            themeWrapper {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    ModalContent(visible = visibleState.value) {
+                        if (isDismissing) {
+                            doAfterDismiss()
+                        }
                     }
                 }
             }
@@ -157,8 +160,16 @@ internal class StillModalImpl(
     mask: Color = DefaultMaskColor,
     systemCancellable: Boolean = true,
     maskTouchBehavior: MaskTouchBehavior = MaskTouchBehavior.Dismiss,
+    themeWrapper: @Composable (@Composable () -> Unit) -> Unit,
     val content: @Composable (modal: EmoModal) -> Unit
-) : ModalPresent(rootLayout, onBackPressedDispatcher, mask, systemCancellable, maskTouchBehavior) {
+) : ModalPresent(
+    rootLayout,
+    onBackPressedDispatcher,
+    mask,
+    systemCancellable,
+    maskTouchBehavior,
+    themeWrapper
+) {
 
     @Composable
     override fun ModalContent(visible: Boolean, dismissFinishAction: () -> Unit) {
@@ -198,8 +209,16 @@ internal class AnimateModalImpl(
     maskTouchBehavior: MaskTouchBehavior = MaskTouchBehavior.Dismiss,
     private val enter: EnterTransition = fadeIn(tween(), 0f),
     private val exit: ExitTransition = fadeOut(tween(), 0f),
+    themeWrapper: @Composable (@Composable () -> Unit) -> Unit,
     val content: @Composable AnimatedVisibilityScope.(modal: EmoModal) -> Unit
-) : ModalPresent(rootLayout, onBackPressedDispatcher, mask, systemCancellable, maskTouchBehavior) {
+) : ModalPresent(
+    rootLayout,
+    onBackPressedDispatcher,
+    mask,
+    systemCancellable,
+    maskTouchBehavior,
+    themeWrapper
+) {
 
     @Composable
     override fun ModalContent(visible: Boolean, dismissFinishAction: () -> Unit) {

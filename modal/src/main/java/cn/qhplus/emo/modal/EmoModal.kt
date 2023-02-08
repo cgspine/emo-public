@@ -66,6 +66,7 @@ fun EmoModal(
     doOnDismiss: EmoModal.Action? = null,
     uniqueId: Long = SystemClock.elapsedRealtimeNanos(),
     modalHostProvider: ModalHostProvider = DefaultModalHostProvider,
+    themeProvider: @Composable (@Composable () -> Unit) -> Unit = { inner -> inner() },
     content: @Composable AnimatedVisibilityScope.(EmoModal) -> Unit
 ) {
     val modalHolder = remember {
@@ -81,6 +82,7 @@ fun EmoModal(
                 modalHostProvider,
                 enter,
                 exit,
+                themeProvider,
                 content
             )
             doOnShow?.let { modal.doOnShow(it) }
@@ -137,6 +139,7 @@ fun View.emoModal(
     modalHostProvider: ModalHostProvider = DefaultModalHostProvider,
     enter: EnterTransition = fadeIn(tween(), 0f),
     exit: ExitTransition = fadeOut(tween(), 0f),
+    themeProvider: @Composable (@Composable () -> Unit) -> Unit = { inner -> inner() },
     content: @Composable AnimatedVisibilityScope.(EmoModal) -> Unit
 ): EmoModal {
     if (!isAttachedToWindow) {
@@ -151,6 +154,7 @@ fun View.emoModal(
         maskTouchBehavior,
         enter,
         exit,
+        themeProvider,
         content
     )
     val hostView = modalHost.first
@@ -164,13 +168,22 @@ fun View.emoStillModal(
     maskTouchBehavior: MaskTouchBehavior = MaskTouchBehavior.Dismiss,
     uniqueId: Long = SystemClock.elapsedRealtimeNanos(),
     modalHostProvider: ModalHostProvider = DefaultModalHostProvider,
+    themeProvider: @Composable (@Composable () -> Unit) -> Unit = { inner -> inner() },
     content: @Composable (EmoModal) -> Unit
 ): EmoModal {
     if (!isAttachedToWindow) {
         throw RuntimeException("View is not attached to window")
     }
     val modalHost = modalHostProvider.provide(this)
-    val modal = StillModalImpl(modalHost.first, modalHost.second, mask, systemCancellable, maskTouchBehavior, content)
+    val modal = StillModalImpl(
+        modalHost.first,
+        modalHost.second,
+        mask,
+        systemCancellable,
+        maskTouchBehavior,
+        themeProvider,
+        content
+    )
     val hostView = modalHost.first
     handleModelUnique(hostView, modal, uniqueId)
     return modal

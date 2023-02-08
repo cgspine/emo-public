@@ -46,6 +46,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -365,7 +366,8 @@ fun View.emoDialog(
     verEdge: Dp = DefaultDialogVerEdgeProtectionMargin,
     widthLimit: Dp = 360.dp,
     radius: Dp = 12.dp,
-    background: Color = Color.White,
+    background: @Composable () -> Color = { MaterialTheme.colorScheme.background },
+    themeProvider: @Composable (@Composable () -> Unit) -> Unit = { inner -> inner() },
     content: @Composable (EmoModal) -> Unit
 ): EmoModal {
     return emoModal(
@@ -374,9 +376,10 @@ fun View.emoDialog(
         maskTouchBehavior,
         modalHostProvider = modalHostProvider,
         enter = enter,
-        exit = exit
+        exit = exit,
+        themeProvider = themeProvider
     ) { modal ->
-        EmoDialog(modal, horEdge, verEdge, widthLimit, radius, background, content)
+        EmoDialog(modal, horEdge, verEdge, widthLimit, radius, background(), content)
     }
 }
 
@@ -389,10 +392,17 @@ fun View.emoStillDialog(
     verEdge: Dp = DefaultDialogVerEdgeProtectionMargin,
     widthLimit: Dp = 360.dp,
     radius: Dp = 12.dp,
-    background: Color = Color.White,
+    background: @Composable () -> Color = { MaterialTheme.colorScheme.background },
+    themeProvider: @Composable (@Composable () -> Unit) -> Unit = { inner -> inner() },
     content: @Composable (EmoModal) -> Unit
 ): EmoModal {
-    return emoStillModal(mask, systemCancellable, maskTouchBehavior, modalHostProvider = modalHostProvider) { modal ->
-        EmoDialog(modal, horEdge, verEdge, widthLimit, radius, background, content)
+    return emoStillModal(
+        mask,
+        systemCancellable,
+        maskTouchBehavior,
+        modalHostProvider = modalHostProvider,
+        themeProvider = themeProvider
+    ) { modal ->
+        EmoDialog(modal, horEdge, verEdge, widthLimit, radius, background(), content)
     }
 }

@@ -114,6 +114,7 @@ fun View.emoToast(
     background: Color = Color.Black,
     enter: EnterTransition = slideInVertically(initialOffsetY = { it }) + fadeIn(),
     exit: ExitTransition = slideOutVertically(targetOffsetY = { it }) + fadeOut(),
+    themeProvider: @Composable (@Composable () -> Unit) -> Unit = { inner -> inner() },
     content: @Composable BoxScope.(EmoModal) -> Unit
 ): EmoModal {
     var job: Job? = null
@@ -124,7 +125,8 @@ fun View.emoToast(
         -1,
         modalHostProvider,
         enter = EnterTransition.None,
-        exit = ExitTransition.None
+        exit = ExitTransition.None,
+        themeProvider = themeProvider
     ) { modal ->
         Box(
             modifier = Modifier
@@ -194,6 +196,7 @@ fun View.emoStillToast(
     verEdge: Dp = DefaultToastVerEdgeProtectionMargin,
     radius: Dp = 8.dp,
     background: Color = Color.Black,
+    themeProvider: @Composable (@Composable () -> Unit) -> Unit = { inner -> inner() },
     content: @Composable BoxScope.(EmoModal) -> Unit
 ): EmoModal {
     var job: Job? = null
@@ -202,7 +205,8 @@ fun View.emoStillToast(
         false,
         MaskTouchBehavior.Penetrate,
         -1,
-        modalHostProvider
+        modalHostProvider,
+        themeProvider
     ) { modal ->
         Box(
             modifier = Modifier
