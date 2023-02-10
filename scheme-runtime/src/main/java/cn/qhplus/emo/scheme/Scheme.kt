@@ -16,6 +16,9 @@
 
 package cn.qhplus.emo.scheme
 
+const val SCHEME_ARG_INTENT_FLAG = "__emo_intent_flag__"
+const val SCHEME_ARG_FORCE_NEW_HOST = "__emo_force_new_host__"
+
 data class Scheme(
     val def: SchemeDef,
     val protocol: String,
@@ -25,6 +28,33 @@ data class Scheme(
 ) {
     fun toBuilder(): SchemeBuilder {
         return SchemeBuilder(protocol, action).arg(args)
+    }
+
+    fun getIntentFlag(): Int {
+        val v = args[SCHEME_ARG_INTENT_FLAG] ?: return 0
+        if (v is Int && v > 0) {
+            return v
+        }
+        if (v is String) {
+            try {
+                val value = SchemeIntArgParser.parse("", v)
+                if (value > 0) {
+                    return value
+                }
+            } catch (ignore: Throwable) {
+            }
+        }
+        return 0
+    }
+
+    fun forceNewHost(): Boolean {
+        val v = args[SCHEME_ARG_FORCE_NEW_HOST] ?: return false
+        return when (v) {
+            is Boolean -> v
+            is Int -> v > 0
+            is String -> v == "1" || v.lowercase() == "true"
+            else -> false
+        }
     }
 }
 
@@ -109,6 +139,16 @@ class SchemeBuilder(val protocol: String, val action: String) {
 
     fun arg(name: String, value: String): SchemeBuilder {
         args[name] = value
+        return this
+    }
+
+    fun forceNewHost(): SchemeBuilder {
+        args[SCHEME_ARG_FORCE_NEW_HOST] = 1
+        return this
+    }
+
+    fun flagsIfNewActivity(flags: Int): SchemeBuilder {
+        args[SCHEME_ARG_INTENT_FLAG] = flags
         return this
     }
 

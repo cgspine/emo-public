@@ -58,6 +58,7 @@ import cn.qhplus.emo.config.SchemeConst
 import cn.qhplus.emo.config.panel.ConfigPanel
 import cn.qhplus.emo.config.runQuietly
 import cn.qhplus.emo.config.schemeBuilder
+import cn.qhplus.emo.config.webSchemeBuilder
 import cn.qhplus.emo.configCenter
 import cn.qhplus.emo.modal.emoBottomSheet
 import cn.qhplus.emo.modal.emoToast
@@ -153,8 +154,8 @@ fun HomePage(navBackStackEntry: NavBackStackEntry) {
 fun ComponentPage() {
     val topBarIconColor = MaterialTheme.colorScheme.onPrimary
     SimpleListPage(title = "Components", topBarRightItems = remember(topBarIconColor) {
-        listOf(TopBarTextItem(text = "About", color = topBarIconColor) {
-            schemeBuilder(SchemeConst.SCHEME_ACTION_ABOUT).runQuietly()
+        listOf(TopBarTextItem(text = "文档", color = topBarIconColor) {
+            webSchemeBuilder("https://emo.qhplus.cn", "emo").runQuietly()
         })
     }) {
         item {
@@ -177,7 +178,7 @@ fun ComponentPage() {
 
         item {
             CommonItem("JS Bridge") {
-                schemeBuilder(SchemeConst.SCHEME_ACTION_JS_BRIDGE).runQuietly()
+                webSchemeBuilder("file:///android_asset/demo.html", "JsBridge").runQuietly()
             }
         }
 

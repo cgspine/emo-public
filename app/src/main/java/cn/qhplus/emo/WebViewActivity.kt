@@ -16,45 +16,181 @@
 
 package cn.qhplus.emo
 
+import android.net.Uri
 import android.os.Bundle
-import androidx.compose.runtime.Composable
+import android.webkit.WebResourceRequest
+import android.webkit.WebView
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.annotation.Keep
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
-import androidx.lifecycle.lifecycleScope
-import cn.qhplus.emo.scheme.SchemeClient
-import cn.qhplus.emo.scheme.impl.ComposeHostActivity
+import cn.qhplus.emo.config.SchemeConst
+import cn.qhplus.emo.js.bridge.EmoBridgeWebViewClientHelper
+import cn.qhplus.emo.js.bridge.EmoJsBridgeHandler
+import cn.qhplus.emo.js.bridge.EmoReflectJsBridgeHandler
+import cn.qhplus.emo.scheme.ActivityScheme
+import cn.qhplus.emo.scheme.SchemeStringArg
 import cn.qhplus.emo.theme.EmoTheme
+import cn.qhplus.emo.ui.core.TopBar
+import cn.qhplus.emo.ui.core.TopBarBackIconItem
 import cn.qhplus.emo.ui.core.ex.setNavTransparent
 import cn.qhplus.emo.ui.core.ex.setNormalDisplayCutoutMode
+import com.google.accompanist.web.AccompanistWebViewClient
+import com.google.accompanist.web.WebView
+import com.google.accompanist.web.rememberWebViewState
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class WebViewActivity : ComposeHostActivity() {
+@ActivityScheme(
+    action = SchemeConst.SCHEME_ACTION_WEB
+)
+@SchemeStringArg(SchemeConst.SCHEME_ARG_TITLE)
+@SchemeStringArg(SchemeConst.SCHEME_ARG_URL)
+class WebViewActivity : ComponentActivity() {
+
+    val title = mutableStateOf("")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        WindowCompat.getInsetsController(window, window.decorView).run {
-            isAppearanceLightNavigationBars = false
-        }
-
         window.setNormalDisplayCutoutMode()
         window.setNavTransparent()
-
-        // TODO Fix this for xiaomi
-        lifecycleScope.launch {
-            delay(100)
-            window.setBackgroundDrawableResource(android.R.color.transparent)
+        title.value = intent.getStringExtra(SchemeConst.SCHEME_ARG_TITLE)?.let { Uri.decode(it) } ?: ""
+        setContent {
+            val state = rememberWebViewState(
+                intent.getStringExtra(SchemeConst.SCHEME_ARG_URL)?.let { Uri.decode(it) } ?: ""
+            )
+            val scope = rememberCoroutineScope()
+            val client = remember {
+                val bridgeHandler = EmoReflectJsBridgeHandler(scope, BusinessJsReflect)
+                BusinessWebViewClient(bridgeHandler)
+            }
+            EmoTheme {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    TopBar(
+                        title = { title.value },
+                        leftItems = listOf(TopBarBackIconItem{
+                            EmoScheme.pop()
+                        })
+                    )
+                    WebView(
+                        state = state,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        onCreated = {
+                            it.settings.javaScriptEnabled = true
+                        },
+                        client = client
+                    )
+                }
+            }
         }
     }
 
-    @Composable
-    override fun Content() {
-        EmoTheme {
-            SchemeNavHost()
+    inner class BusinessWebViewClient(handler: EmoJsBridgeHandler) : AccompanistWebViewClient() {
+        private val helper = EmoBridgeWebViewClientHelper(true, handler)
+
+        override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+            if (view != null && helper.shouldOverrideUrlLoading(view, request)) {
+                return true
+            }
+            val url = request?.url?.toString() ?: ""
+            if(url.startsWith("${SchemeConst.SCHEME_PROTOCOL}://")){
+                EmoScheme.handleQuietly(url)
+                return true
+            }
+            return super.shouldOverrideUrlLoading(view, request)
+        }
+
+        override fun onPageFinished(view: WebView?, url: String?) {
+            super.onPageFinished(view, url)
+            view?.let {
+                helper.doOnPageFinished(it)
+            }
+            view?.title?.let {
+                if(it.isNotBlank()){
+                    title.value = it
+                }
+            }
+        }
+    }
+}
+
+
+@Suppress("UNUSED_PARAMETER", "unused")
+@Keep
+object BusinessJsReflect {
+    fun normal(scope: CoroutineScope, dataPicker: EmoJsBridgeHandler.JsonDataPicker, callback: EmoJsBridgeHandler.ResponseCallback?) {
+        val data = dataPicker.pickAsJsonObject()!!
+        val id = data.getInt("id")
+        callback?.finish("收到 native 的结果， id = $id")
+    }
+
+    fun timeout(scope: CoroutineScope, dataPicker: EmoJsBridgeHandler.JsonDataPicker, callback: EmoJsBridgeHandler.ResponseCallback?) {
+        scope.launch {
+            delay(3000)
+            val data = dataPicker.pickAsJsonObject()!!
+            val id = data.getInt("id")
+            callback?.finish("收到 native 的结果， id = $id")
         }
     }
 
-    override fun schemeClient(): SchemeClient {
-        return EmoScheme
+    fun nativeError(scope: CoroutineScope, dataPicker: EmoJsBridgeHandler.JsonDataPicker, callback: EmoJsBridgeHandler.ResponseCallback?) {
+        callback?.failed("native 告诉你失败了")
+    }
+}
+
+@Suppress("unused")
+class BusinessJsBridgeHandler(scope: CoroutineScope) : EmoJsBridgeHandler(scope) {
+    override fun getSupportedCmdList(): List<String> {
+        return listOf("normal", "timeout", "nativeError")
+    }
+
+    override fun handleMessage(cmd: String, dataPicker: JsonDataPicker, callback: ResponseCallback?) {
+        when (cmd) {
+            "normal" -> {
+                val data = dataPicker.pickAsJsonObject()!!
+                val id = data.getInt("id")
+                callback?.finish("收到 native 的结果， id = $id")
+            }
+            "timeout" -> {
+                scope.launch {
+                    delay(3000)
+                    val data = dataPicker.pickAsJsonObject()!!
+                    val id = data.getInt("id")
+                    callback?.finish("收到 native 的结果， id = $id")
+                }
+            }
+            "nativeError" -> {
+                callback?.failed("native 告诉你失败了")
+            }
+        }
+    }
+}
+
+class BusinessWebViewClient(handler: EmoJsBridgeHandler) : AccompanistWebViewClient() {
+    private val helper = EmoBridgeWebViewClientHelper(true, handler)
+
+    override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+        if (view != null && helper.shouldOverrideUrlLoading(view, request)) {
+            return true
+        }
+        return super.shouldOverrideUrlLoading(view, request)
+    }
+
+    override fun onPageFinished(view: WebView?, url: String?) {
+        super.onPageFinished(view, url)
+        view?.let {
+            helper.doOnPageFinished(it)
+        }
     }
 }

@@ -16,6 +16,7 @@
 
 package cn.qhplus.emo.config
 
+import android.net.Uri
 import cn.qhplus.emo.EmoScheme
 import cn.qhplus.emo.scheme.SchemeBuilder
 
@@ -24,7 +25,7 @@ object SchemeConst {
 
     const val SCHEME_ACTION_HOME = "home"
     const val SCHEME_ACTION_MODAL = "modal"
-    const val SCHEME_ACTION_ABOUT = "about"
+    const val SCHEME_ACTION_WEB = "web"
     const val SCHEME_ACTION_PHOTO = "photo"
     const val SCHEME_ACTION_PERMISSION = "permission"
     const val SCHEME_ACTION_PHOTO_VIEWER = "photoViewer"
@@ -40,12 +41,18 @@ object SchemeConst {
     const val SCHEME_ACTION_SCHEME_SLIDE_BOTTOM = "scheme_slide_bottom"
 
     const val SCHEME_ARG_TAB = "tab"
+    const val SCHEME_ARG_TITLE = "title"
+    const val SCHEME_ARG_URL = "url"
 
     const val VALUE_TAB_HOME_COMPONENT = "component"
     const val VALUE_TAB_HOME_TEST = "test"
 }
 
 fun schemeBuilder(action: String): SchemeBuilder = SchemeBuilder(SchemeConst.SCHEME_PROTOCOL, action)
+
+fun webSchemeBuilder(url: String, title: String = ""): SchemeBuilder = schemeBuilder(SchemeConst.SCHEME_ACTION_WEB)
+    .arg(SchemeConst.SCHEME_ARG_URL, Uri.encode(url))
+    .arg(SchemeConst.SCHEME_ARG_TITLE, Uri.encode(title))
 suspend fun SchemeBuilder.run(): Boolean {
     return EmoScheme.handle(toString())
 }

@@ -80,6 +80,7 @@ interface TopBarTitleLayout {
     @Composable
     fun Compose(titleGetter: () -> CharSequence, subTitleGetter: () -> CharSequence, alignTitleCenter: Boolean)
 }
+
 @Stable
 class DefaultTopBarTitleLayout(
     val titleFontWeight: FontWeight = FontWeight.Bold,
@@ -130,6 +131,7 @@ class DefaultTopBarTitleLayout(
         }
     }
 }
+
 @Stable
 open class TopBarBackIconItem(
     tint: Color = Color.White,
@@ -177,6 +179,7 @@ open class TopBarIconItem(
         }
     }
 }
+
 @Stable
 open class TopBarImageVectorItem(
     val icon: ImageVector,

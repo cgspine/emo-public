@@ -16,6 +16,7 @@
 
 package cn.qhplus.emo.ui.page
 
+import android.content.Intent
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavBackStackEntry
 import cn.qhplus.emo.EmoScheme
@@ -53,7 +54,7 @@ fun SchemePage() {
 
         item {
             CommonItem("For Composable") {
-                schemeBuilder(SchemeConst.SCHEME_ACTION_MODAL).runQuietly()
+                schemeBuilder(SchemeConst.SCHEME_ACTION_MODAL).forceNewHost().runQuietly()
             }
         }
 

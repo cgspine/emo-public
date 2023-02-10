@@ -20,7 +20,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
@@ -45,7 +44,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cn.qhplus.emo.config.BoolConfigAction
 import cn.qhplus.emo.config.ConfigAction
@@ -65,7 +63,7 @@ interface ConfigImplDisplayable {
     fun displayName(): String
 }
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ConfigPanel(configCenter: ConfigCenter) {
     var configList by remember {
@@ -144,7 +142,6 @@ fun ConfigPanel(configCenter: ConfigCenter) {
     }
 }
 
-@OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
 fun BoolConfigActionItem(action: BoolConfigAction) {
     val isSelected by action.stateFlowOf().collectAsStateWithLifecycle()

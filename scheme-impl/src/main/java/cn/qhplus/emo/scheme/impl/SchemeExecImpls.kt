@@ -28,7 +28,6 @@ import cn.qhplus.emo.scheme.SchemeHost
 import cn.qhplus.emo.scheme.SchemeParts
 import cn.qhplus.emo.scheme.SchemeTransaction
 import cn.qhplus.emo.scheme.SchemeTransactionFactory
-import java.util.ArrayList
 import kotlin.reflect.KClass
 
 class SchemeExecSingle(
@@ -47,6 +46,7 @@ class SchemeExecSingle(
                 intent.putAny(key, value)
             }
             intent.putExtra(SchemeKeys.KEY_ORIGIN, schemeParts.origin)
+            intent.handleSchemeFlags(scheme)
             activity.startActivity(intent)
             activity.overridePendingTransition(
                 transitionConverter.enterRes(schemeDef.enterTransition),
@@ -55,7 +55,7 @@ class SchemeExecSingle(
             return true
         } else {
             val routeValue = scheme.toComposeRouteValue()
-            if (activity is ComposeHostActivity && schemeDef.alternativeHosts.contains(activity::class)) {
+            if (!scheme.forceNewHost() && activity is ComposeHostActivity && schemeDef.alternativeHosts.contains(activity::class)) {
                 val navController = activity.navController ?: throw RuntimeException("Not call SchemeNavHost in method Content.")
                 if (scheme.isMatchToCurrentHost(activity::class, activity.intent)) {
                     navController.navigate(routeValue) {
@@ -111,12 +111,14 @@ class SchemeExecBatch(
             scheme.args.forEach { (key, value) ->
                 intent.putAny(key, value)
             }
+            intent.handleSchemeFlags(scheme)
             intent.putExtra(SchemeKeys.KEY_ORIGIN, schemeParts.origin)
             intentList.add(intent)
             return true
         } else {
             val routeValue = scheme.toComposeRouteValue()
             if (intentList.isEmpty() && buildingComposeIntent == null &&
+                !scheme.forceNewHost() &&
                 activity is ComposeHostActivity &&
                 schemeDef.alternativeHosts.contains(activity::class)
             ) {
@@ -182,6 +184,13 @@ class SchemeExecBatch(
     }
 }
 
+private fun Intent.handleSchemeFlags(scheme: Scheme) {
+    val flag = scheme.getIntentFlag()
+    if (flag > 0) {
+        flags = flag
+    }
+}
+
 private fun Intent.putAny(key: String, value: Any) {
     when (value) {
         is Boolean -> putExtra(key, value)
@@ -226,6 +235,7 @@ private fun Scheme.createIntentForCompose(activity: Activity): Pair<Intent, KCla
                     putString(SchemeKeys.KEY_ORIGIN, Uri.encode(origin))
                 }
             )
+            intent.handleSchemeFlags(this)
             return intent to cls
         }
     }
