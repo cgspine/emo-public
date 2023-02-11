@@ -37,7 +37,7 @@ annotation class ComposeScheme(
     val popExitTransition: Int = SchemeTransition.SLIDE_OUT_RIGHT
 )
 
-@Retention(AnnotationRetention.SOURCE)
+@Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.CLASS)
 annotation class SchemeHost(
     val requiredArgs: Array<String>
