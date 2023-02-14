@@ -16,7 +16,6 @@
 
 package cn.qhplus.emo.ui.page
 
-import android.content.Intent
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavBackStackEntry
 import cn.qhplus.emo.EmoScheme
@@ -213,11 +212,9 @@ fun SchemeSlideFromBottomPage() {
 @SchemeIntArg(name = "type", special = true, default = 1)
 @Composable
 fun SchemeSpecialArgType1(navBackStackEntry: NavBackStackEntry) {
-
     OnlyBackListPage(
         title = "SchemeSpecialArg(Type = 1)"
     ) {
-
     }
 }
 
@@ -228,10 +225,8 @@ fun SchemeSpecialArgType1(navBackStackEntry: NavBackStackEntry) {
 @SchemeIntArg(name = "type", special = true, default = 2)
 @Composable
 fun SchemeSpecialArgType2(navBackStackEntry: NavBackStackEntry) {
-
     OnlyBackListPage(
         title = "SchemeSpecialArg(Type = 2)"
     ) {
-
     }
 }

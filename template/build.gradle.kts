@@ -4,7 +4,7 @@ plugins {
     id("emo.publish")
 }
 
-version = "0.0.1"
+version = version = libs.versions.emoTemplate.get()
 
 android {
     namespace = "cn.qhplus.emo.template"

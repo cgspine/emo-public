@@ -71,28 +71,41 @@ import cn.qhplus.emo.ui.core.TopBarTextItem
 import cn.qhplus.emo.ui.core.modifier.windowInsetsCommonNavPadding
 
 data class HomeDestination(
-    val route: String, val selectedIcon: ImageVector, val unselectedIcon: ImageVector, val iconTextId: Int, val content: @Composable () -> Unit
+    val route: String,
+    val selectedIcon: ImageVector,
+    val unselectedIcon: ImageVector,
+    val iconTextId: Int,
+    val content: @Composable () -> Unit
 )
 
-val HOME_DESTINATIONS = listOf(HomeDestination(route = SchemeConst.VALUE_TAB_HOME_COMPONENT,
-    selectedIcon = Icons.Filled.Widgets,
-    unselectedIcon = Icons.Outlined.Widgets,
-    iconTextId = R.string.component,
-    content = {
-        ComponentPage()
-    }), HomeDestination(route = SchemeConst.VALUE_TAB_HOME_TEST,
-    selectedIcon = Icons.Filled.Grid3x3,
-    unselectedIcon = Icons.Outlined.Grid3x3,
-    iconTextId = R.string.test,
-    content = {
-        TestPage()
-    }))
+val HOME_DESTINATIONS = listOf(
+    HomeDestination(
+        route = SchemeConst.VALUE_TAB_HOME_COMPONENT,
+        selectedIcon = Icons.Filled.Widgets,
+        unselectedIcon = Icons.Outlined.Widgets,
+        iconTextId = R.string.component,
+        content = {
+            ComponentPage()
+        }
+    ),
+    HomeDestination(
+        route = SchemeConst.VALUE_TAB_HOME_TEST,
+        selectedIcon = Icons.Filled.Grid3x3,
+        unselectedIcon = Icons.Outlined.Grid3x3,
+        iconTextId = R.string.test,
+        content = {
+            TestPage()
+        }
+    )
+)
 
 @ComposeScheme(
-    action = SchemeConst.SCHEME_ACTION_HOME, alternativeHosts = [MainActivity::class]
+    action = SchemeConst.SCHEME_ACTION_HOME,
+    alternativeHosts = [MainActivity::class]
 )
 @SchemeStringArg(
-    name = SchemeConst.SCHEME_ARG_TAB, default = SchemeConst.VALUE_TAB_HOME_COMPONENT
+    name = SchemeConst.SCHEME_ARG_TAB,
+    default = SchemeConst.VALUE_TAB_HOME_COMPONENT
 )
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -106,7 +119,8 @@ fun HomePage(navBackStackEntry: NavBackStackEntry) {
         Log.i("EmoDemo", "exposure for scheme: ${navBackStackEntry.arguments?.getString(SchemeKeys.KEY_ORIGIN)?.let { Uri.decode(it) }}")
     }
 
-    Scaffold(modifier = Modifier.fillMaxSize(),
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
         containerColor = Color.Transparent,
         contentColor = MaterialTheme.colorScheme.onBackground,
         contentWindowInsets = WindowInsets.navigationBarsIgnoringVisibility,
@@ -115,24 +129,27 @@ fun HomePage(navBackStackEntry: NavBackStackEntry) {
                 modifier = Modifier
                     .shadow(16.dp)
                     .background(MaterialTheme.colorScheme.surface)
-                    .windowInsetsCommonNavPadding(), tonalElevation = 0.dp
+                    .windowInsetsCommonNavPadding(),
+                tonalElevation = 0.dp
             ) {
                 HOME_DESTINATIONS.forEach { destination ->
                     val selected = currentTab.value == destination.route
                     NavigationBarItem(selected = selected, onClick = {
                         currentTab.value = destination.route
                     }, icon = {
-                        Icon(
-                            if (selected) {
-                                destination.selectedIcon
-                            } else {
-                                destination.unselectedIcon
-                            }, contentDescription = null
-                        )
-                    }, label = { Text(stringResource(destination.iconTextId)) })
+                            Icon(
+                                if (selected) {
+                                    destination.selectedIcon
+                                } else {
+                                    destination.unselectedIcon
+                                },
+                                contentDescription = null
+                            )
+                        }, label = { Text(stringResource(destination.iconTextId)) })
                 }
             }
-        }) { padding ->
+        }
+    ) { padding ->
         Surface(
             modifier = Modifier
                 .padding(padding)
@@ -153,11 +170,16 @@ fun HomePage(navBackStackEntry: NavBackStackEntry) {
 @Composable
 fun ComponentPage() {
     val topBarIconColor = MaterialTheme.colorScheme.onPrimary
-    SimpleListPage(title = "Components", topBarRightItems = remember(topBarIconColor) {
-        listOf(TopBarTextItem(text = "文档", color = topBarIconColor) {
-            webSchemeBuilder("https://emo.qhplus.cn", "emo").runQuietly()
-        })
-    }) {
+    SimpleListPage(
+        title = "Components",
+        topBarRightItems = remember(topBarIconColor) {
+            listOf(
+                TopBarTextItem(text = "文档", color = topBarIconColor) {
+                    webSchemeBuilder("https://emo.qhplus.cn", "emo").runQuietly()
+                }
+            )
+        }
+    ) {
         item {
             CommonItem("Modal") {
                 schemeBuilder(SchemeConst.SCHEME_ACTION_MODAL).runQuietly()
@@ -194,6 +216,12 @@ fun ComponentPage() {
         item {
             CommonItem("Scheme") {
                 schemeBuilder(SchemeConst.SCHEME_ACTION_SCHEME).runQuietly()
+            }
+        }
+
+        item {
+            CommonItem("Device") {
+                schemeBuilder(SchemeConst.SCHEME_ACTION_DEVICE).runQuietly()
             }
         }
     }

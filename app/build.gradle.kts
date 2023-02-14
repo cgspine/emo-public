@@ -111,6 +111,7 @@ dependencies {
     ksp(project(":scheme-ksp"))
 
     implementation(project(":kv"))
+    implementation(project(":device"))
 
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.appcompat)

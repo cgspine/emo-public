@@ -33,6 +33,7 @@ include(":scheme-runtime")
 include(":scheme-impl")
 include(":scheme-ksp")
 include(":kv")
+include(":device")
 include(":app")
 
 

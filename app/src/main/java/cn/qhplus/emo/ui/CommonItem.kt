@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import cn.qhplus.emo.ui.core.Item
 
 @Composable
-fun CommonItem(text: String, onClick: () -> Unit) {
+fun CommonItem(text: String, onClick: (() -> Unit)? = null) {
     Box(
         modifier = Modifier
             .fillMaxWidth()

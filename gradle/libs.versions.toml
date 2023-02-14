@@ -52,8 +52,9 @@ emoPermission = "0.5.0"
 emoJsBridge = "0.5.0"
 emoConfig = "0.5.0"
 emoReport = "0.5.0"
-emoScheme = "0.5.0"
+emoScheme = "0.5.1"
 emoKv = "0.5.0"
+emoDevice = "0.5.0"
 
 [libraries]
 emo-remote-kv = { group = "cn.qhplus.emo", name = "kv", version.ref = "emoKv" }

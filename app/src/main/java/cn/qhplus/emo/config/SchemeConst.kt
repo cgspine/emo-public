@@ -26,6 +26,7 @@ object SchemeConst {
     const val SCHEME_ACTION_HOME = "home"
     const val SCHEME_ACTION_MODAL = "modal"
     const val SCHEME_ACTION_WEB = "web"
+    const val SCHEME_ACTION_DEVICE = "device"
     const val SCHEME_ACTION_PHOTO = "photo"
     const val SCHEME_ACTION_PERMISSION = "permission"
     const val SCHEME_ACTION_PHOTO_VIEWER = "photoViewer"

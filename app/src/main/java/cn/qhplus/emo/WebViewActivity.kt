@@ -77,9 +77,11 @@ class WebViewActivity : ComponentActivity() {
                 Column(modifier = Modifier.fillMaxSize()) {
                     TopBar(
                         title = { title.value },
-                        leftItems = listOf(TopBarBackIconItem{
-                            EmoScheme.pop()
-                        })
+                        leftItems = listOf(
+                            TopBarBackIconItem {
+                                EmoScheme.pop()
+                            }
+                        )
                     )
                     WebView(
                         state = state,
@@ -104,7 +106,7 @@ class WebViewActivity : ComponentActivity() {
                 return true
             }
             val url = request?.url?.toString() ?: ""
-            if(url.startsWith("${SchemeConst.SCHEME_PROTOCOL}://")){
+            if (url.startsWith("${SchemeConst.SCHEME_PROTOCOL}://")) {
                 EmoScheme.handleQuietly(url)
                 return true
             }
@@ -117,14 +119,13 @@ class WebViewActivity : ComponentActivity() {
                 helper.doOnPageFinished(it)
             }
             view?.title?.let {
-                if(it.isNotBlank()){
+                if (it.isNotBlank()) {
                     title.value = it
                 }
             }
         }
     }
 }
-
 
 @Suppress("UNUSED_PARAMETER", "unused")
 @Keep

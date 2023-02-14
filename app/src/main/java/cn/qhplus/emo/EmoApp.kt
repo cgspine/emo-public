@@ -68,14 +68,13 @@ class EmoApp : Application(), ImageLoaderFactory {
         EmoConfig.debug = BuildConfig.DEBUG
         EmoScheme = schemeClient(this) {
             debug = BuildConfig.DEBUG
-            addInterceptor(object: SchemeInterceptor {
+            addInterceptor(object : SchemeInterceptor {
                 override suspend fun intercept(env: SchemeTransaction, schemeParts: SchemeParts, next: SchemeHandler): Boolean {
                     Log.i("EmoDemo", "begin handle scheme: ${schemeParts.origin}")
                     val ret = next.run(env, schemeParts)
                     Log.i("EmoDemo", "after handle scheme: ${schemeParts.origin}, ret = $ret")
                     return ret
                 }
-
             })
         }
         EmoKvInstance = EmoKV(this, "demo")
