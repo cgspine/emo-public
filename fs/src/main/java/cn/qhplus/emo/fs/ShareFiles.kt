@@ -17,7 +17,9 @@
 package cn.qhplus.emo.fs
 
 import android.content.Context
+import android.net.Uri
 import android.os.Environment
+import androidx.core.content.FileProvider
 import java.io.File
 
 object ShareFiles {
@@ -32,5 +34,13 @@ object ShareFiles {
             file.mkdirs()
         }
         return file
+    }
+
+    fun getShareFileUri(context: Context, file: File): Uri {
+        return FileProvider.getUriForFile(
+            context.applicationContext,
+            "${context.packageName}.fileprovider",
+            file
+        )
     }
 }
