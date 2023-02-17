@@ -23,6 +23,8 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
@@ -44,6 +46,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.coerceAtLeast
+import androidx.compose.ui.unit.coerceAtMost
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
@@ -87,7 +91,7 @@ class MainActivity : ComposeHostActivity() {
     @Composable
     override fun Content() {
         EmoTheme {
-            Box(modifier = Modifier.fillMaxSize()) {
+            BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
                 SchemeNavHost()
                 DebugInfo()
             }
@@ -100,30 +104,35 @@ class MainActivity : ComposeHostActivity() {
 }
 
 @Composable
-fun BoxScope.DebugInfo() {
+fun BoxWithConstraintsScope.DebugInfo() {
     var expend by remember {
         mutableStateOf(false)
     }
 
-    val defaultBottomMargin = with(LocalDensity.current) {
-        100.dp.toPx()
+    val size = 48.dp
+    val edgeProtection = 30.dp
+    val defaultRightMargin = with(LocalDensity.current) {
+        30.dp.toPx()
     }
-    var offsetX by remember { mutableStateOf(0f) }
+    val defaultBottomMargin = with(LocalDensity.current) {
+        140.dp.toPx()
+    }
+    var offsetX by remember { mutableStateOf(-defaultRightMargin) }
     var offsetY by remember { mutableStateOf(-defaultBottomMargin) }
 
     val offsetXDp = with(LocalDensity.current) {
-        offsetX.toDp()
+        offsetX.toDp().coerceAtLeast(-maxWidth + size + edgeProtection).coerceAtMost(-edgeProtection)
     }
 
     val offsetYDp = with(LocalDensity.current) {
-        offsetY.toDp()
+        offsetY.toDp().coerceAtLeast(-maxHeight + size + edgeProtection).coerceAtMost(-edgeProtection)
     }
 
     if (expend) {
         Column(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .offset(offsetXDp + (-40).dp, offsetYDp + (-40).dp)
+                .offset(offsetXDp, offsetYDp)
                 .shadow(12.dp, RoundedCornerShape(8.dp), true)
                 .background(Color.White)
                 .throttleClick {
@@ -139,7 +148,7 @@ fun BoxScope.DebugInfo() {
         Box(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .offset(offsetXDp + (-40).dp, offsetYDp + (-40).dp)
+                .offset(offsetXDp, offsetYDp)
                 .size(48.dp)
                 .shadow(12.dp, CircleShape, true)
                 .background(Color.White)
