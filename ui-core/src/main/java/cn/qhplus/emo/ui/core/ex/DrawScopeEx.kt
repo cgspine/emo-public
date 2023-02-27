@@ -18,43 +18,77 @@ package cn.qhplus.emo.ui.core.ex
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-fun DrawScope.drawTopSeparator(color: Color, insetStart: Dp = 0.dp, insetEnd: Dp = 0.dp) {
+fun DrawScope.drawTopSeparator(
+    color: Color,
+    insetStart: Dp = 0.dp,
+    insetEnd: Dp = 0.dp,
+    strokeWidth: Float = Stroke.HairlineWidth,
+    pathEffect: PathEffect? = null
+) {
     drawLine(
         color = color,
         start = Offset(insetStart.toPx(), 0f),
         end = Offset(size.width - insetEnd.toPx(), 0f),
-        cap = StrokeCap.Square
+        cap = StrokeCap.Square,
+        strokeWidth = strokeWidth,
+        pathEffect = pathEffect
     )
 }
 
-fun DrawScope.drawBottomSeparator(color: Color, insetStart: Dp = 0.dp, insetEnd: Dp = 0.dp) {
+fun DrawScope.drawBottomSeparator(
+    color: Color,
+    insetStart: Dp = 0.dp,
+    insetEnd: Dp = 0.dp,
+    strokeWidth: Float = Stroke.HairlineWidth,
+    pathEffect: PathEffect? = null
+) {
     drawLine(
         color = color,
         start = Offset(insetStart.toPx(), size.height),
         end = Offset(size.width - insetEnd.toPx(), size.height),
-        cap = StrokeCap.Square
+        cap = StrokeCap.Square,
+        strokeWidth = strokeWidth,
+        pathEffect = pathEffect
     )
 }
 
-fun DrawScope.drawLeftSeparator(color: Color, insetStart: Dp = 0.dp, insetEnd: Dp = 0.dp) {
+fun DrawScope.drawLeftSeparator(
+    color: Color,
+    insetStart: Dp = 0.dp,
+    insetEnd: Dp = 0.dp,
+    strokeWidth: Float = Stroke.HairlineWidth,
+    pathEffect: PathEffect? = null
+) {
     drawLine(
         color = color,
         start = Offset(0f, insetStart.toPx()),
         end = Offset(0f, size.height - insetEnd.toPx()),
-        cap = StrokeCap.Square
+        cap = StrokeCap.Square,
+        strokeWidth = strokeWidth,
+        pathEffect = pathEffect
     )
 }
 
-fun DrawScope.drawRightSeparator(color: Color, insetStart: Dp = 0.dp, insetEnd: Dp = 0.dp) {
+fun DrawScope.drawRightSeparator(
+    color: Color,
+    insetStart: Dp = 0.dp,
+    insetEnd: Dp = 0.dp,
+    strokeWidth: Float = Stroke.HairlineWidth,
+    pathEffect: PathEffect? = null
+) {
     drawLine(
         color = color,
         start = Offset(size.width, insetStart.toPx()),
         end = Offset(size.width, size.height - insetEnd.toPx()),
-        cap = StrokeCap.Square
+        cap = StrokeCap.Square,
+        strokeWidth = strokeWidth,
+        pathEffect = pathEffect
     )
 }
