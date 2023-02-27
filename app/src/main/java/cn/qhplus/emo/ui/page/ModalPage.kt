@@ -16,8 +16,13 @@
 
 package cn.qhplus.emo.ui.page
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -25,10 +30,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import cn.qhplus.emo.MainActivity
 import cn.qhplus.emo.config.SchemeConst
+import cn.qhplus.emo.modal.ClickBoxWithWindowPos
 import cn.qhplus.emo.modal.EmoBottomSheetList
 import cn.qhplus.emo.modal.EmoDialogActions
 import cn.qhplus.emo.modal.EmoDialogList
@@ -39,6 +47,7 @@ import cn.qhplus.emo.modal.EmoModalAction
 import cn.qhplus.emo.modal.TipStatus
 import cn.qhplus.emo.modal.emoBottomSheet
 import cn.qhplus.emo.modal.emoDialog
+import cn.qhplus.emo.modal.emoPopup
 import cn.qhplus.emo.modal.emoTip
 import cn.qhplus.emo.modal.emoToast
 import cn.qhplus.emo.scheme.ComposeScheme
@@ -215,6 +224,29 @@ fun ModalPage() {
                     delay(100)
                     tip.dismiss()
                 }
+            }
+        }
+        item {
+            ClickBoxWithWindowPos(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                onClick = {
+                    view.emoPopup(
+                        offset = it,
+                        widthCal = {
+                            200.dp
+                        }
+                    ){
+                        Text(
+                            text = "This is Popup Content\nThis is Popup Content",
+                            modifier = Modifier.padding(16.dp))
+                    }.show()
+                }
+            ) {
+                Text(text = "PopUp", modifier = Modifier.padding(16.dp))
             }
         }
     }
