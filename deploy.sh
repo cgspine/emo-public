@@ -12,6 +12,7 @@
 #./deploy.sh config publishToMavenLocal
 #./deploy.sh scheme publishToMavenLocal
 #./deploy.sh kv publishToMavenLocal
+#./deploy.sh device publishToMavenLocal
 #./deploy.sh all publishToMavenLocal
 
 #./deploy.sh core publish
@@ -26,6 +27,7 @@
 #./deploy.sh config publish
 #./deploy.sh scheme publish
 #./deploy.sh kv publish
+#./deploy.sh device publish
 #./deploy.sh all publish
 
 buildCore="./gradlew :core:clean :core:build core:$2"
@@ -38,6 +40,7 @@ buildNetwork="./gradlew :network:clean :network:build :network:$2"
 buildPermission="./gradlew :permission:clean :permission:build :permission:$2"
 buildJsBridge="./gradlew :js-bridge:clean :js-bridge:build :js-bridge:$2"
 buildReport="./gradlew :report:clean :report:build :report:$2"
+buildDevice="./gradlew :device:clean :device:build :device:$2"
 buildConfigRuntime="./gradlew :config-runtime:clean :config-runtime:build :config-runtime:$2"
 buildConfigMMKV="./gradlew :config-mmkv:clean :config-mmkv:build :config-mmkv:$2"
 buildConfigKsp="./gradlew :config-ksp:clean :config-ksp:build :config-ksp:$2"
@@ -75,6 +78,9 @@ then
 elif [[ "report" == "$1" ]]
 then
     $buildReport
+elif [[ "device" == "$1" ]]
+then
+    $buildDevice
 elif [[ "config" == "$1" ]]
 then
     $buildConfigRuntime
