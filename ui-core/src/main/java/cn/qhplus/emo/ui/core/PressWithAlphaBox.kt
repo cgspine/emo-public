@@ -40,12 +40,17 @@ fun PressWithAlphaBox(
     Box(
         modifier = Modifier
             .alpha(if (!enable) disableAlpha else if (isPressed.value) pressAlpha else 1f)
-            .throttleClick(
-                enabled = enable,
-                interactionSource = interactionSource,
-                indication = null
-            ) {
-                onClick?.invoke()
+            .let {
+                if (onClick != null) {
+                    it.throttleClick(
+                        enabled = enable,
+                        interactionSource = interactionSource,
+                        indication = null,
+                        onClick = onClick
+                    )
+                } else {
+                    it
+                }
             }
             .then(modifier),
         content = content
