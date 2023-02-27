@@ -386,13 +386,16 @@ fun TopBarWithPercent(
             }
         }
     }
+    val shadowAlphaUsed = remember(percent, shadowAlpha) {
+        { shadowAlpha * percent }
+    }
     TopBar(
         title, subTitle,
         alignTitleCenter, height, zIndex,
         if (changeWithBackground) {
             backgroundColor.copy(backgroundColor.alpha * percent)
         } else backgroundColor,
-        shadowElevation, { shadowAlpha * percent },
+        shadowElevation, shadowAlphaUsed,
         separatorHeight, { separatorColor.copy(separatorColor.alpha * percent) },
         paddingStart, paddingEnd,
         titleBoxPaddingHor, leftItems, rightItems, titleLayout
