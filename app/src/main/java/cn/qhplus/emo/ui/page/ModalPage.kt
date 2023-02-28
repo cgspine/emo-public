@@ -35,8 +35,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import cn.qhplus.emo.MainActivity
+import cn.qhplus.emo.R
 import cn.qhplus.emo.config.SchemeConst
-import cn.qhplus.emo.modal.ClickBoxWithWindowPos
+import cn.qhplus.emo.modal.ClickPositionCheckerBox
 import cn.qhplus.emo.modal.EmoBottomSheetList
 import cn.qhplus.emo.modal.EmoDialogActions
 import cn.qhplus.emo.modal.EmoDialogList
@@ -44,10 +45,12 @@ import cn.qhplus.emo.modal.EmoDialogMarkList
 import cn.qhplus.emo.modal.EmoDialogMsg
 import cn.qhplus.emo.modal.EmoDialogMutiCheckList
 import cn.qhplus.emo.modal.EmoModalAction
+import cn.qhplus.emo.modal.QuickAction
 import cn.qhplus.emo.modal.TipStatus
 import cn.qhplus.emo.modal.emoBottomSheet
 import cn.qhplus.emo.modal.emoDialog
 import cn.qhplus.emo.modal.emoPopup
+import cn.qhplus.emo.modal.emoQuickAction
 import cn.qhplus.emo.modal.emoTip
 import cn.qhplus.emo.modal.emoToast
 import cn.qhplus.emo.scheme.ComposeScheme
@@ -227,7 +230,7 @@ fun ModalPage() {
             }
         }
         item {
-            ClickBoxWithWindowPos(
+            ClickPositionCheckerBox(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -238,15 +241,49 @@ fun ModalPage() {
                         offset = it,
                         widthCal = {
                             200.dp
-                        }
+                        },
+                        background = { MaterialTheme.colorScheme.secondaryContainer }
                     ){
                         Text(
                             text = "This is Popup Content\nThis is Popup Content",
-                            modifier = Modifier.padding(16.dp))
+                            modifier = Modifier.padding(16.dp),
+                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
                     }.show()
                 }
             ) {
-                Text(text = "PopUp", modifier = Modifier.padding(16.dp))
+                Text(
+                    text = "PopUp",
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)
+                )
+            }
+        }
+
+        item {
+            ClickPositionCheckerBox(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                onClick = {
+                    view.emoQuickAction(
+                        offset = it,
+                        actions = listOf(
+                            QuickAction(R.drawable.quick_action_ic_copy, "Copy") {
+                                view.emoToast("What do you want to copy?").show()
+                            },
+                            QuickAction(R.drawable.quick_action_ic_delete, "Delete") {
+                                view.emoToast("What do you want to delete?").show()
+                            }
+                        ),
+                        actionWidth = 48.dp
+                    ).show()
+                }
+            ) {
+                Text(
+                    text = "Quick Action",
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp))
             }
         }
     }
