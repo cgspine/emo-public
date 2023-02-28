@@ -35,7 +35,7 @@ fun Modifier.topSeparator(
     strokeWidth: Dp = 0.dp,
     pathEffect: PathEffect? = null
 ) = drawBehind {
-    drawTopSeparator(color, insetStart, insetEnd, if(strokeWidth == 0.dp) Stroke.HairlineWidth else strokeWidth.toPx(), pathEffect)
+    drawTopSeparator(color, insetStart, insetEnd, if (strokeWidth == 0.dp) Stroke.HairlineWidth else strokeWidth.toPx(), pathEffect)
 }
 
 fun Modifier.rightSeparator(
@@ -45,7 +45,7 @@ fun Modifier.rightSeparator(
     strokeWidth: Dp = 0.dp,
     pathEffect: PathEffect? = null
 ) = drawBehind {
-    drawRightSeparator(color, insetStart, insetEnd, if(strokeWidth == 0.dp) Stroke.HairlineWidth else strokeWidth.toPx(), pathEffect)
+    drawRightSeparator(color, insetStart, insetEnd, if (strokeWidth == 0.dp) Stroke.HairlineWidth else strokeWidth.toPx(), pathEffect)
 }
 
 fun Modifier.bottomSeparator(
@@ -55,7 +55,7 @@ fun Modifier.bottomSeparator(
     strokeWidth: Dp = 0.dp,
     pathEffect: PathEffect? = null
 ) = drawBehind {
-    drawBottomSeparator(color, insetStart, insetEnd, if(strokeWidth == 0.dp) Stroke.HairlineWidth else strokeWidth.toPx(), pathEffect)
+    drawBottomSeparator(color, insetStart, insetEnd, if (strokeWidth == 0.dp) Stroke.HairlineWidth else strokeWidth.toPx(), pathEffect)
 }
 
 fun Modifier.leftSeparator(
@@ -65,5 +65,5 @@ fun Modifier.leftSeparator(
     strokeWidth: Dp = 0.dp,
     pathEffect: PathEffect? = null
 ) = drawBehind {
-    drawLeftSeparator(color, insetStart, insetEnd, if(strokeWidth == 0.dp) Stroke.HairlineWidth else strokeWidth.toPx(), pathEffect)
+    drawLeftSeparator(color, insetStart, insetEnd, if (strokeWidth == 0.dp) Stroke.HairlineWidth else strokeWidth.toPx(), pathEffect)
 }

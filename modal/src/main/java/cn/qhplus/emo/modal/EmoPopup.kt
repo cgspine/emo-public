@@ -1,3 +1,19 @@
+/*
+ * Copyright 2022 emo Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package cn.qhplus.emo.modal
 
 import android.view.View
@@ -116,9 +132,11 @@ private fun Modifier.combinedPosedClickable(
                         )
                     }
                 },
-                onTap = { if (enabled) {
-                    onClickState.value.invoke(it)
-                } }
+                onTap = {
+                    if (enabled) {
+                        onClickState.value.invoke(it)
+                    }
+                }
             )
         }.indication(interactionSource, indication)
     },
@@ -179,7 +197,7 @@ fun ClickPositionCheckerBox(
     indication: Indication? = rememberRipple(),
     onClick: ((Offset) -> Unit),
     onLongClick: ((Offset) -> Unit)? = null,
-    content: @Composable BoxScope.() -> Unit,
+    content: @Composable BoxScope.() -> Unit
 ) {
     var offset by remember {
         mutableStateOf<Offset?>(null)
@@ -192,8 +210,8 @@ fun ClickPositionCheckerBox(
             .combinedPosedClickable(
                 interactionSource,
                 indication,
-                onLongClick = if(onLongClick != null) { {offset?.plus(it)?.run(onLongClick)} } else null,
-                onClick = {offset?.plus(it)?.run(onClick)}
+                onLongClick = if (onLongClick != null) { { offset?.plus(it)?.run(onLongClick) } } else null,
+                onClick = { offset?.plus(it)?.run(onClick) }
             )
     ) {
         content()
@@ -232,7 +250,7 @@ fun View.emoPopup(
         modalHostProvider = modalHostProvider,
         enter = EnterTransition.None,
         exit = ExitTransition.None,
-        themeProvider = themeProvider,
+        themeProvider = themeProvider
     ) { modal ->
         BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
             val direction = directionCal(constraints.maxHeight, offset)
@@ -254,9 +272,11 @@ fun View.emoPopup(
             val radiusPx = with(LocalDensity.current) {
                 radius.toPx()
             }
-            val arrowCenterX = ((offset.x - offsetX)
-                .coerceAtLeast(radiusPx + arrowWidthPx)
-                .coerceAtMost(widthPx - radiusPx - arrowWidthPx))
+            val arrowCenterX = (
+                (offset.x - offsetX)
+                    .coerceAtLeast(radiusPx + arrowWidthPx)
+                    .coerceAtMost(widthPx - radiusPx - arrowWidthPx)
+                )
             val backgroundColor = background()
             when (direction) {
                 PopupDirection.Top -> {
@@ -325,7 +345,6 @@ fun View.emoPopup(
                     }
                 }
             }
-
         }
     }
 }

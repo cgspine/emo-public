@@ -36,4 +36,5 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     api(project(":core"))
     api(project(":ui-core"))
+    implementation(libs.androidx.constraintlayout.compose)
 }
