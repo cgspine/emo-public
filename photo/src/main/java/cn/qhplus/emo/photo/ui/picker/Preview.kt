@@ -65,6 +65,7 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
@@ -98,7 +99,7 @@ fun PhotoPickerPreviewPage(
     val pagerState = rememberPagerState(list.indexOfFirst { it.model.id == currentId }.coerceAtLeast(0))
 
     val topBarLeftItems = remember {
-        listOf(
+        persistentListOf(
             TopBarBackIconItem {
                 navController.popBackStack()
             }
@@ -106,7 +107,7 @@ fun PhotoPickerPreviewPage(
     }
 
     val topBarRightItems = remember(config) {
-        arrayListOf(
+        persistentListOf(
             config.topBarSendFactory(true, viewModel.pickLimitCount, viewModel.pickedCountFlow) {
                 val pickedList = viewModel.getPickedResultList()
                 if (pickedList.isEmpty()) {

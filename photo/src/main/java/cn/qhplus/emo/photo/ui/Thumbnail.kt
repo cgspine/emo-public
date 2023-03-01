@@ -49,6 +49,8 @@ import cn.qhplus.emo.photo.data.PhotoShot
 import cn.qhplus.emo.photo.ui.viewer.LocalPhotoViewerConfig
 import cn.qhplus.emo.ui.core.ex.getWindowSize
 import cn.qhplus.emo.ui.core.modifier.throttleClick
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.toPersistentList
 
 const val SINGLE_HIGH_IMAGE_MINI_SCREEN_HEIGHT_RATIO = -1F
 
@@ -112,7 +114,7 @@ private fun PhotoThumbnailItem(
 @Composable
 fun PhotoThumbnailWithViewer(
     targetActivity: Class<out PhotoViewerActivity> = PhotoViewerActivity::class.java,
-    images: List<PhotoProvider>,
+    images: PersistentList<PhotoProvider>,
     config: PhotoThumbnailConfig = remember { emoDefaultPhotoThumbnailConfig }
 ) {
     val context = LocalContext.current
@@ -124,7 +126,7 @@ fun PhotoThumbnailWithViewer(
 
 @Composable
 fun PhotoThumbnail(
-    images: List<PhotoProvider>,
+    images: PersistentList<PhotoProvider>,
     config: PhotoThumbnailConfig = remember { emoDefaultPhotoThumbnailConfig },
     onClick: ((images: List<PhotoShot>, index: Int) -> Unit)? = null
 ) {
@@ -132,9 +134,9 @@ fun PhotoThumbnail(
         return
     }
     val renderInfo = remember(images) {
-        Array(images.size) {
-            PhotoShot(images[it], null, null, null)
-        }
+        images.map {
+            PhotoShot(it, null, null, null)
+        }.toPersistentList()
     }
     val context = LocalContext.current
     BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
@@ -306,8 +308,8 @@ fun PhotoThumbnail(
 
 @Composable
 fun RowImages(
-    images: List<PhotoProvider>,
-    renderInfo: Array<PhotoShot>,
+    images: PersistentList<PhotoProvider>,
+    renderInfo: PersistentList<PhotoShot>,
     config: PhotoThumbnailConfig,
     containerWidth: Dp,
     rowCount: Int,

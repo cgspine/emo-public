@@ -69,6 +69,7 @@ import cn.qhplus.emo.scheme.impl.SchemeKeys
 import cn.qhplus.emo.ui.CommonItem
 import cn.qhplus.emo.ui.core.TopBarTextItem
 import cn.qhplus.emo.ui.core.modifier.windowInsetsCommonNavPadding
+import kotlinx.collections.immutable.persistentListOf
 
 data class HomeDestination(
     val route: String,
@@ -173,7 +174,7 @@ fun ComponentPage() {
     SimpleListPage(
         title = "Components",
         topBarRightItems = remember(topBarIconColor) {
-            listOf(
+            persistentListOf(
                 TopBarTextItem(text = "文档", color = topBarIconColor) {
                     webSchemeBuilder("https://emo.qhplus.cn", "emo").runQuietly()
                 }

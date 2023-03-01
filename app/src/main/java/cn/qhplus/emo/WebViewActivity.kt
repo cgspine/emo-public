@@ -45,6 +45,7 @@ import cn.qhplus.emo.ui.core.ex.setNormalDisplayCutoutMode
 import com.google.accompanist.web.AccompanistWebViewClient
 import com.google.accompanist.web.WebView
 import com.google.accompanist.web.rememberWebViewState
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -77,7 +78,7 @@ class WebViewActivity : ComponentActivity() {
                 Column(modifier = Modifier.fillMaxSize()) {
                     TopBar(
                         title = { title.value },
-                        leftItems = listOf(
+                        leftItems = persistentListOf(
                             TopBarBackIconItem {
                                 EmoScheme.pop()
                             }

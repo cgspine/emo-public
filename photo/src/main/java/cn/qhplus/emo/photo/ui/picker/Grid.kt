@@ -67,6 +67,7 @@ import cn.qhplus.emo.ui.core.modifier.windowInsetsCommonNavPadding
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -155,14 +156,14 @@ fun PhotoPickerGridContent(
         val bucketItem = config.topBarBucketFactory(bucketFlow, isFocusBucketFlow) {
             isFocusBucketFlow.value = !isFocusBucketFlow.value
         }
-        listOf(backItem, bucketItem)
+        persistentListOf(backItem, bucketItem)
     }
 
     val topBarRightItems = remember(config) {
         val sendItem = config.topBarSendFactory(false, viewModel.pickLimitCount, viewModel.pickedCountFlow) {
             viewModel.handleFinish(viewModel.getPickedResultList())
         }
-        listOf(sendItem)
+        persistentListOf(sendItem)
     }
 
     val gridState = rememberLazyGridState()

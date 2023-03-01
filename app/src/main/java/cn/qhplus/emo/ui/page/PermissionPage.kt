@@ -46,6 +46,7 @@ import cn.qhplus.emo.ui.core.TopBar
 import cn.qhplus.emo.ui.core.TopBarBackIconItem
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionStatus
+import kotlinx.collections.immutable.persistentListOf
 
 @ComposeScheme(
     action = SchemeConst.SCHEME_ACTION_PERMISSION,
@@ -61,7 +62,7 @@ fun PermissionPage() {
         TopBar(
             title = { "Permission" },
             leftItems = remember(topBarIconColor) {
-                listOf(
+                persistentListOf(
                     TopBarBackIconItem(tint = topBarIconColor) {
                         EmoScheme.pop()
                     }

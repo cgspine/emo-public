@@ -48,6 +48,8 @@ import cn.qhplus.emo.photo.ui.PhotoThumbnailWithViewer
 import cn.qhplus.emo.scheme.ComposeScheme
 import cn.qhplus.emo.ui.CommonItem
 import coil.compose.AsyncImage
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toPersistentList
 
 @ComposeScheme(
     action = SchemeConst.SCHEME_ACTION_PHOTO,
@@ -94,7 +96,7 @@ fun PhotoViewerPage() {
                     .padding(horizontal = 20.dp, vertical = 20.dp)
             ) {
                 PhotoThumbnailWithViewer(
-                    images = listOf(
+                    images = persistentListOf(
                         CoilPhotoProvider(
                             "https://weread-picture-1258476243.file.myqcloud.com/9979/31y68oGufDGL3zQ6TT.jpg".toUri(),
                             ratio = 1f
@@ -111,7 +113,7 @@ fun PhotoViewerPage() {
                     .padding(horizontal = 20.dp, vertical = 20.dp)
             ) {
                 PhotoThumbnailWithViewer(
-                    images = listOf(
+                    images = persistentListOf(
                         CoilPhotoProvider(
                             "https://weread-picture-1258476243.file.myqcloud.com/9136/1yn0KLFwy6Vb0nE6Sg.png".toUri(),
                             ratio = 1.379f
@@ -128,7 +130,7 @@ fun PhotoViewerPage() {
                     .padding(horizontal = 20.dp, vertical = 20.dp)
             ) {
                 PhotoThumbnailWithViewer(
-                    images = listOf(
+                    images = persistentListOf(
                         CoilPhotoProvider(
                             "file:///android_asset/test.png".toUri(),
                             ratio = 0.0125f
@@ -145,7 +147,7 @@ fun PhotoViewerPage() {
                     .padding(horizontal = 20.dp, vertical = 20.dp)
             ) {
                 PhotoThumbnailWithViewer(
-                    images = listOf(
+                    images = persistentListOf(
                         CoilPhotoProvider(
                             "https://weread-picture-1258476243.file.myqcloud.com/8779/6WY7guGLeGfp0KK6Sb.jpeg".toUri(),
                             ratio = 0.749f
@@ -162,28 +164,7 @@ fun PhotoViewerPage() {
                     .padding(horizontal = 20.dp, vertical = 20.dp)
             ) {
                 PhotoThumbnailWithViewer(
-                    images = listOf(
-                        CoilPhotoProvider(
-                            "https://weread-picture-1258476243.file.myqcloud.com/8779/6WY7guGLeGfp0KK6Sb.jpeg".toUri(),
-                            ratio = 0.749f
-                        ),
-                        CoilPhotoProvider(
-                            "https://weread-picture-1258476243.file.myqcloud.com/9136/1yn0KLFwy6Vb0nE6Sg.png".toUri(),
-                            ratio = 1.379f
-                        )
-                    )
-                )
-            }
-        }
-
-        item {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 20.dp)
-            ) {
-                PhotoThumbnailWithViewer(
-                    images = listOf(
+                    images = persistentListOf(
                         CoilPhotoProvider(
                             "https://weread-picture-1258476243.file.myqcloud.com/8779/6WY7guGLeGfp0KK6Sb.jpeg".toUri(),
                             ratio = 0.749f
@@ -191,10 +172,6 @@ fun PhotoViewerPage() {
                         CoilPhotoProvider(
                             "https://weread-picture-1258476243.file.myqcloud.com/9136/1yn0KLFwy6Vb0nE6Sg.png".toUri(),
                             ratio = 1.379f
-                        ),
-                        CoilPhotoProvider(
-                            "https://weread-picture-1258476243.file.myqcloud.com/9979/31y68oGufDGL3zQ6TT.jpg".toUri(),
-                            ratio = 1f
                         )
                     )
                 )
@@ -208,7 +185,7 @@ fun PhotoViewerPage() {
                     .padding(horizontal = 20.dp, vertical = 20.dp)
             ) {
                 PhotoThumbnailWithViewer(
-                    images = listOf(
+                    images = persistentListOf(
                         CoilPhotoProvider(
                             "https://weread-picture-1258476243.file.myqcloud.com/8779/6WY7guGLeGfp0KK6Sb.jpeg".toUri(),
                             ratio = 0.749f
@@ -220,6 +197,31 @@ fun PhotoViewerPage() {
                         CoilPhotoProvider(
                             "https://weread-picture-1258476243.file.myqcloud.com/9979/31y68oGufDGL3zQ6TT.jpg".toUri(),
                             ratio = 1f
+                        )
+                    )
+                )
+            }
+        }
+
+        item {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp, vertical = 20.dp)
+            ) {
+                PhotoThumbnailWithViewer(
+                    images = persistentListOf(
+                        CoilPhotoProvider(
+                            "https://weread-picture-1258476243.file.myqcloud.com/8779/6WY7guGLeGfp0KK6Sb.jpeg".toUri(),
+                            ratio = 0.749f
+                        ),
+                        CoilPhotoProvider(
+                            "https://weread-picture-1258476243.file.myqcloud.com/9136/1yn0KLFwy6Vb0nE6Sg.png".toUri(),
+                            ratio = 1.379f
+                        ),
+                        CoilPhotoProvider(
+                            "https://weread-picture-1258476243.file.myqcloud.com/9979/31y68oGufDGL3zQ6TT.jpg".toUri(),
+                            ratio = 1f
                         ),
                         CoilPhotoProvider(
                             "https://weread-picture-1258476243.file.myqcloud.com/8779/6WY7guGLeGfp0KK6Sb.jpeg".toUri(),
@@ -241,7 +243,7 @@ fun PhotoViewerPage() {
                     .padding(horizontal = 20.dp, vertical = 20.dp)
             ) {
                 PhotoThumbnailWithViewer(
-                    images = listOf(
+                    images = persistentListOf(
                         CoilPhotoProvider(
                             "https://weread-picture-1258476243.file.myqcloud.com/8779/6WY7guGLeGfp0KK6Sb.jpeg".toUri(),
                             ratio = 0.749f
@@ -328,7 +330,7 @@ fun PhotoPickerPage() {
                             it.uri,
                             ratio = it.ratio()
                         )
-                    }
+                    }.toPersistentList()
                 }
                 Column(
                     modifier = Modifier

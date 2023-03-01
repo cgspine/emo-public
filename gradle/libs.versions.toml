@@ -7,6 +7,7 @@ kotlinxCoroutines = "1.6.4"
 kotlinxDatetime = "0.3.3"
 kotlinxSerialization = "1.4.1"
 ktlint = "0.46.0"
+kotlinxCollectionsImmutable = "0.3.5"
 accompanist = "0.28.0"
 androidxActivity = "1.6.1"
 androidxAppCompat = "1.6.0"
@@ -42,19 +43,19 @@ secrets = "2.0.1"
 spotless = "6.8.0"
 turbine = "0.8.0"
 mmkv = "1.2.14"
-emoCore = "0.5.0"
-emoUiCore = "0.5.0"
-emoFs = "0.5.1"
-emoModal = "0.5.0"
-emoPhoto = "0.5.0"
-emoNetwork = "0.5.0"
-emoPermission = "0.5.0"
-emoJsBridge = "0.5.0"
-emoConfig = "0.5.0"
-emoReport = "0.5.0"
-emoScheme = "0.5.1"
-emoKv = "0.5.0"
-emoDevice = "0.5.0"
+emoCore = "0.6.0"
+emoUiCore = "0.6.0"
+emoFs = "0.6.0"
+emoModal = "0.6.0"
+emoPhoto = "0.6.0"
+emoNetwork = "0.6.0"
+emoPermission = "0.6.0"
+emoJsBridge = "0.6.0"
+emoConfig = "0.6.0"
+emoReport = "0.6.0"
+emoScheme = "0.6.0"
+emoKv = "0.6.0"
+emoDevice = "0.6.0"
 
 [libraries]
 emo-remote-kv = { group = "cn.qhplus.emo", name = "kv", version.ref = "emoKv" }
@@ -112,6 +113,7 @@ kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-cor
 kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinxDatetime" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 kotlinx-serialization-protobuf = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-protobuf", version.ref = "kotlinxSerialization" }
+kotlinx-collections-immutable = { group = "org.jetbrains.kotlinx", name = "kotlinx-collections-immutable", version.ref = "kotlinxCollectionsImmutable"}
 material3 = { group = "com.google.android.material", name = "material", version.ref = "material3" }
 okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
 protobuf-protoc = { group = "com.google.protobuf", name = "protoc", version.ref = "protobuf" }

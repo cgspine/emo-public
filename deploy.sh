@@ -115,4 +115,5 @@ then
     $buildSchemeKsp
     $buildSchemeImpl
     $buildKv
+    $buildDevice
 fi

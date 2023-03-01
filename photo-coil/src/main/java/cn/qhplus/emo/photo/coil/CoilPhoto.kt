@@ -26,6 +26,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -267,6 +268,7 @@ class CoilPhoto(
     }
 }
 
+@Stable
 open class CoilPhotoProvider(
     val uri: Uri,
     val thumbUri: Uri = uri,

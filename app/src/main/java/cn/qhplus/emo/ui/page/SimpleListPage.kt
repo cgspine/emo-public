@@ -28,18 +28,21 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import cn.qhplus.emo.EmoScheme
 import cn.qhplus.emo.ui.core.TopBarBackIconItem
 import cn.qhplus.emo.ui.core.TopBarItem
 import cn.qhplus.emo.ui.core.TopBarWithLazyListScrollState
 import cn.qhplus.emo.ui.core.modifier.windowInsetsCommonHorPadding
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.persistentListOf
 
 @Composable
 fun SimpleListPage(
     title: CharSequence,
-    topBarLeftItems: List<TopBarItem> = emptyList(),
-    topBarRightItems: List<TopBarItem> = emptyList(),
+    topBarLeftItems: PersistentList<TopBarItem> = persistentListOf(),
+    topBarRightItems: PersistentList<TopBarItem> = persistentListOf(),
     content: LazyListScope.() -> Unit
 ) {
     Column(
@@ -77,7 +80,7 @@ fun OnlyBackListPage(
     SimpleListPage(
         title = title,
         topBarLeftItems = remember(topBarIconColor) {
-            listOf(
+            persistentListOf(
                 TopBarBackIconItem(tint = topBarIconColor) {
                     EmoScheme.pop()
                 }

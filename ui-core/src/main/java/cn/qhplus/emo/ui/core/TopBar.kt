@@ -70,6 +70,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import cn.qhplus.emo.ui.core.helper.OnePx
 import cn.qhplus.emo.ui.core.modifier.windowInsetsCommonTopPadding
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.persistentListOf
 
 fun interface TopBarItem {
     @Composable
@@ -211,6 +213,7 @@ open class TopBarImageVectorItem(
     }
 }
 
+@Stable
 open class TopBarTextItem(
     val text: String,
     val paddingHor: Dp = 12.dp,
@@ -263,16 +266,33 @@ fun TopBarWithLazyListScrollState(
     paddingStart: Dp = 4.dp,
     paddingEnd: Dp = 4.dp,
     titleBoxPaddingHor: Dp = 8.dp,
-    leftItems: List<TopBarItem> = emptyList(),
-    rightItems: List<TopBarItem> = emptyList(),
+    leftItems: PersistentList<TopBarItem> = persistentListOf(),
+    rightItems: PersistentList<TopBarItem> = persistentListOf(),
     titleLayout: TopBarTitleLayout = remember { DefaultTopBarTitleLayout() }
 ) {
     val percentGetter: Density.() -> Float = {
-        if (scrollState.firstVisibleItemIndex > 0 ||
-            scrollState.firstVisibleItemScrollOffset.toDp() > scrollAlphaChangeMaxOffset
-        ) {
-            1f
-        } else scrollState.firstVisibleItemScrollOffset.toDp() / scrollAlphaChangeMaxOffset
+        if (scrollState.layoutInfo.reverseLayout) {
+            val last = scrollState.layoutInfo.visibleItemsInfo.maxByOrNull { it.index }
+            if (last == null) {
+                0f
+            } else if (last.index < scrollState.layoutInfo.totalItemsCount - 1) {
+                1f
+            } else {
+                val bottomOffset = last.offset + last.size
+                val changeOffset = scrollAlphaChangeMaxOffset.toPx()
+                if (bottomOffset > scrollState.layoutInfo.viewportSize.height + changeOffset) {
+                    1f
+                } else {
+                    ((bottomOffset - scrollState.layoutInfo.viewportSize.height) / changeOffset).coerceAtLeast(0f)
+                }
+            }
+        } else {
+            if (scrollState.firstVisibleItemIndex > 0 ||
+                scrollState.firstVisibleItemScrollOffset.toDp() > scrollAlphaChangeMaxOffset
+            ) {
+                1f
+            } else scrollState.firstVisibleItemScrollOffset.toDp() / scrollAlphaChangeMaxOffset
+        }
     }
     TopBarWithPercent(
         percentGetter, title, subTitle, alignTitleCenter, height,
@@ -301,16 +321,33 @@ fun TopBarWithLazyGridScrollState(
     paddingStart: Dp = 4.dp,
     paddingEnd: Dp = 4.dp,
     titleBoxPaddingHor: Dp = 8.dp,
-    leftItems: List<TopBarItem> = emptyList(),
-    rightItems: List<TopBarItem> = emptyList(),
+    leftItems: PersistentList<TopBarItem> = persistentListOf(),
+    rightItems: PersistentList<TopBarItem> = persistentListOf(),
     titleLayout: TopBarTitleLayout = remember { DefaultTopBarTitleLayout() }
 ) {
     val percentGetter: Density.() -> Float = {
-        if (scrollState.firstVisibleItemIndex > 0 ||
-            scrollState.firstVisibleItemScrollOffset.toDp() > scrollAlphaChangeMaxOffset
-        ) {
-            1f
-        } else scrollState.firstVisibleItemScrollOffset.toDp() / scrollAlphaChangeMaxOffset
+        if (scrollState.layoutInfo.reverseLayout) {
+            val last = scrollState.layoutInfo.visibleItemsInfo.maxByOrNull { it.index }
+            if (last == null) {
+                0f
+            } else if (last.index < scrollState.layoutInfo.totalItemsCount - 1) {
+                1f
+            } else {
+                val bottomOffset = last.offset.y + last.size.height
+                val changeOffset = scrollAlphaChangeMaxOffset.toPx()
+                if (bottomOffset > scrollState.layoutInfo.viewportSize.height + changeOffset) {
+                    1f
+                } else {
+                    ((bottomOffset - scrollState.layoutInfo.viewportSize.height) / changeOffset).coerceAtLeast(0f)
+                }
+            }
+        } else {
+            if (scrollState.firstVisibleItemIndex > 0 ||
+                scrollState.firstVisibleItemScrollOffset.toDp() > scrollAlphaChangeMaxOffset
+            ) {
+                1f
+            } else scrollState.firstVisibleItemScrollOffset.toDp() / scrollAlphaChangeMaxOffset
+        }
     }
     TopBarWithPercent(
         percentGetter, title, subTitle, alignTitleCenter, height,
@@ -339,8 +376,8 @@ fun TopBarWithScrollState(
     paddingStart: Dp = 4.dp,
     paddingEnd: Dp = 4.dp,
     titleBoxPaddingHor: Dp = 8.dp,
-    leftItems: List<TopBarItem> = emptyList(),
-    rightItems: List<TopBarItem> = emptyList(),
+    leftItems: PersistentList<TopBarItem> = persistentListOf(),
+    rightItems: PersistentList<TopBarItem> = persistentListOf(),
     titleLayout: TopBarTitleLayout = remember { DefaultTopBarTitleLayout() }
 ) {
     val percentGetter: Density.() -> Float = {
@@ -374,8 +411,8 @@ fun TopBarWithPercent(
     paddingStart: Dp = 4.dp,
     paddingEnd: Dp = 4.dp,
     titleBoxPaddingHor: Dp = 8.dp,
-    leftItems: List<TopBarItem> = emptyList(),
-    rightItems: List<TopBarItem> = emptyList(),
+    leftItems: PersistentList<TopBarItem> = persistentListOf(),
+    rightItems: PersistentList<TopBarItem> = persistentListOf(),
     titleLayout: TopBarTitleLayout = remember { DefaultTopBarTitleLayout() }
 ) {
     val density = LocalDensity.current
@@ -417,8 +454,8 @@ fun TopBar(
     paddingStart: Dp = 4.dp,
     paddingEnd: Dp = 4.dp,
     titleBoxPaddingHor: Dp = 8.dp,
-    leftItems: List<TopBarItem> = emptyList(),
-    rightItems: List<TopBarItem> = emptyList(),
+    leftItems: PersistentList<TopBarItem> = persistentListOf(),
+    rightItems: PersistentList<TopBarItem> = persistentListOf(),
     titleLayout: TopBarTitleLayout = remember { DefaultTopBarTitleLayout() }
 ) {
     Box(
@@ -484,8 +521,8 @@ fun TopBarContent(
     paddingStart: Dp = 4.dp,
     paddingEnd: Dp = 4.dp,
     titleBoxPaddingHor: Dp = 8.dp,
-    leftItems: List<TopBarItem> = emptyList(),
-    rightItems: List<TopBarItem> = emptyList(),
+    leftItems: PersistentList<TopBarItem> = persistentListOf(),
+    rightItems: PersistentList<TopBarItem> = persistentListOf(),
     titleLayout: TopBarTitleLayout = remember { DefaultTopBarTitleLayout() }
 ) {
     val measurePolicy = remember(alignTitleCenter) {
