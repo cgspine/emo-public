@@ -349,13 +349,14 @@ fun View.emoPopup(
     }
 }
 
-data class QuickAction(val icon: Int, val text: String, val onClick: () -> Unit)
+data class QuickAction(val icon: Int, val text: String, val onClick: (EmoModal) -> Unit)
 
 fun View.emoQuickAction(
     offset: Offset,
     actionWidth: Dp,
     actions: List<QuickAction>,
-    tintColor: @Composable () -> Color = { Color.White },
+    iconColor: @Composable () -> Color = { Color.White },
+    textColor: @Composable () -> Color = { Color.White },
     directionCal: (height: Int, Offset) -> PopupDirection = DEFAULT_DIRECTION_CAL,
     modalHostProvider: ModalHostProvider = DefaultModalHostProvider,
     horEdge: Dp = DefaultPopupHorEdgeProtectionMargin,
@@ -390,13 +391,15 @@ fun View.emoQuickAction(
         enter,
         exit,
         themeProvider
-    ) {
+    ) { modal ->
         ConstraintLayout {
             val refs = actions.map {
                 val ref = createRef()
                 QuickActionItem(
+                    modal = modal,
                     action = it,
-                    tintColor = tintColor(),
+                    iconColor = iconColor,
+                    textColor = textColor,
                     modifier = Modifier
                         .constrainAs(ref) {}
                         .width(actionWidth)
@@ -412,9 +415,15 @@ fun View.emoQuickAction(
 }
 
 @Composable
-fun QuickActionItem(action: QuickAction, tintColor: Color, modifier: Modifier) {
+fun QuickActionItem(
+    modal: EmoModal,
+    action: QuickAction,
+    iconColor: @Composable () -> Color,
+    textColor: @Composable () -> Color,
+    modifier: Modifier
+) {
     PressWithAlphaBox(modifier = modifier, onClick = {
-        action.onClick()
+        action.onClick(modal)
     }) {
         Column(
             modifier = Modifier
@@ -425,13 +434,13 @@ fun QuickActionItem(action: QuickAction, tintColor: Color, modifier: Modifier) {
             Image(
                 painter = painterResource(id = action.icon),
                 contentDescription = null,
-                colorFilter = ColorFilter.tint(tintColor)
+                colorFilter = ColorFilter.tint(iconColor())
             )
             Text(
                 text = action.text,
                 fontSize = 10.sp,
                 letterSpacing = 0.5.sp,
-                color = tintColor
+                color = textColor()
             )
         }
     }
