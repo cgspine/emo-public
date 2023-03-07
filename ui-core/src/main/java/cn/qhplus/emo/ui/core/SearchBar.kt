@@ -16,7 +16,10 @@
 
 package cn.qhplus.emo.ui.core
 
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -25,8 +28,8 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -41,18 +44,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.VisualTransformation
 import cn.qhplus.emo.ui.core.modifier.throttleClick
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Stable
 class SearchState internal constructor(
     placeHolder: String,
     text: String,
+    private val autoSearchIfValueChange: Boolean,
     private val onSearch: suspend (String) -> Unit
 ) {
 
@@ -66,9 +73,22 @@ class SearchState internal constructor(
 
     private var searchJob: Job? = null
 
+    fun updateSearchText(scope: CoroutineScope, text: String) {
+        searchTextInner = text
+        if (autoSearchIfValueChange) {
+            searchIn(scope)
+        }
+    }
+
+    fun clear(scope: CoroutineScope) {
+        searchTextInner = ""
+        searchIn(scope)
+    }
+
     fun searchIn(scope: CoroutineScope) {
         searchJob?.cancel()
         searchJob = scope.launch {
+            delay(10)
             onSearch(searchTextInner)
         }
     }
@@ -82,10 +102,11 @@ class SearchState internal constructor(
 fun rememberSearchState(
     placeHolder: String = "",
     text: String = "",
+    autoSearchIfValueChange: Boolean = true,
     onSearch: suspend (String) -> Unit
 ): SearchState {
     val state = remember(text) {
-        SearchState(placeHolder, text, onSearch)
+        SearchState(placeHolder, text, autoSearchIfValueChange, onSearch)
     }
     state.placeHolder = placeHolder
 
@@ -100,59 +121,77 @@ fun rememberSearchState(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchBar(
-    modifier: Modifier = Modifier,
+    modifier: Modifier,
     shape: Shape = RoundedCornerShape(50),
     textStyle: TextStyle = LocalTextStyle.current,
+    cursorColor: Color = MaterialTheme.colorScheme.primary,
     textFieldColors: TextFieldColors = TextFieldDefaults.textFieldColors(
         focusedIndicatorColor = Color.Transparent,
         unfocusedIndicatorColor = Color.Transparent,
         disabledIndicatorColor = Color.Transparent
     ),
-    state: SearchState
+    state: SearchState,
+    leadingIcon: @Composable (() -> Unit)? = {
+        Icon(
+            imageVector = Icons.Filled.Search,
+            contentDescription = "search"
+        )
+    },
+    placeholder: @Composable (() -> Unit)? = {
+        Text(text = state.placeHolder, style = textStyle)
+    },
+    trailingIcon: @Composable ((CoroutineScope) -> Unit)? = { scope ->
+        if (state.searchText.isNotEmpty()) {
+            Icon(
+                imageVector = Icons.Filled.Cancel,
+                contentDescription = "clear",
+                modifier = Modifier.throttleClick {
+                    state.clear(scope)
+                }
+            )
+        }
+    },
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
 ) {
     val scope = rememberCoroutineScope()
-    TextField(
+    BasicTextField(
         value = state.searchText,
-        textStyle = textStyle,
-        onValueChange = {
-            state.searchTextInner = it
-        },
-        maxLines = 1,
         modifier = modifier,
-        leadingIcon = {
-            Icon(
-                imageVector = Icons.Filled.Search,
-                contentDescription = "search"
-            )
+        onValueChange = {
+            state.updateSearchText(scope, it)
         },
-        placeholder = {
-            Text(text = state.placeHolder)
-        },
-        trailingIcon = {
-            if (state.searchText.isNotEmpty()) {
-                Icon(
-                    imageVector = Icons.Filled.Cancel,
-                    contentDescription = "clear",
-                    modifier = Modifier.throttleClick {
-                        state.searchTextInner = ""
-                        state.searchIn(scope)
-                    }
-                )
-            }
-        },
+        textStyle = textStyle,
+        cursorBrush = SolidColor(cursorColor),
         keyboardOptions = remember {
             KeyboardOptions(
                 KeyboardCapitalization.None,
                 imeAction = ImeAction.Search
             )
         },
+        interactionSource = interactionSource,
         keyboardActions = remember {
             KeyboardActions(onSearch = {
                 state.searchIn(scope)
             })
         },
-        shape = shape,
-        colors = textFieldColors
-
+        singleLine = true,
+        maxLines = 1,
+        decorationBox = @Composable { innerTextField ->
+            // places leading icon, text field with label and placeholder, trailing icon
+            TextFieldDefaults.TextFieldDecorationBox(
+                value = state.searchText,
+                visualTransformation = VisualTransformation.None,
+                innerTextField = innerTextField,
+                placeholder = placeholder,
+                leadingIcon = leadingIcon,
+                trailingIcon = { trailingIcon?.invoke(scope) },
+                shape = shape,
+                enabled = true,
+                singleLine = true,
+                contentPadding = PaddingValues(),
+                interactionSource = interactionSource,
+                colors = textFieldColors
+            )
+        }
     )
 }

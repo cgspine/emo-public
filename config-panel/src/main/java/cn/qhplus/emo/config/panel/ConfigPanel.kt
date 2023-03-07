@@ -20,6 +20,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
@@ -63,7 +64,7 @@ interface ConfigImplDisplayable {
     fun displayName(): String
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun ConfigPanel(configCenter: ConfigCenter) {
     var configList by remember {
@@ -101,7 +102,7 @@ fun ConfigPanel(configCenter: ConfigCenter) {
         ) {
             SearchBar(
                 state = searchState,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = TextFieldDefaults.MinHeight)
             )
         }
         LazyColumn(
