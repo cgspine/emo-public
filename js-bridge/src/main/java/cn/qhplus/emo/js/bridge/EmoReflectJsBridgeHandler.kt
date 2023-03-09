@@ -16,6 +16,7 @@
 
 package cn.qhplus.emo.js.bridge
 
+import android.webkit.WebView
 import kotlinx.coroutines.CoroutineScope
 import java.lang.reflect.Method
 
@@ -30,23 +31,38 @@ class EmoReflectJsBridgeHandler(
         obj::class.java.declaredMethods.map { it.name }
     }
     private val methodsCache = mutableMapOf<String, Method>()
+    private val methodsFallbackCache = mutableMapOf<String, Method>()
 
     override fun getSupportedCmdList(): List<String> {
         return supportedCmdListCache
     }
 
-    override fun handleMessage(cmd: String, dataPicker: JsonDataPicker, callback: ResponseCallback?) {
+    override fun handleMessage(webView: WebView, cmd: String, dataPicker: JsonDataPicker, callback: ResponseCallback?) {
         try {
-            val method = methodsCache[cmd] ?: obj::class.java.getDeclaredMethod(
-                cmd,
-                CoroutineScope::class.java,
-                JsonDataPicker::class.java,
-                ResponseCallback::class.java
-            ).also {
-                it.isAccessible = true
-                methodsCache[cmd] = it
+            try {
+                val method = methodsCache[cmd] ?: obj::class.java.getDeclaredMethod(
+                    cmd,
+                    WebView::class.java,
+                    CoroutineScope::class.java,
+                    JsonDataPicker::class.java,
+                    ResponseCallback::class.java
+                ).also {
+                    it.isAccessible = true
+                    methodsCache[cmd] = it
+                }
+                method.invoke(obj, webView, scope, dataPicker, callback)
+            } catch (e: NoSuchMethodException) {
+                val method = methodsFallbackCache[cmd] ?: obj::class.java.getDeclaredMethod(
+                    cmd,
+                    CoroutineScope::class.java,
+                    JsonDataPicker::class.java,
+                    ResponseCallback::class.java
+                ).also {
+                    it.isAccessible = true
+                    methodsFallbackCache[cmd] = it
+                }
+                method.invoke(obj, scope, dataPicker, callback)
             }
-            method.invoke(obj, scope, dataPicker, callback)
         } catch (e: Throwable) {
             callback?.failed(e.message ?: "call method failed.")
         }

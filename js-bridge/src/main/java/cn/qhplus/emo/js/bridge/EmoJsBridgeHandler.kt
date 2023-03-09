@@ -176,7 +176,7 @@ abstract class EmoJsBridgeHandler(
                         }
                     }
                 }
-                handleMessage(cmd, dataPicker, callback)
+                handleMessage(webView, cmd, dataPicker, callback)
             }
         }
     }
@@ -205,7 +205,7 @@ abstract class EmoJsBridgeHandler(
 
     protected abstract fun getSupportedCmdList(): List<String>
 
-    protected abstract fun handleMessage(cmd: String, dataPicker: JsonDataPicker, callback: ResponseCallback?)
+    protected abstract fun handleMessage(webView: WebView, cmd: String, dataPicker: JsonDataPicker, callback: ResponseCallback?)
 
     interface ResponseCallback {
 

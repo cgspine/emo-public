@@ -157,7 +157,7 @@ class BusinessJsBridgeHandler(scope: CoroutineScope) : EmoJsBridgeHandler(scope)
         return listOf("normal", "timeout", "nativeError")
     }
 
-    override fun handleMessage(cmd: String, dataPicker: JsonDataPicker, callback: ResponseCallback?) {
+    override fun handleMessage(webView: WebView, cmd: String, dataPicker: JsonDataPicker, callback: ResponseCallback?) {
         when (cmd) {
             "normal" -> {
                 val data = dataPicker.pickAsJsonObject()!!
