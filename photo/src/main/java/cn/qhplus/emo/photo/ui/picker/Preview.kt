@@ -19,6 +19,7 @@ package cn.qhplus.emo.photo.ui.picker
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -37,6 +38,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -60,16 +64,13 @@ import cn.qhplus.emo.ui.core.Loading
 import cn.qhplus.emo.ui.core.TopBar
 import cn.qhplus.emo.ui.core.TopBarBackIconItem
 import cn.qhplus.emo.ui.core.modifier.windowInsetsCommonNavPadding
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.PagerState
-import com.google.accompanist.pager.rememberPagerState
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalPagerApi::class)
+
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PhotoPickerPreviewPage(
     navController: NavHostController,
@@ -204,7 +205,7 @@ fun PhotoPickerPreviewPage(
     }
 }
 
-@OptIn(ExperimentalPagerApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PhotoPickerPreviewContent(
     pagerState: PagerState,
@@ -214,8 +215,9 @@ fun PhotoPickerPreviewContent(
     onTap: () -> Unit
 ) {
     HorizontalPager(
-        count = data.size,
-        state = pagerState
+        pageCount = data.size,
+        state = pagerState,
+        key = { data[it].model.id }
     ) { page ->
         val item = data[page]
         BoxWithConstraints(modifier = Modifier.fillMaxSize()) {

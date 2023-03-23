@@ -281,6 +281,10 @@ open class CoilPhotoProvider(
         const val META_RATIO_KEY = "meta_ratio"
     }
 
+    override fun id(): Any {
+        return "$uri-${thumbUri}-${ratio}"
+    }
+
     override fun thumbnail(openBlankColor: Boolean): Photo? {
         return CoilThumbPhoto(thumbUri, isLongImage(), openBlankColor)
     }

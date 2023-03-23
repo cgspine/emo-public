@@ -38,6 +38,9 @@ interface Photo {
 class PhotoResult(val model: Any, val drawable: Drawable)
 
 interface PhotoProvider {
+
+    fun id(): Any
+
     fun thumbnail(openBlankColor: Boolean): Photo?
     fun photo(): Photo?
     fun ratio(): Float = -1f
@@ -84,6 +87,11 @@ interface PhotoShotRecover {
 }
 
 val lossPhotoProvider = object : PhotoProvider {
+
+    override fun id(): Any {
+        return Unit
+    }
+
     override fun thumbnail(openBlankColor: Boolean): Photo? {
         return null
     }

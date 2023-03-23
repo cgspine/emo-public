@@ -18,14 +18,19 @@ package cn.qhplus.emo.photo.ui.viewer
 
 import android.graphics.drawable.Drawable
 import androidx.compose.animation.core.Transition
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,10 +49,6 @@ import cn.qhplus.emo.photo.data.PhotoResult
 import cn.qhplus.emo.photo.data.PhotoShot
 import cn.qhplus.emo.photo.ui.GesturePhoto
 import cn.qhplus.emo.ui.core.Loading
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.PagerScope
-import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.flow.StateFlow
 
 class PhotoPageCtrl(
@@ -71,7 +72,9 @@ class PhotoViewerArg(
     val photoPageCtrl: PhotoPageCtrl
 )
 
+@OptIn(ExperimentalFoundationApi::class)
 class PhotoPageArg(
+    val state: PagerState,
     val page: Int,
     val item: PhotoShot,
     val shouldTransitionEnter: Boolean,
@@ -85,7 +88,6 @@ class PhotoPageContentArg(
     val photoPageCtrl: PhotoPageCtrl
 )
 
-@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun PhotoViewerScaffold(
     viewerArg: PhotoViewerArg,
@@ -96,11 +98,11 @@ fun PhotoViewerScaffold(
     },
     PhotoViewer: @Composable (
         PhotoViewerArg,
-        @Composable PagerScope.(PhotoPageArg) -> Unit
+        @Composable (PhotoPageArg) -> Unit
     ) -> Unit = { arg, photoPage ->
         DefaultPhotoViewer(arg, photoPage)
     },
-    PhotoPage: @Composable PagerScope.(
+    PhotoPage: @Composable (
         PhotoPageArg,
         @Composable (PhotoPageContentArg) -> Unit
     ) -> Unit = { arg, photoPageContent ->
@@ -119,24 +121,25 @@ fun PhotoViewerScaffold(
     }
 }
 
-@OptIn(ExperimentalPagerApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DefaultPhotoViewer(
     arg: PhotoViewerArg,
-    PhotoPage: @Composable PagerScope.(PhotoPageArg) -> Unit
+    PhotoPage: @Composable (PhotoPageArg) -> Unit
 ) {
     val pagerState = rememberPagerState(arg.index)
     HorizontalPager(
-        count = arg.list.size,
-        state = pagerState
+        pageCount = arg.list.size,
+        state = pagerState,
+        key = {arg.list[it].photoProvider.id()}
     ) { page ->
-        PhotoPage(PhotoPageArg(page, arg.list[page], page == arg.index, arg.photoPageCtrl))
+        PhotoPage(PhotoPageArg(pagerState, page, arg.list[page], page == arg.index, arg.photoPageCtrl))
     }
 }
 
-@OptIn(ExperimentalPagerApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun PagerScope.DefaultPhotoPage(
+fun DefaultPhotoPage(
     pageArg: PhotoPageArg,
     PhotoPageContent: @Composable (PhotoPageContentArg) -> Unit,
     GestureBox: @Composable BoxWithConstraintsScope.(
@@ -146,8 +149,13 @@ fun PagerScope.DefaultPhotoPage(
         DefaultPhotoGestureBox(content)
     }
 ) {
+    val isTransitionPage = remember(pageArg.page) {
+        derivedStateOf {
+            pageArg.state.currentPage == pageArg.page
+        }
+    }
     val initRect = pageArg.item.photoRect()
-    val transitionTarget = if (currentPage == pageArg.page) {
+    val transitionTarget = if (isTransitionPage.value) {
         pageArg.ctrl.transitionTargetFlow.collectAsState().value
     } else true
     val drawableCache = remember {
