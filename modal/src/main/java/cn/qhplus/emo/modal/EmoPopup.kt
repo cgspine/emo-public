@@ -115,30 +115,32 @@ private fun Modifier.combinedPosedClickable(
         }
         val centreOffset = remember { mutableStateOf(Offset.Zero) }
 
-        Modifier.pointerInput(interactionSource, hasLongClick, enabled) {
-            centreOffset.value = size.center.toOffset()
-            detectTapGestures(
-                onLongPress = if (hasLongClick && enabled) {
-                    { onLongClickState.value?.invoke(it) }
-                } else {
-                    null
-                },
-                onPress = { offset ->
-                    if (enabled) {
-                        handlePressInteractionWithDelay(
-                            offset,
-                            interactionSource,
-                            pressedInteraction
-                        )
+        Modifier
+            .pointerInput(interactionSource, hasLongClick, enabled) {
+                centreOffset.value = size.center.toOffset()
+                detectTapGestures(
+                    onLongPress = if (hasLongClick && enabled) {
+                        { onLongClickState.value?.invoke(it) }
+                    } else {
+                        null
+                    },
+                    onPress = { offset ->
+                        if (enabled) {
+                            handlePressInteractionWithDelay(
+                                offset,
+                                interactionSource,
+                                pressedInteraction
+                            )
+                        }
+                    },
+                    onTap = {
+                        if (enabled) {
+                            onClickState.value.invoke(it)
+                        }
                     }
-                },
-                onTap = {
-                    if (enabled) {
-                        onClickState.value.invoke(it)
-                    }
-                }
-            )
-        }.indication(interactionSource, indication)
+                )
+            }
+            .indication(interactionSource, indication)
     },
     inspectorInfo = debugInspectorInfo {
         name = "combinedPosedClickable"
@@ -210,8 +212,18 @@ fun ClickPositionCheckerBox(
             .combinedPosedClickable(
                 interactionSource,
                 indication,
-                onLongClick = if (onLongClick != null) { { offset?.plus(it)?.run(onLongClick) } } else null,
-                onClick = { offset?.plus(it)?.run(onClick) }
+                onLongClick = if (onLongClick != null) {
+                    {
+                        offset
+                            ?.plus(it)
+                            ?.run(onLongClick)
+                    }
+                } else null,
+                onClick = {
+                    offset
+                        ?.plus(it)
+                        ?.run(onClick)
+                }
             )
     ) {
         content()
@@ -224,6 +236,16 @@ val DEFAULT_DIRECTION_CAL: (Int, Offset) -> PopupDirection by lazy {
             PopupDirection.Top
         } else {
             PopupDirection.Bottom
+        }
+    }
+}
+
+val DEFAULT_QUICK_ACTION_DIRECTION_CAL: (Int, Offset) -> PopupDirection by lazy {
+    { height, offset ->
+        if (offset.y < height / 4) {
+            PopupDirection.Bottom
+        } else {
+            PopupDirection.Top
         }
     }
 }
@@ -349,15 +371,23 @@ fun View.emoPopup(
     }
 }
 
-data class QuickAction(val icon: Int, val text: String, val onClick: (EmoModal) -> Unit)
+data class QuickAction(
+    val icon: Int,
+    val text: String,
+    val onClick: (EmoModal) -> Unit
+)
 
 fun View.emoQuickAction(
     offset: Offset,
     actionWidth: Dp,
     actions: List<QuickAction>,
-    iconColor: @Composable () -> Color = { Color.White },
-    textColor: @Composable () -> Color = { Color.White },
-    directionCal: (height: Int, Offset) -> PopupDirection = DEFAULT_DIRECTION_CAL,
+    actionRender: @Composable (EmoModal, QuickAction) -> Unit = { modal, action ->
+        QuickActionItem(
+            modal = modal,
+            action = action
+        )
+    },
+    directionCal: (height: Int, Offset) -> PopupDirection = DEFAULT_QUICK_ACTION_DIRECTION_CAL,
     modalHostProvider: ModalHostProvider = DefaultModalHostProvider,
     horEdge: Dp = DefaultPopupHorEdgeProtectionMargin,
     verEdge: Dp = DefaultPopupVerEdgeProtectionMargin,
@@ -395,15 +425,13 @@ fun View.emoQuickAction(
         ConstraintLayout {
             val refs = actions.map {
                 val ref = createRef()
-                QuickActionItem(
-                    modal = modal,
-                    action = it,
-                    iconColor = iconColor,
-                    textColor = textColor,
+                Box(
                     modifier = Modifier
                         .constrainAs(ref) {}
                         .width(actionWidth)
-                )
+                ) {
+                    actionRender(modal, it)
+                }
                 ref
             }.toTypedArray()
             createFlow(
@@ -417,14 +445,14 @@ fun View.emoQuickAction(
 @Composable
 fun QuickActionItem(
     modal: EmoModal,
-    action: QuickAction,
-    iconColor: @Composable () -> Color,
-    textColor: @Composable () -> Color,
-    modifier: Modifier
+    action: QuickAction
 ) {
-    PressWithAlphaBox(modifier = modifier, onClick = {
-        action.onClick(modal)
-    }) {
+    PressWithAlphaBox(
+        modifier = Modifier.fillMaxWidth(),
+        onClick = {
+            action.onClick(modal)
+        }
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -434,13 +462,13 @@ fun QuickActionItem(
             Image(
                 painter = painterResource(id = action.icon),
                 contentDescription = null,
-                colorFilter = ColorFilter.tint(iconColor())
+                colorFilter = ColorFilter.tint(Color.White)
             )
             Text(
                 text = action.text,
                 fontSize = 10.sp,
-                letterSpacing = 0.5.sp,
-                color = textColor()
+                letterSpacing = 0.05.sp,
+                color = Color.White
             )
         }
     }
