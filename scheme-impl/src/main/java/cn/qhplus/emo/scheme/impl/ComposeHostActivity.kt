@@ -17,6 +17,8 @@
 package cn.qhplus.emo.scheme.impl
 
 import android.os.Bundle
+import android.view.View
+import android.view.ViewGroup
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedContentScope
@@ -30,10 +32,12 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideIn
 import androidx.compose.animation.slideOut
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.IntOffset
 import androidx.core.view.WindowCompat
 import androidx.navigation.NavBackStackEntry
@@ -45,7 +49,23 @@ import cn.qhplus.emo.scheme.SchemeTransition
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 
-abstract class ComposeHostActivity : ComponentActivity() {
+open class ComposeFixActivity : ComponentActivity() {
+    override fun setContentView(view: View?) {
+        if (view is ComposeView) {
+            view.consumeWindowInsets = false
+        }
+        super.setContentView(view)
+    }
+
+    override fun setContentView(view: View?, params: ViewGroup.LayoutParams?) {
+        if (view is ComposeView) {
+            view.consumeWindowInsets = false
+        }
+        super.setContentView(view, params)
+    }
+}
+
+abstract class ComposeHostActivity : ComposeFixActivity() {
 
     var navController: NavHostController? = null
         private set
