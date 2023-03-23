@@ -29,10 +29,14 @@ enum class RomType {
     NotCare
 }
 
+val romModel by lazy { Build.MODEL }
+val romBrand by lazy { Build.BRAND }
+val romManufacturer by lazy { Build.MANUFACTURER }
+
 private val romTypeCacheRunner by lazy {
     CacheRunner<Unit, RomType> {
-        val manufacturer = Build.MANUFACTURER.lowercase()
-        val brand = Build.BRAND.lowercase()
+        val manufacturer = romManufacturer.lowercase()
+        val brand = romBrand.lowercase()
         if (isRom(brand, manufacturer, "xiaomi")) {
             RomType.Xiaomi
         } else if (isRom(brand, manufacturer, "samsung")) {
