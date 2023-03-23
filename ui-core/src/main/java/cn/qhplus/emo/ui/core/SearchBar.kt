@@ -137,8 +137,8 @@ fun SearchBar(
             contentDescription = "search"
         )
     },
-    placeholder: @Composable (() -> Unit)? = {
-        Text(text = state.placeHolder, style = textStyle)
+    placeholder: @Composable ((String) -> Unit)? = { hint ->
+        Text(text = hint, style = textStyle)
     },
     trailingIcon: @Composable ((CoroutineScope) -> Unit)? = { scope ->
         if (state.searchText.isNotEmpty()) {
@@ -182,7 +182,9 @@ fun SearchBar(
                 value = state.searchText,
                 visualTransformation = VisualTransformation.None,
                 innerTextField = innerTextField,
-                placeholder = placeholder,
+                placeholder = if (placeholder != null) {
+                    { placeholder.invoke(state.placeHolder) }
+                } else null,
                 leadingIcon = leadingIcon,
                 trailingIcon = { trailingIcon?.invoke(scope) },
                 shape = shape,
