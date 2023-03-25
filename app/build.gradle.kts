@@ -123,7 +123,5 @@ dependencies {
     implementation(libs.accompanist.systemuicontroller)
     implementation(libs.accompanist.webview)
 
-    implementation(libs.material3)
-
     implementation(libs.kotlinx.serialization.protobuf)
 }

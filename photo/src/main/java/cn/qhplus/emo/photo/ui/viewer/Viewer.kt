@@ -131,7 +131,7 @@ fun DefaultPhotoViewer(
     HorizontalPager(
         pageCount = arg.list.size,
         state = pagerState,
-        key = {arg.list[it].photoProvider.id()}
+        key = { arg.list[it].photoProvider.id() }
     ) { page ->
         PhotoPage(PhotoPageArg(pagerState, page, arg.list[page], page == arg.index, arg.photoPageCtrl))
     }

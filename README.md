@@ -29,39 +29,41 @@ https://emo.qhplus.cn
 # compose versions
 
 | emo library version | Compose Version | Compose Compiler Version |
-|---------------------|-----------------|--------------------------|
-| 0.0.x               | 1.2.x           | -                        |
-| 0.1.x               | 1.3.0-beta03    | 1.3.1                    |
-| 0.2.x               | BOM 2022.10.00  | 1.3.2                    |
-| 0.3.x               | BOM 2022.11.00  | 1.3.2                    |
-| 0.3.x               | BOM 2023.01.00  | 1.4.0                    |
+|:-------------------:|:---------------:|:------------------------:|
+|        0.0.x        |      1.2.x      |            -             |
+|        0.1.x        |  1.3.0-beta03   |          1.3.1           |
+|        0.2.x        | BOM 2022.10.00  |          1.3.2           |
+|        0.3.x        | BOM 2022.11.00  |          1.3.2           |
+|        0.4.x        | BOM 2023.01.00  |          1.4.0           |
+|        0.5.x        | BOM 2023.01.00  |          1.4.2           |
+|        0.6.x        | BOM 2023.03.00  |          1.4.4           |
 
 # Download
 
 ```kts
 // core
-implementation("cn.qhplus.emo:core:0.4.0")
+implementation("cn.qhplus.emo:core:0.6.0")
 // ui-core
-implementation("cn.qhplus.emo:ui-core:0.4.0")
+implementation("cn.qhplus.emo:ui-core:0.6.0")
 // photo
-implementation("cn.qhplus.emo:photo-coil:0.4.1")
+implementation("cn.qhplus.emo:photo-coil:0.6.0")
 // modal
-implementation("cn.qhplus.emo:modal:0.4.0")
+implementation("cn.qhplus.emo:modal:0.6.0")
 // permission
-implementation("cn.qhplus.emo:permission:0.4.0")
+implementation("cn.qhplus.emo:permission:0.6.0")
 // network
-implementation("cn.qhplus.emo:network:0.4.0")
+implementation("cn.qhplus.emo:network:0.6.0")
 // js-bridge
-implementation("cn.qhplus.emo:js-bridge:0.4.0")
+implementation("cn.qhplus.emo:js-bridge:0.6.0")
 // config
-implementation("cn.qhplus.emo:config-mmkv:0.4.0")
-implementation("cn.qhplus.emo:config-panel:0.4.0")
-ksp("cn.qhplus.emo:config-ksp:0.4.0")
+implementation("cn.qhplus.emo:config-mmkv:0.6.0")
+implementation("cn.qhplus.emo:config-panel:0.6.0")
+ksp("cn.qhplus.emo:config-ksp:0.6.0")
 // scheme
-implementation("cn.qhplus.emo:scheme-impl:0.4.0")
-ksp("cn.qhplus.emo:scheme-ksp:0.4.0")
+implementation("cn.qhplus.emo:scheme-impl:0.6.0")
+ksp("cn.qhplus.emo:scheme-ksp:0.6.0")
 // kv
-implementation("cn.qhplus.emo:kv:0.4.0")
+implementation("cn.qhplus.emo:kv:0.6.0")
 ```
 
 # Demo apk

@@ -37,7 +37,6 @@ dependencies {
     api(project(":fs"))
     implementation(libs.androidx.activity.compose)
     implementation(libs.accompanist.navigation)
-    implementation(libs.accompanist.pager)
     implementation(libs.accompanist.permissions)
     implementation(libs.accompanist.systemuicontroller)
     implementation(libs.androidx.constraintlayout.compose)

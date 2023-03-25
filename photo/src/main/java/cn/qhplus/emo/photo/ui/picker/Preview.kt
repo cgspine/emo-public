@@ -69,7 +69,6 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PhotoPickerPreviewPage(

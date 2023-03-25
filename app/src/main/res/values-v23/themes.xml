@@ -16,7 +16,7 @@
 -->
 <resources>
 
-    <style name="Theme.Emo" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Theme.Emo" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>

@@ -282,7 +282,7 @@ open class CoilPhotoProvider(
     }
 
     override fun id(): Any {
-        return "$uri-${thumbUri}-${ratio}"
+        return "$uri-$thumbUri-$ratio"
     }
 
     override fun thumbnail(openBlankColor: Boolean): Photo? {
