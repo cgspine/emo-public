@@ -22,7 +22,8 @@ namespace EmoKV {
         mode_(mode),
         write_info_(WriteInfo { false, 0, 0}){
         auto* s = static_cast<uint8_t *>(start_);
-        uint32_t backup_index = *reinterpret_cast<uint32_t *>(s + INDEX_HEADER_LEN - sizeof(uint32_t));
+        uint32_t backup_index;
+        memcpy(&backup_index, s + INDEX_HEADER_LEN - sizeof(uint32_t), sizeof(uint32_t));
         if(backup_index < capability()){
             size_t offset = INDEX_HEADER_LEN + backup_index * item_size();
             uint8_t flag = *static_cast<uint8_t *>(s + offset);
@@ -60,7 +61,8 @@ namespace EmoKV {
             offset += sizeof(uint8_t);
             uint8_t key_len = *static_cast<uint8_t *>(start + offset);
             offset += sizeof(uint8_t);
-            uint64_t key_data = *reinterpret_cast<uint64_t *>(start + offset);
+            uint64_t key_data;
+            memcpy(&key_data, start + offset, sizeof(uint64_t));
             auto k = key_storage->get(key_data, key_len);
             if(k->equal(key)){
                 while (true){
@@ -76,11 +78,13 @@ namespace EmoKV {
                         return {nullptr};
                     }
                     offset += sizeof(uint8_t) + sizeof(uint8_t) + sizeof(uint64_t);
-                    uint16_t value_len = *reinterpret_cast<uint16_t *>(start + offset);
+                    uint16_t value_len;
+                    memcpy(&value_len, start + offset, sizeof(uint16_t));
                     offset += sizeof(uint16_t);
                     std::unique_ptr<Buf> ret;
                     if(flag_is_ref(flag)){
-                        uint64_t value_data = *reinterpret_cast<uint64_t *>(start + offset);
+                        uint64_t value_data;
+                        memcpy(&value_data, start + offset, sizeof(uint64_t));
                         ret = value_storage->get(value_data, value_len);
                     }else{
                         auto* copy_data = static_cast<uint8_t *>(malloc(value_len));
@@ -124,7 +128,8 @@ namespace EmoKV {
                 offset += sizeof(uint8_t);
                 uint8_t key_len = *static_cast<uint8_t *>(start + offset);
                 offset += sizeof(uint8_t);
-                uint64_t key_data = *reinterpret_cast<uint64_t *>(start + offset);
+                uint64_t key_data;
+                memcpy(&key_data, start + offset, sizeof(uint64_t));
                 auto k = key_storage->get(key_data, key_len);
                 if(!k->equal(key)){
                     index++;
@@ -136,7 +141,7 @@ namespace EmoKV {
 
                 offset = init_offset;
                 // backup
-                *reinterpret_cast<uint32_t *>(start + INDEX_HEADER_LEN - sizeof(uint32_t)) = index;
+                memcpy(start + INDEX_HEADER_LEN - sizeof(uint32_t), &index, sizeof(uint32_t));
                 memcpy(start + INDEX_HEADER_LEN - item_size() - sizeof(uint32_t), start + offset, item_size());
                 set_flag_editing(flag, true);
                 *static_cast<uint8_t *>(start + offset) = flag;
@@ -151,14 +156,15 @@ namespace EmoKV {
                     // need expand key storage.
                     return -1;
                 }
-                *reinterpret_cast<uint64_t *>(start + offset) = pos;
+                memcpy(start + offset, &pos, sizeof(uint64_t));
                 update_key_count(key_count() + 1);
                 update_key_pos(pos + key->len());
             }
             auto last = write_info_.load();
-            write_info_.store(WriteInfo{1, last.version + 1, index});
+            write_info_.store(WriteInfo{true, last.version + 1, index});
             offset = init_offset + sizeof(uint8_t) * 2 + sizeof(uint64_t);
-            *reinterpret_cast<uint16_t *>(start + offset) = static_cast<uint16_t>(value->len());
+            auto new_len = static_cast<uint16_t>(value->len());
+            memcpy(start + offset, &new_len, sizeof(uint16_t));
             offset += sizeof(uint16_t);
             if(value->len() <= sizeof(uint64_t)){
                 memcpy(start + offset, value->ptr(), value->len());
@@ -172,7 +178,7 @@ namespace EmoKV {
                     write_info_.store(WriteInfo{true, last.version + 1, index});
                     return -2;
                 }
-                *reinterpret_cast<uint64_t *>(start + offset) = pos;
+                memcpy(start + offset, &pos, sizeof(uint64_t));
                 update_value_pos(pos + value->len());
             }
             if(is_update){
@@ -201,7 +207,8 @@ namespace EmoKV {
                 offset += sizeof(uint8_t);
                 uint8_t key_len = *static_cast<uint8_t *>(start + offset);
                 offset += sizeof(uint8_t);
-                uint64_t key_data = *reinterpret_cast<uint64_t *>(start + offset);
+                uint64_t key_data;
+                memcpy(&key_data, start + offset, sizeof(uint64_t));
                 auto k = key_storage->get(key_data, key_len);
                 if(!k->equal(key)){
                     index++;
@@ -238,7 +245,8 @@ namespace EmoKV {
                 from_offset += sizeof(uint8_t);
                 uint8_t key_len = *static_cast<uint8_t *>(from_start + from_offset);
                 from_offset += sizeof(uint8_t);
-                uint64_t key_data = *reinterpret_cast<uint64_t *>(from_start + from_offset);
+                uint64_t key_data;
+                memcpy(&key_data, from_start + from_offset, sizeof(uint64_t));
                 auto k = key_storage->get(key_data, key_len);
                 uint32_t target_index = k->hash(capability());
                 while (true){
@@ -271,11 +279,13 @@ namespace EmoKV {
             uint8_t flag =  *static_cast<uint8_t *>(start + offset);
             if(flag_is_set(flag) && !flag_is_deleted(flag) && flag_is_ref(flag)){
                 offset += sizeof(uint8_t) * 2 + sizeof(uint64_t);
-                uint16_t value_len = *reinterpret_cast<uint16_t *>(start + offset);
+                uint16_t value_len;
+                memcpy(&value_len, start + offset, sizeof(uint16_t));
                 offset += sizeof(uint16_t);
-                uint64_t value_pos = *reinterpret_cast<uint64_t *>(start + offset);
+                uint64_t value_pos;
+                memcpy(&value_pos, start + offset, sizeof(uint64_t));
                 from_storage->copy_to(to_storage, value_pos, pos, value_len);
-                *reinterpret_cast<uint64_t *>(start + offset) = pos;
+                memcpy(start + offset, &pos, sizeof(uint64_t));
                 pos += value_len;
             }
         }
@@ -287,22 +297,29 @@ namespace EmoKV {
     }
 
     uint32_t Index::key_count(){
-        auto start = static_cast<uint8_t *>(start_);
-        return *reinterpret_cast<uint32_t *>(start);
+        uint32_t value;
+        memcpy(&value, start_, sizeof(uint32_t));
+        return value;
     }
     uint32_t Index::updated_count(){
         auto start = static_cast<uint8_t *>(start_);
-        return *reinterpret_cast<uint32_t *>(start + sizeof(uint32_t));
+        uint32_t value;
+        memcpy(&value, start + sizeof(uint32_t), sizeof(uint32_t));
+        return value;
     }
 
     uint64_t Index::key_pos(){
         auto start = static_cast<uint8_t *>(start_);
-        return *reinterpret_cast<uint64_t *>(start + sizeof(uint32_t) * 2);
+        uint64_t value;
+        memcpy(&value, start + sizeof(uint32_t) * 2, sizeof(uint64_t));
+        return value;
     }
 
     uint64_t Index::value_pos(){
         auto start = static_cast<uint8_t *>(start_);
-        return *reinterpret_cast<uint64_t *>(start + sizeof(uint32_t) * 2 + sizeof(uint64_t));
+        uint64_t value;
+        memcpy(&value, start + sizeof(uint32_t) * 2 + sizeof(uint64_t), sizeof(uint64_t));
+        return value;
     }
 
     uint32_t Index::capability() const {
@@ -356,23 +373,18 @@ namespace EmoKV {
     }
 
     void Index::update_key_count(uint32_t count){
-        auto * start = static_cast<uint8_t *>(start_);
-        auto* c = reinterpret_cast<uint32_t *>(start);
-        *c =  count;
+        memcpy(start_, &count, sizeof(uint32_t));
     }
     void Index::update_updated_count(uint32_t count){
         auto * start = static_cast<uint8_t *>(start_);
-        auto* c = reinterpret_cast<uint32_t *>(start + sizeof(uint32_t));
-        *c =  count;
+        memcpy(start + sizeof(uint32_t), &count, sizeof(uint32_t));
     }
     void Index::update_key_pos(uint64_t pos){
         auto * start = static_cast<uint8_t *>(start_);
-        auto* p = reinterpret_cast<uint64_t *>(start + sizeof(uint32_t) * 2);
-        *p =  pos;
+        memcpy(start + sizeof(uint32_t) * 2, &pos, sizeof(uint64_t));
     }
     void Index::update_value_pos(uint64_t pos){
         auto * start = static_cast<uint8_t *>(start_);
-        auto* p = reinterpret_cast<uint64_t *>(start + sizeof(uint32_t) * 2 + sizeof(uint64_t));
-        *p =  pos;
+        memcpy(start + sizeof(uint32_t) * 2 + sizeof(uint64_t), &pos, sizeof(uint64_t));
     }
 }

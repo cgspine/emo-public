@@ -50,7 +50,7 @@ emoJsBridge = "0.6.0"
 emoConfig = "0.6.0"
 emoReport = "0.6.0"
 emoScheme = "0.6.0"
-emoKv = "0.6.0"
+emoKv = "0.6.1"
 emoDevice = "0.6.0"
 
 [libraries]

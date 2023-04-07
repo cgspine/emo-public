@@ -68,6 +68,8 @@ class KVTest {
         assertEquals(v, emoKV.getString("hehe"))
         emoKV.delete("hehe")
         assertEquals(null, emoKV.getString("hehe"))
+        // delete not exit key
+        emoKV.delete("hexxxxxhehehe")
         emoKV.close()
     }
 
