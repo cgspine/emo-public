@@ -55,6 +55,8 @@ private class ClipperPhotoInfo(
 
 val DefaultClipFocusAreaSquareCenter = Rect.Zero
 
+class SmallImageSizeException(msg: String) : IllegalStateException(msg)
+
 @Composable
 fun PhotoClipper(
     photoProvider: PhotoProvider,
@@ -104,7 +106,9 @@ fun PhotoClipper(
                 val origin = photoInfo.drawable?.toBitmap() ?: return@lambda null
                 val rect = photoInfo.rect ?: return@lambda null
                 if (rect.width < photoInfo.clipArea.width || rect.height < photoInfo.clipArea.height) {
-                    return@lambda null
+                    throw SmallImageSizeException(
+                        "expected minimum (${photoInfo.clipArea.width} x ${photoInfo.clipArea.height}); actual (${rect.width} x ${rect.height})"
+                    )
                 }
                 val scale = rect.width / origin.width
                 val clipRect = photoInfo.clipArea.translate(Offset(-rect.left, -rect.top))

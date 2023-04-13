@@ -21,6 +21,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -40,12 +41,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
+import cn.qhplus.emo.core.EmoLog
 import cn.qhplus.emo.photo.R
 import cn.qhplus.emo.photo.data.PhotoClipperDelivery
 import cn.qhplus.emo.photo.data.PhotoProvider
 import cn.qhplus.emo.photo.data.PhotoShotRecover
 import cn.qhplus.emo.photo.data.lossPhotoProvider
 import cn.qhplus.emo.photo.ui.clipper.PhotoClipper
+import cn.qhplus.emo.photo.ui.clipper.SmallImageSizeException
 import cn.qhplus.emo.photo.util.PhotoHelper
 import cn.qhplus.emo.photo.util.saveToLocal
 import cn.qhplus.emo.ui.core.Loading
@@ -179,15 +182,20 @@ open class PhotoClipperActivity : ComponentActivity() {
                         modifier = Modifier
                             .weight(1f)
                             .throttleClick {
-                                val bitmap = doClip()
-                                if (bitmap == null) {
-                                    onClipFailed()
-                                } else {
-                                    clipStatus.value = true
-                                    lifecycleScope.launch {
-                                        onClipFinished(bitmap)
-                                        clipStatus.value = false
+                                try {
+                                    val bitmap = doClip()
+                                    if (bitmap == null) {
+                                        onClipFailed()
+                                    } else {
+                                        clipStatus.value = true
+                                        lifecycleScope.launch {
+                                            onClipFinished(bitmap)
+                                            clipStatus.value = false
+                                        }
                                     }
+                                } catch (e: SmallImageSizeException) {
+                                    EmoLog.w("PhotoClipper", "clip error: ${e.message}")
+                                    doIfImageNotBigEnoughToClip()
                                 }
                             }
                             .padding(vertical = 16.dp),
@@ -204,6 +212,10 @@ open class PhotoClipperActivity : ComponentActivity() {
             }
             ClipHanding()
         }
+    }
+
+    protected open fun doIfImageNotBigEnoughToClip() {
+        Toast.makeText(this, "图片小于裁剪区域，请放大后裁剪", Toast.LENGTH_SHORT).show()
     }
 
     @Composable
