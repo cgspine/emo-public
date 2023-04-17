@@ -26,6 +26,10 @@ java {
     targetCompatibility = JavaVersion.VERSION_11
 }
 
+kotlin {
+    jvmToolchain(11)
+}
+
 dependencies {
     api(libs.kotlinx.coroutines.core)
     testImplementation(libs.junit4)

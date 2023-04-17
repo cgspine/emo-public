@@ -10,7 +10,7 @@ buildscript {
         classpath(libs.android.gradlePlugin)
         classpath(libs.kotlin.gradlePlugin)
         classpath(libs.secrets.gradlePlugin)
-        classpath("androidx.benchmark:benchmark-gradle-plugin:1.1.0-beta04")
+        classpath(libs.benchmark.gradlePlugin)
     }
 
 }

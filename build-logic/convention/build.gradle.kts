@@ -25,6 +25,10 @@ java {
     targetCompatibility = JavaVersion.VERSION_11
 }
 
+kotlin {
+    jvmToolchain(11)
+}
+
 dependencies {
     implementation(libs.android.gradlePlugin)
     implementation(libs.kotlin.gradlePlugin)

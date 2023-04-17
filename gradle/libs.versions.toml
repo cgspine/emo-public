@@ -1,23 +1,23 @@
 [versions]
 androidDesugarJdkLibs = "2.0.0"
-androidGradlePlugin = "7.4.1"
-kotlin = "1.8.10"
-ksp = "1.8.10-1.0.9"
+androidGradlePlugin = "8.0.0"
+kotlin = "1.8.20"
+ksp = "1.8.20-1.0.10"
 kotlinxCoroutines = "1.6.4"
 kotlinxDatetime = "0.4.0"
 kotlinxSerialization = "1.5.0"
 ktlint = "0.46.0"
 kotlinxCollectionsImmutable = "0.3.5"
-accompanist = "0.30.0"
-androidxComposeCompiler="1.4.4"
-androidxComposeBom = "2023.03.00"
+accompanist = "0.30.1"
+androidxComposeCompiler="1.4.5"
+androidxComposeBom = "2023.04.00"
 androidxActivity = "1.7.0"
 androidxAppCompat = "1.6.1"
 androidxAnnotation = "1.6.0"
 androidxCore = "1.9.0"
 androidxEspresso = "3.5.0"
 androidxLifecycle = "2.6.1"
-androidxMacroBenchmark = "1.1.1"
+benchmark = "1.1.1"
 androidxNavigation = "2.5.3"
 androidxProfileinstaller = "1.3.0"
 androidxSavedState = "1.2.1"
@@ -37,21 +37,21 @@ retrofit = "2.9.0"
 retrofitKotlinxSerializationJson = "0.8.0"
 room = "2.5.1"
 secrets = "2.0.1"
-spotless = "6.17.0"
+spotless = "6.18.0"
 mmkv = "1.2.15"
-emoCore = "0.6.0"
-emoUiCore = "0.6.0"
-emoFs = "0.6.0"
-emoModal = "0.6.0"
-emoPhoto = "0.6.1"
-emoNetwork = "0.6.0"
-emoPermission = "0.6.0"
-emoJsBridge = "0.6.0"
-emoConfig = "0.6.0"
-emoReport = "0.6.0"
-emoScheme = "0.6.0"
-emoKv = "0.6.1"
-emoDevice = "0.6.0"
+emoCore = "0.7.0"
+emoUiCore = "0.7.0"
+emoFs = "0.7.0"
+emoModal = "0.7.0"
+emoPhoto = "0.7.0"
+emoNetwork = "0.7.0"
+emoPermission = "0.7.0"
+emoJsBridge = "0.7.0"
+emoConfig = "0.7.0"
+emoReport = "0.7.0"
+emoScheme = "0.7.0"
+emoKv = "0.7.0"
+emoDevice = "0.7.0"
 
 [libraries]
 emo-remote-kv = { group = "cn.qhplus.emo", name = "kv", version.ref = "emoKv" }
@@ -66,7 +66,7 @@ androidx-constraintlayout-compose = { group = "androidx.constraintlayout", name 
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidxActivity" }
 androidx-annotation = { group = "androidx.annotation", name = "annotation", version.ref = "androidxAnnotation"}
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidxAppCompat" }
-androidx-benchmark-macro = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "androidxMacroBenchmark" }
+androidx-benchmark-macro = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmark" }
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "androidxComposeBom" }
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation"}
 androidx-compose-foundation-layout = { group = "androidx.compose.foundation", name = "foundation-layout"}
@@ -118,6 +118,7 @@ secrets-gradlePlugin = { group = "com.google.android.libraries.mapsplatform.secr
 spotless-gradlePlugin = { group = "com.diffplug.spotless", name = "spotless-plugin-gradle", version.ref = "spotless" }
 ksp-api = { group = "com.google.devtools.ksp", name = "symbol-processing-api", version.ref = "ksp"}
 tencent-mmkv = { group = "com.tencent", name = "mmkv", version.ref = "mmkv" }
+benchmark-gradlePlugin = { group = "androidx.benchmark", name = "benchmark-gradle-plugin", version.ref = "benchmark" }
 
 [plugins]
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

@@ -37,33 +37,35 @@ https://emo.qhplus.cn
 |        0.4.x        | BOM 2023.01.00  |          1.4.0           |
 |        0.5.x        | BOM 2023.01.00  |          1.4.2           |
 |        0.6.x        | BOM 2023.03.00  |          1.4.4           |
+|        0.7.x        | BOM 2023.04.00  |          1.4.5           |
+
 
 # Download
 
 ```kts
 // core
-implementation("cn.qhplus.emo:core:0.6.0")
+implementation("cn.qhplus.emo:core:0.7.0")
 // ui-core
-implementation("cn.qhplus.emo:ui-core:0.6.0")
+implementation("cn.qhplus.emo:ui-core:0.7.0")
 // photo
-implementation("cn.qhplus.emo:photo-coil:0.6.2")
+implementation("cn.qhplus.emo:photo-coil:0.7.0")
 // modal
-implementation("cn.qhplus.emo:modal:0.6.0")
+implementation("cn.qhplus.emo:modal:0.7.0")
 // permission
-implementation("cn.qhplus.emo:permission:0.6.0")
+implementation("cn.qhplus.emo:permission:0.7.0")
 // network
-implementation("cn.qhplus.emo:network:0.6.0")
+implementation("cn.qhplus.emo:network:0.7.0")
 // js-bridge
-implementation("cn.qhplus.emo:js-bridge:0.6.0")
+implementation("cn.qhplus.emo:js-bridge:0.7.0")
 // config
-implementation("cn.qhplus.emo:config-mmkv:0.6.0")
-implementation("cn.qhplus.emo:config-panel:0.6.0")
-ksp("cn.qhplus.emo:config-ksp:0.6.0")
+implementation("cn.qhplus.emo:config-mmkv:0.7.0")
+implementation("cn.qhplus.emo:config-panel:0.7.0")
+ksp("cn.qhplus.emo:config-ksp:0.7.0")
 // scheme
-implementation("cn.qhplus.emo:scheme-impl:0.6.0")
-ksp("cn.qhplus.emo:scheme-ksp:0.6.0")
+implementation("cn.qhplus.emo:scheme-impl:0.7.0")
+ksp("cn.qhplus.emo:scheme-ksp:0.7.0")
 // kv
-implementation("cn.qhplus.emo:kv:0.6.0")
+implementation("cn.qhplus.emo:kv:0.7.0")
 ```
 
 # Demo apk

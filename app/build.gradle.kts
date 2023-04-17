@@ -21,23 +21,13 @@ plugins {
     id("emo.android.application")
     id("emo.android.application.compose")
     id("emo.spotless")
-    @Suppress("DSL_SCOPE_VIOLATION") // TODO: Remove once KTIJ-19369 is fixed
     alias(libs.plugins.ksp)
-    @Suppress("DSL_SCOPE_VIOLATION") // TODO: Remove once KTIJ-19369 is fixed
     alias(libs.plugins.serialization)
 }
 
-fun runCommand(project: Project, command: String): String {
-    val stdout = ByteArrayOutputStream()
-    project.exec {
-        commandLine = command.split(" ")
-        standardOutput = stdout
-    }
-    return stdout.toString().trim()
-}
-
-
-val gitVersion = runCommand(project, "git rev-list HEAD --count").toIntOrNull() ?: 1
+val gitVersion = providers.exec {
+    commandLine("git", "rev-list", "HEAD", "--count")
+}.standardOutput.asText.get().trim().toInt()
 
 
 android {
@@ -88,7 +78,7 @@ android {
         }
     }
 
-    packagingOptions {
+    packaging {
         resources {
             excludes.add("/META-INF/{AL2.0,LGPL2.1}")
         }
