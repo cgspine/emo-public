@@ -121,6 +121,7 @@ fun PhotoViewerScaffold(
     }
 }
 
+class PhotoViewerPagedChanged(var changed: Boolean = false)
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DefaultPhotoViewer(
@@ -128,12 +129,24 @@ fun DefaultPhotoViewer(
     PhotoPage: @Composable (PhotoPageArg) -> Unit
 ) {
     val pagerState = rememberPagerState(arg.index)
+    val pagedChanged = remember {
+        PhotoViewerPagedChanged()
+    }
     HorizontalPager(
         pageCount = arg.list.size,
         state = pagerState,
         key = { arg.list[it].photoProvider.id() }
     ) { page ->
-        PhotoPage(PhotoPageArg(pagerState, page, arg.list[page], page == arg.index, arg.photoPageCtrl))
+        if(page != arg.index){
+            pagedChanged.changed = true
+        }
+        PhotoPage(PhotoPageArg(
+            pagerState,
+            page,
+            arg.list[page],
+            page == arg.index && !pagedChanged.changed,
+            arg.photoPageCtrl)
+        )
     }
 }
 
