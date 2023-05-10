@@ -209,9 +209,9 @@ fun ModalPage() {
                 val flow = MutableStateFlow<TipStatus>(TipStatus.Loading())
                 val tip = view.emoTip(status = flow).show()
                 scope.launch {
-                    delay(1000)
-                    flow.value = TipStatus.Done()
-                    delay(100)
+//                    delay(1000)
+//                    flow.value = TipStatus.Done()
+//                    delay(100)
                     tip.dismiss()
                 }
             }

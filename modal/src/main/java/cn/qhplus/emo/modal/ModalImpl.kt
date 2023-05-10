@@ -58,6 +58,7 @@ internal abstract class ModalPresent(
     private val visibleState = mutableStateOf(false)
     private var isShown = false
     private var isDismissing = false
+    private var isRendered = false
 
     private val composeLayout = ComposeView(rootLayout.context).apply {
         visibility = View.GONE
@@ -76,7 +77,13 @@ internal abstract class ModalPresent(
         composeLayout.setContent {
             themeWrapper {
                 Box(modifier = Modifier.fillMaxSize()) {
-                    ModalContent(visible = visibleState.value) {
+                    ModalContent(
+                        visible = visibleState.value,
+                        onRendered = {
+                            isRendered = true
+                        }
+                    ) {
+                        // this callback invoked when dismiss animation finished.
                         if (isDismissing) {
                             doAfterDismiss()
                         }
@@ -98,7 +105,7 @@ internal abstract class ModalPresent(
     }
 
     @Composable
-    abstract fun ModalContent(visible: Boolean, dismissFinishAction: () -> Unit)
+    abstract fun ModalContent(visible: Boolean, onRendered: () -> Unit, dismissFinishAction: () -> Unit)
 
     override fun isShowing(): Boolean {
         return isShown
@@ -131,8 +138,12 @@ internal abstract class ModalPresent(
             return
         }
         isShown = false
-        isDismissing = true
-        visibleState.value = false
+        if (!isRendered) {
+            doAfterDismiss()
+        } else {
+            isDismissing = true
+            visibleState.value = false
+        }
     }
 
     override fun doOnShow(listener: EmoModal.Action): EmoModal {
@@ -174,7 +185,7 @@ internal class StillModalImpl(
 ) {
 
     @Composable
-    override fun ModalContent(visible: Boolean, dismissFinishAction: () -> Unit) {
+    override fun ModalContent(visible: Boolean, onRendered: () -> Unit, dismissFinishAction: () -> Unit) {
         if (visible) {
             Box(
                 modifier = Modifier
@@ -195,6 +206,9 @@ internal class StillModalImpl(
                     }
             )
             content(this)
+            SideEffect {
+                onRendered()
+            }
         } else {
             SideEffect {
                 dismissFinishAction()
@@ -223,7 +237,7 @@ internal class AnimateModalImpl(
 ) {
 
     @Composable
-    override fun ModalContent(visible: Boolean, dismissFinishAction: () -> Unit) {
+    override fun ModalContent(visible: Boolean, onRendered: () -> Unit, dismissFinishAction: () -> Unit) {
         AnimatedVisibility(
             visible = visible,
             enter = enter,
@@ -249,6 +263,7 @@ internal class AnimateModalImpl(
             )
             content(this@AnimateModalImpl)
             DisposableEffect("") {
+                onRendered()
                 onDispose {
                     dismissFinishAction()
                 }
