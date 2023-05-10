@@ -122,6 +122,7 @@ fun PhotoViewerScaffold(
 }
 
 class PhotoViewerPagedChanged(var changed: Boolean = false)
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DefaultPhotoViewer(
@@ -137,15 +138,17 @@ fun DefaultPhotoViewer(
         state = pagerState,
         key = { arg.list[it].photoProvider.id() }
     ) { page ->
-        if(page != arg.index){
+        if (page != arg.index) {
             pagedChanged.changed = true
         }
-        PhotoPage(PhotoPageArg(
-            pagerState,
-            page,
-            arg.list[page],
-            page == arg.index && !pagedChanged.changed,
-            arg.photoPageCtrl)
+        PhotoPage(
+            PhotoPageArg(
+                pagerState,
+                page,
+                arg.list[page],
+                page == arg.index && !pagedChanged.changed,
+                arg.photoPageCtrl
+            )
         )
     }
 }
