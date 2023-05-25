@@ -16,14 +16,26 @@
 
 package cn.qhplus.emo.photo.data
 
+import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toSize
+import java.util.UUID
 
 interface Photo {
     @Composable
@@ -37,6 +49,7 @@ interface Photo {
 
 class PhotoResult(val model: Any, val drawable: Drawable)
 
+@Stable
 interface PhotoProvider {
 
     fun id(): Any
@@ -78,8 +91,50 @@ class PhotoShot(
     }
 }
 
-interface PhotoProviderBuilder {
-    fun build()
+class BitmapPhoto(val bitmap: Bitmap): Photo {
+    @Composable
+    override fun Compose(
+        contentScale: ContentScale,
+        isContainerDimenExactly: Boolean,
+        onSuccess: ((PhotoResult) -> Unit)?,
+        onError: ((Throwable) -> Unit)?
+    ) {
+        Image(
+            modifier = Modifier.fillMaxSize(),
+            painter = BitmapPainter(bitmap.asImageBitmap()),
+            contentDescription = "",
+            contentScale = contentScale
+        )
+        val resource = LocalView.current.resources
+        LaunchedEffect(this, resource){
+            onSuccess?.invoke(PhotoResult(bitmap, BitmapDrawable(resource, bitmap)))
+        }
+    }
+
+}
+
+class BitmapPhotoProvider(val bitmap: Bitmap): PhotoProvider {
+    override fun id(): Any {
+        return UUID.randomUUID()
+    }
+
+    override fun ratio(): Float = bitmap.width * 1f / bitmap.height
+    override fun thumbnail(openBlankColor: Boolean): Photo? {
+        return null
+    }
+
+    override fun photo(): Photo? {
+        return BitmapPhoto(bitmap)
+    }
+
+    override fun meta(): Bundle? {
+        throw RuntimeException("BitmapPhotoProvider can not delivered by bundle")
+    }
+
+    override fun recoverCls(): Class<out PhotoShotRecover>? {
+        return null
+    }
+
 }
 
 interface PhotoShotRecover {
@@ -111,6 +166,6 @@ val lossPhotoProvider = object : PhotoProvider {
 
 val lossPhotoShot = PhotoShot(lossPhotoProvider, null, null, null)
 
-internal enum class PhotoLoadStatus {
+enum class PhotoLoadStatus {
     Loading, Success, Failed
 }

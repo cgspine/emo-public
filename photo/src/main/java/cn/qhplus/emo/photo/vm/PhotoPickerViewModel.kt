@@ -19,6 +19,7 @@ package cn.qhplus.emo.photo.vm
 import android.app.Application
 import android.net.Uri
 import androidx.annotation.Keep
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -49,7 +50,7 @@ class PhotoPickerData(
     val error: Throwable? = null
 )
 
-class PhotoPickerViewModel @Keep constructor(
+class PhotoPickerViewModel constructor(
     val application: Application,
     val state: SavedStateHandle,
     val dataProvider: MediaDataProvider,
@@ -84,48 +85,47 @@ class PhotoPickerViewModel @Keep constructor(
         photoProviderFactory = Class.forName(photoProviderFactoryClsName).newInstance() as MediaPhotoProviderFactory
     }
 
-    fun loadData() {
-        viewModelScope.launch {
-            try {
-                val data = withContext(Dispatchers.IO) {
-                    dataProvider.provide(application, supportedMimeTypes).map { bucket ->
-                        MediaPhotoBucketVO(
-                            bucket.id,
-                            bucket.name,
-                            bucket.list.map {
-                                MediaPhotoVO(it, photoProviderFactory.factory(it))
-                            }
-                        )
-                    }
+
+    suspend fun loadData(){
+        try {
+            val data = withContext(Dispatchers.IO) {
+                dataProvider.provide(application, supportedMimeTypes).map { bucket ->
+                    MediaPhotoBucketVO(
+                        bucket.id,
+                        bucket.name,
+                        bucket.list.map {
+                            MediaPhotoVO(it, photoProviderFactory.factory(it))
+                        }
+                    )
                 }
-                val pickedItems = state.get<ArrayList<Uri>>(PHOTO_PICKED_ITEMS)
-                if (pickedItems != null) {
-                    state[PHOTO_PICKED_ITEMS] = null
-                    val map = mutableMapOf<Uri, Long>()
-                    _pickedMap.clear()
-                    data.find { it.id == MediaPhotoBucketAllId }?.list?.let { list ->
-                        for (element in list) {
-                            if (pickedItems.find { it == element.model.uri } != null) {
-                                _pickedMap[element.model.id] = element
-                                map[element.model.uri] = element.model.id
-                            }
-                            if (map.size == pickedItems.size) {
-                                break
-                            }
+            }
+            val pickedItems = state.get<ArrayList<Uri>>(PHOTO_PICKED_ITEMS)
+            if (pickedItems != null) {
+                state[PHOTO_PICKED_ITEMS] = null
+                val map = mutableMapOf<Uri, Long>()
+                _pickedMap.clear()
+                data.find { it.id == MediaPhotoBucketAllId }?.list?.let { list ->
+                    for (element in list) {
+                        if (pickedItems.find { it == element.model.uri } != null) {
+                            _pickedMap[element.model.id] = element
+                            map[element.model.uri] = element.model.id
+                        }
+                        if (map.size == pickedItems.size) {
+                            break
                         }
                     }
-                    // keep the order.
-                    val list = pickedItems.mapNotNull {
-                        map[it]
-                    }
-                    _pickedListFlow.value = list
-                    _pickedCountFlow.value = list.size
                 }
-
-                _photoPickerDataFlow.value = PhotoPickerData(false, data)
-            } catch (e: Throwable) {
-                _photoPickerDataFlow.value = PhotoPickerData(false, null, e)
+                // keep the order.
+                val list = pickedItems.mapNotNull {
+                    map[it]
+                }
+                _pickedListFlow.value = list
+                _pickedCountFlow.value = list.size
             }
+
+            _photoPickerDataFlow.value = PhotoPickerData(false, data)
+        } catch (e: Throwable) {
+            _photoPickerDataFlow.value = PhotoPickerData(false, null, e)
         }
     }
 

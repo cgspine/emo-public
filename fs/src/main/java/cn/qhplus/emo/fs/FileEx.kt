@@ -16,6 +16,9 @@
 
 package cn.qhplus.emo.fs
 
+import android.content.Context
+import android.net.Uri
+import android.provider.OpenableColumns
 import java.io.File
 import java.io.InputStream
 import java.security.MessageDigest
@@ -42,5 +45,29 @@ fun InputStream.digest(algorithm: String): ByteArray {
             bytes = it.read(buffer)
         }
         digest.digest()
+    }
+}
+
+
+fun Uri.fileName(context: Context): String? {
+    var result: String? = null
+    if (scheme == "content") {
+        context.contentResolver.query(this, null, null, null, null)?.use { cursor ->
+            if (cursor.moveToFirst()) {
+                val index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                if(index >= 0){
+                    result = cursor.getString(index)
+                }
+
+            }
+        }
+    }
+    return result ?: path?.let {
+        val cut = it.lastIndexOf('/')
+        if (cut != -1) {
+            it.substring(cut + 1);
+        } else {
+            it
+        }
     }
 }

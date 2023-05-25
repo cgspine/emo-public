@@ -77,6 +77,43 @@ fun PhotoPage() {
                 schemeBuilder(SchemeConst.SCHEME_ACTION_PHOTO_CLIPPER).runQuietly()
             }
         }
+
+//        item {
+//            val context = LocalContext.current
+//            val launcher = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetMultipleContents(), onResult = { uris ->
+//                if(uris.isNotEmpty()){
+//                    val photoProviders = uris.map {
+//                        PhotoShot(
+//                            PdfPhotoProvider(it),
+//                            null,
+//                            null,
+//                            null
+//                        )
+//                    }
+//                    val intent = PhotoViewerActivity.intentOf(context, PhotoViewerActivity::class.java, photoProviders, 0)
+//                    context.startActivity(intent)
+//                }
+//            })
+//            CommonItem("PDF Multi Viewer") {
+//                launcher.launch("application/pdf")
+//            }
+//        }
+//
+//        item {
+//            val context = LocalContext.current
+//            val launcher = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent(), onResult = {uri ->
+//                if(uri != null){
+//                    val bundle = Bundle().apply {
+//                        putParcelable("uri", uri)
+//                    }
+//                    val intent = PdfActivity.intentOf(context, PdfActivity::class.java, bundle, TestBundlePdfDataSourceFactory::class.java)
+//                    context.startActivity(intent)
+//                }
+//            })
+//            CommonItem("PDF Reader With Editing") {
+//                launcher.launch("application/pdf")
+//            }
+//        }
     }
 }
 
@@ -287,6 +324,7 @@ fun PhotoViewerPage() {
     }
 }
 
+
 @ComposeScheme(
     action = SchemeConst.SCHEME_ACTION_PHOTO_PICKER,
     alternativeHosts = [MainActivity::class]
@@ -392,3 +430,58 @@ fun PhotoClipperPage() {
         }
     }
 }
+
+//class TestPdfDataSource(val uri: Uri): PdfDataSource {
+//    override fun readInitIndex(context: Context): Int {
+//        return EmoKvInstance.getInt("pdf_index_${uri}", 0)
+//    }
+//
+//    override fun readInitOffset(context: Context): Int {
+//        return EmoKvInstance.getInt("pdf_offset_${uri}", 0)
+//    }
+//
+//    override fun readTitle(context: Context): String {
+//        return uri.fileName(context) ?: ""
+//    }
+//
+//    override suspend fun getFileDescriptor(context: Context): ParcelFileDescriptor? {
+//        return context.contentResolver.openFileDescriptor(uri, "r")
+//    }
+//
+//    override suspend fun saveIndexAndOffset(index: Int, offset: Int) {
+//        EmoKvInstance.put("pdf_index_${uri}", index)
+//        EmoKvInstance.put("pdf_offset_${uri}", offset)
+//    }
+//
+//    override fun supportEdit(page: Int): Boolean {
+//        return true
+//    }
+//
+//    override suspend fun saveEditLayers(page: Int, layers: PersistentList<EditLayer>) {
+//        EmoKvInstance.put("pdf_editing_${uri}_${page}".toByteArray(), layers.map { it.serialize() }.let {
+//            ProtoBuf.encodeToByteArray(EditLayersStoreInfo(it))
+//        })
+//    }
+//
+//    override suspend fun loadEditLayers(page: Int): PersistentList<EditLayer> {
+//        return EmoKvInstance.get("pdf_editing_${uri}_${page}".toByteArray())?.let{
+//            ProtoBuf.decodeFromByteArray<EditLayersStoreInfo>(it).list.mapNotNull { value ->
+//                EditLayerDeserializeFactory.deserialize(value)
+//            }
+//        }?.toPersistentList() ?: persistentListOf()
+//    }
+//}
+//
+//@Serializable
+//class EditLayersStoreInfo(
+//    @ProtoNumber(1)
+//    val list: List<ByteArray>
+//)
+//
+//class TestBundlePdfDataSourceFactory: BundlePdfDataSourceFactory {
+//    override fun factory(bundle: Bundle): PdfDataSource {
+//        val uri = bundle.getParcelable<Uri>("uri") ?: throw RuntimeException("uri is not provided")
+//        return TestPdfDataSource(uri)
+//    }
+//
+//}

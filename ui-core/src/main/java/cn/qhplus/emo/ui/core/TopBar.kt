@@ -215,7 +215,7 @@ open class TopBarImageVectorItem(
 
 @Stable
 open class TopBarTextItem(
-    val text: String,
+    val text: () -> String,
     val paddingHor: Dp = 12.dp,
     val fontSize: TextUnit = 14.sp,
     val fontWeight: FontWeight = FontWeight.Medium,
@@ -238,7 +238,7 @@ open class TopBarTextItem(
             onClick = onClick
         ) {
             Text(
-                text = text,
+                text = text(),
                 modifier = Modifier.align(Alignment.Center),
                 color = color,
                 fontSize = fontSize,

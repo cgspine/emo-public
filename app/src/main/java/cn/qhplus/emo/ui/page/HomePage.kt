@@ -175,7 +175,7 @@ fun ComponentPage() {
         title = "Components",
         topBarRightItems = remember(topBarIconColor) {
             persistentListOf(
-                TopBarTextItem(text = "文档", color = topBarIconColor) {
+                TopBarTextItem(text = { "文档" }, color = topBarIconColor) {
                     webSchemeBuilder("https://emo.qhplus.cn", "emo").runQuietly()
                 }
             )

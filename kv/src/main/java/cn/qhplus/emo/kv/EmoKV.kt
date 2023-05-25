@@ -30,7 +30,6 @@ import kotlin.experimental.or
 private const val FLAG_COMPRESSED: Byte = 0x1
 private const val FLAG_CRC: Byte = 0x2
 
-@Keep
 class EmoKV(
     context: Context,
     name: String,

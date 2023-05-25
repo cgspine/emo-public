@@ -46,7 +46,7 @@ android {
     defaultConfig {
         applicationId = "cn.qhplus.emo"
         versionCode = gitVersion
-        versionName = "1.0.0"
+        versionName = "1.0.1"
 
         ndk {
 //            abiFilters.add("armeabi-v7a")
@@ -89,6 +89,7 @@ android {
 dependencies {
     implementation(project(":ui-core"))
     implementation(project(":photo-coil"))
+//    implementation(project(":photo-pdf"))
     implementation(project(":modal"))
     implementation(project(":network"))
     implementation(project(":permission"))

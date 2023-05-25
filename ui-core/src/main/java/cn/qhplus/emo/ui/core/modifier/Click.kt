@@ -87,6 +87,22 @@ fun Modifier.throttleClick(
     )
 }
 
+fun Modifier.throttleNoIndicationClick(
+    timeout: Int = 250,
+    enabled: Boolean = true,
+    onClick: () -> Unit
+) = composed {
+    throttleClick(
+        interactionSource = remember {
+            MutableInteractionSource()
+        },
+        indication = null,
+        timeout = timeout,
+        enabled = enabled,
+        onClick = onClick
+    )
+}
+
 fun Modifier.debounceClick(
     timeout: Int = 250,
     enabled: Boolean = true,
@@ -142,6 +158,22 @@ fun Modifier.debounceClick(
         onClickLabel = onClickLabel,
         role = role,
         onClick = { debounceHandler.process(onClick) }
+    )
+}
+
+fun Modifier.debounceNoIndicationClick(
+    timeout: Int = 250,
+    enabled: Boolean = true,
+    onClick: () -> Unit
+) = composed {
+    debounceClick(
+        interactionSource = remember {
+            MutableInteractionSource()
+        },
+        indication = null,
+        timeout = timeout,
+        enabled = enabled,
+        onClick = onClick
     )
 }
 

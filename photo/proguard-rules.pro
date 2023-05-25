@@ -19,3 +19,16 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+
+-keepclassmembers,allowobfuscation class * implements cn.qhplus.emo.photo.data.MediaPhotoProviderFactory {
+    <init>();
+}
+
+-keepclassmembers,allowobfuscation class * implements cn.qhplus.emo.photo.ui.picker.PhotoPickerConfigProvider {
+    <init>();
+}
+
+-keepclassmembers,allowobfuscation class cn.qhplus.emo.photo.vm.PhotoPickerViewModel {
+    <init>(...);
+}

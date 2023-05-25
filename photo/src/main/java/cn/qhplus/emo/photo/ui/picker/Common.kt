@@ -234,30 +234,6 @@ internal fun CommonTextButton(
     }
 }
 
-@Composable
-internal fun CommonImageButton(
-    modifier: Modifier = Modifier,
-    res: Int,
-    enabled: Boolean = true,
-    checked: Boolean = false,
-    onClick: () -> Unit
-) {
-    PressWithAlphaBox(
-        modifier = modifier,
-        enable = enabled,
-        onClick = {
-            onClick()
-        }
-    ) {
-        val config = LocalPhotoPickerConfig.current
-        Image(
-            painter = painterResource(res),
-            contentDescription = "",
-            colorFilter = ColorFilter.tint(if (checked) config.commonIconCheckedTintColor else config.commonIconNormalTintColor),
-            contentScale = ContentScale.Inside
-        )
-    }
-}
 
 @Composable
 internal fun CommonButton(

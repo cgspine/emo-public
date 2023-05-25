@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import cn.qhplus.emo.photo.ui.edit.PhotoEditConfig
 import cn.qhplus.emo.ui.core.TopBarItem
 import kotlinx.coroutines.flow.StateFlow
 
@@ -90,36 +91,7 @@ data class PhotoPickerConfig(
     val bucketChooserMainTextColor: Color = Color.White,
     val bucketChooserCountTextColor: Color = Color.White.copy(alpha = 0.64f),
 
-    val editPaintOptions: List<EditPaint> = listOf(
-        MosaicEditPaint(16),
-        MosaicEditPaint(50),
-        ColorEditPaint(Color.White),
-        ColorEditPaint(Color.Black),
-        ColorEditPaint(Color.Red),
-        ColorEditPaint(Color.Yellow),
-        ColorEditPaint(Color.Green),
-        ColorEditPaint(Color.Blue),
-        ColorEditPaint(Color.Magenta)
-    ),
-    val graffitiPaintStrokeWidth: Dp = 5.dp,
-    val mosaicPaintStrokeWidth: Dp = 20.dp,
-
-    val textEditMaskColor: Color = Color.Black.copy(0.5f),
-    val textEditColorOptions: List<ColorEditPaint> = listOf(
-        ColorEditPaint(Color.White),
-        ColorEditPaint(Color.Black),
-        ColorEditPaint(Color.Red),
-        ColorEditPaint(Color.Yellow),
-        ColorEditPaint(Color.Green),
-        ColorEditPaint(Color.Blue),
-        ColorEditPaint(Color.Magenta)
-    ),
-    val textEditFontSize: TextUnit = 30.sp,
-    val textEditLineSpace: TextUnit = 3.sp,
-    val textCursorColor: Color = primaryColor,
-
-    val editLayerDeleteAreaNormalBgColor: Color = Color.Black.copy(alpha = 0.3f),
-    val editLayerDeleteAreaNormalFocusColor: Color = Color.Red.copy(alpha = 0.6f)
+    val editConfig: PhotoEditConfig = PhotoEditConfig()
 )
 
 val DefaultPhotoPickerConfig by lazy { PhotoPickerConfig() }

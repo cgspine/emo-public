@@ -19,12 +19,14 @@ package cn.qhplus.emo.photo.ui
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateRect
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.PressGestureScope
+import androidx.compose.foundation.gestures.ScrollScope
+import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.calculateCentroid
@@ -33,13 +35,17 @@ import androidx.compose.foundation.gestures.calculatePan
 import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -54,18 +60,25 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChanged
+import androidx.compose.ui.input.pointer.util.VelocityTracker
+import androidx.compose.ui.input.pointer.util.addPointerInputChange
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastFirstOrNull
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.absoluteValue
 
+// TODO use GestureContent refactor this ugly impl.
 @Composable
 fun GesturePhoto(
     containerWidth: Dp,
@@ -89,6 +102,7 @@ fun GesturePhoto(
     onBeginPullExit: () -> Boolean,
     onLongPress: (() -> Unit)? = null,
     onTapExit: (afterTransition: Boolean) -> Unit,
+    enableTransformGesture: () -> Boolean = { true },
     content: @Composable (
         transition: Transition<Boolean>,
         scale: Float,
@@ -96,7 +110,7 @@ fun GesturePhoto(
         onImageRatioEnsured: (Float) -> Unit
     ) -> Unit
 ) {
-    val (imageWidth, imageHeight) = calculateImageSize(containerWidth, containerHeight, imageRatio, isLongImage)
+    val (imageWidth, imageHeight) = calculateContentSize(containerWidth, containerHeight, imageRatio, isLongImage)
 
     var calculatedImageRatio by remember {
         mutableStateOf(imageRatio)
@@ -112,7 +126,7 @@ fun GesturePhoto(
         calculatedImageRatio,
         imageRatio
     ) {
-        val (expectWidth, expectHeight) = calculateImageSize(
+        val (expectWidth, expectHeight) = calculateContentSize(
             containerWidth,
             containerHeight,
             calculatedImageRatio,
@@ -189,9 +203,11 @@ fun GesturePhoto(
                     containerWidthPx > targetWidth -> {
                         targetLeft = (containerWidthPx - targetWidth) / 2
                     }
+
                     targetLeft > 0 -> {
                         targetLeft = 0f
                     }
+
                     targetLeft + targetWidth < containerWidthPx -> {
                         targetLeft = containerWidthPx - targetWidth
                     }
@@ -201,9 +217,11 @@ fun GesturePhoto(
                     containerHeightPx > targetHeight -> {
                         targetTop = (containerHeightPx - targetHeight) / 2
                     }
+
                     targetTop > 0 -> {
                         targetTop = 0f
                     }
+
                     targetTop + targetHeight < containerHeightPx -> {
                         targetTop = containerHeightPx - targetHeight
                     }
@@ -231,6 +249,9 @@ fun GesturePhoto(
         GestureNestScrollConnection()
     }
 
+    val flingBehavior = ScrollableDefaults.flingBehavior()
+    val scope = rememberCoroutineScope()
+
     Box(
         modifier = Modifier
             .width(containerWidth)
@@ -244,6 +265,7 @@ fun GesturePhoto(
                 .fillMaxSize()
                 .nestedScroll(nestedScrollConnection)
                 .pointerInput(
+                    enableTransformGesture,
                     containerWidth,
                     containerHeight,
                     maxScale,
@@ -282,6 +304,28 @@ fun GesturePhoto(
                         }
 
                         launch {
+                            val velocityTracker = VelocityTracker()
+                            var flingJob: Job? = null
+                            val scrollXBy: (Float) -> Boolean = lambda@{ delta ->
+                                if (delta > 0) {
+                                    val fixEdgeLeft = panEdgeProtection.left - imagePaddingFix.first * targetScale
+                                    if (targetTranslateX < fixEdgeLeft) {
+                                        targetTranslateX = (targetTranslateX + delta).coerceAtMost(fixEdgeLeft)
+                                        return@lambda true
+                                    }
+                                }
+                                if (delta < 0) {
+                                    val w = imageWidthPx * targetScale
+                                    val fixEdgeRight = panEdgeProtection.right + imagePaddingFix.first * targetScale
+                                    if (targetTranslateX + w > fixEdgeRight) {
+                                        targetTranslateX = (targetTranslateX + delta).coerceAtLeast(
+                                            fixEdgeRight - w
+                                        )
+                                        return@lambda true
+                                    }
+                                }
+                                false
+                            }
                             awaitEachGesture {
                                 var zoom = 1f
                                 var pan = Offset.Zero
@@ -290,97 +334,108 @@ fun GesturePhoto(
                                 var isPanning = false
                                 var isExitPanning = false
                                 isGestureHandling = false
-                                awaitFirstDown(requireUnconsumed = false)
-                                nestedScrollConnection.canConsumeEvent = false
-                                nestedScrollConnection.isIntercepted = false
-                                do {
-                                    val event = awaitPointerEvent()
-                                    if (isZooming || isExitPanning) {
-                                        nestedScrollConnection.isIntercepted = true
-                                    }
-                                    val needHandle = nestedScrollConnection.canConsumeEvent || event.changes.none { it.isConsumed }
-                                    if (needHandle) {
-                                        val zoomChange = event.calculateZoom()
-                                        val panChange = event.calculatePan()
-
-                                        if (!isZooming && !isPanning) {
-                                            zoom *= zoomChange
-                                            pan += panChange
-
-                                            val centroidSize = event.calculateCentroidSize(useCurrent = false)
-                                            val zoomMotion = abs(1 - zoom) * centroidSize
-                                            val panMotion = pan.getDistance()
-
-                                            if (zoomMotion > touchSlop) {
-                                                isGestureHandling = true
-                                                isZooming = true
-                                            } else if (panMotion > touchSlop) {
-                                                isPanning = true
-                                                isGestureHandling = true
+                                val down = awaitFirstDown(requireUnconsumed = false)
+                                flingJob?.cancel()
+                                velocityTracker.resetTracking()
+                                val enabled = enableTransformGesture()
+                                if (enabled) {
+                                    velocityTracker.addPointerInputChange(down)
+                                    nestedScrollConnection.canConsumeEvent = false
+                                    nestedScrollConnection.isIntercepted = false
+                                    do {
+                                        val event = awaitPointerEvent()
+                                        event.changes
+                                            .fastFirstOrNull { it.id == down.id }
+                                            ?.let {
+                                                velocityTracker.addPointerInputChange(it)
                                             }
+                                        if (isZooming || isExitPanning) {
+                                            nestedScrollConnection.isIntercepted = true
                                         }
+                                        val needHandle = nestedScrollConnection.canConsumeEvent || event.changes.none { it.isConsumed }
+                                        if (needHandle) {
+                                            val zoomChange = event.calculateZoom()
+                                            val panChange = event.calculatePan()
 
-                                        if (isZooming) {
-                                            val centroid = event.calculateCentroid(useCurrent = false)
-                                            if (zoomChange != 1f) {
-                                                scaleHandler(centroid, zoomChange, true)
-                                            }
-                                            event.changes.forEach {
-                                                if (it.positionChanged()) {
-                                                    it.consume()
+                                            if (!isZooming && !isPanning) {
+                                                zoom *= zoomChange
+                                                pan += panChange
+
+                                                val centroidSize = event.calculateCentroidSize(useCurrent = false)
+                                                val zoomMotion = abs(1 - zoom) * centroidSize
+                                                val panMotion = pan.getDistance()
+
+                                                if (zoomMotion > touchSlop) {
+                                                    isGestureHandling = true
+                                                    isZooming = true
+                                                } else if (panMotion > touchSlop) {
+                                                    isPanning = true
+                                                    isGestureHandling = true
                                                 }
                                             }
-                                        } else if (isPanning) {
-                                            if (!isExitPanning) {
-                                                var xConsumed = false
-                                                var yConsumed = false
-                                                if (panChange != Offset.Zero) {
-                                                    if (panChange.x > 0) {
-                                                        val fixEdgeLeft = panEdgeProtection.left - imagePaddingFix.first * targetScale
-                                                        if (targetTranslateX < fixEdgeLeft) {
-                                                            targetTranslateX = (targetTranslateX + panChange.x).coerceAtMost(fixEdgeLeft)
-                                                            xConsumed = true
-                                                        }
+
+                                            if (isZooming) {
+                                                val centroid = event.calculateCentroid(useCurrent = false)
+                                                if (zoomChange != 1f) {
+                                                    scaleHandler(centroid, zoomChange, true)
+                                                }
+                                                event.changes.forEach {
+                                                    if (it.positionChanged()) {
+                                                        it.consume()
                                                     }
-                                                    if (panChange.x < 0) {
-                                                        val w = imageWidthPx * targetScale
-                                                        val fixEdgeRight = panEdgeProtection.right + imagePaddingFix.first * targetScale
-                                                        if (targetTranslateX + w > fixEdgeRight) {
-                                                            targetTranslateX = (targetTranslateX + panChange.x).coerceAtLeast(
-                                                                fixEdgeRight - w
-                                                            )
-                                                            xConsumed = true
+                                                }
+                                            } else if (isPanning) {
+                                                if (!isExitPanning) {
+                                                    var xConsumed = false
+                                                    var yConsumed = false
+                                                    if (panChange != Offset.Zero) {
+                                                        xConsumed = scrollXBy(panChange.x)
+                                                        if (panChange.y > 0) {
+                                                            val fixEdgeTop = panEdgeProtection.top - imagePaddingFix.second * targetScale
+                                                            if (targetTranslateY < fixEdgeTop) {
+                                                                targetTranslateY = (targetTranslateY + panChange.y).coerceAtMost(fixEdgeTop)
+                                                                yConsumed = true
+                                                            } else if (!xConsumed &&
+                                                                panChange.y > panChange.x.absoluteValue
+                                                            ) {
+                                                                isExitPanning = targetScale == 1f && onBeginPullExit()
+                                                            }
+                                                        }
+
+                                                        if (panChange.y < 0) {
+                                                            val h = imageHeightPx * targetScale
+                                                            val fixEgeBottom = (
+                                                                    panEdgeProtection.bottom +
+                                                                            imagePaddingFix.second * targetScale
+                                                                    )
+                                                            if (targetTranslateY + h > fixEgeBottom) {
+                                                                targetTranslateY = (targetTranslateY + panChange.y).coerceAtLeast(
+                                                                    fixEgeBottom - h
+                                                                )
+                                                                yConsumed = true
+                                                            }
                                                         }
                                                     }
 
-                                                    if (panChange.y > 0) {
-                                                        val fixEdgeTop = panEdgeProtection.top - imagePaddingFix.second * targetScale
-                                                        if (targetTranslateY < fixEdgeTop) {
-                                                            targetTranslateY = (targetTranslateY + panChange.y).coerceAtMost(fixEdgeTop)
-                                                            yConsumed = true
-                                                        } else if (!xConsumed &&
-                                                            panChange.y > panChange.x.absoluteValue
-                                                        ) {
-                                                            isExitPanning = targetScale == 1f && onBeginPullExit()
-                                                        }
-                                                    }
-
-                                                    if (panChange.y < 0) {
-                                                        val h = imageHeightPx * targetScale
-                                                        val fixEgeBottom = (
-                                                            panEdgeProtection.bottom +
-                                                                imagePaddingFix.second * targetScale
-                                                            )
-                                                        if (targetTranslateY + h > fixEgeBottom) {
-                                                            targetTranslateY = (targetTranslateY + panChange.y).coerceAtLeast(
-                                                                fixEgeBottom - h
-                                                            )
-                                                            yConsumed = true
+                                                    if (xConsumed || yConsumed) {
+                                                        event.changes.forEach {
+                                                            if (it.positionChanged()) {
+                                                                it.consume()
+                                                            }
                                                         }
                                                     }
                                                 }
 
-                                                if (xConsumed || yConsumed) {
+                                                if (isExitPanning) {
+                                                    val center = event.calculateCentroid(useCurrent = true)
+                                                    val scaleChange = 1 - panChange.y / containerHeightPx / 2
+                                                    val finalScale = (targetScale * scaleChange)
+                                                        .coerceAtLeast(0.5f)
+                                                        .coerceAtMost(1f)
+                                                    backgroundTargetAlpha = finalScale
+                                                    targetTranslateX += panChange.x
+                                                    targetTranslateY += panChange.y
+                                                    scaleHandler(center, finalScale / targetScale, false)
                                                     event.changes.forEach {
                                                         if (it.positionChanged()) {
                                                             it.consume()
@@ -388,39 +443,40 @@ fun GesturePhoto(
                                                     }
                                                 }
                                             }
+                                        }
+                                    } while (event.changes.any { it.pressed })
 
-                                            if (isExitPanning) {
-                                                val center = event.calculateCentroid(useCurrent = true)
-                                                val scaleChange = 1 - panChange.y / containerHeightPx / 2
-                                                val finalScale = (targetScale * scaleChange)
-                                                    .coerceAtLeast(0.5f)
-                                                    .coerceAtMost(1f)
-                                                backgroundTargetAlpha = finalScale
-                                                targetTranslateX += panChange.x
-                                                targetTranslateY += panChange.y
-                                                scaleHandler(center, finalScale / targetScale, false)
-                                                event.changes.forEach {
-                                                    if (it.positionChanged()) {
-                                                        it.consume()
-                                                    }
+                                    isGestureHandling = false
+                                    if (isZooming) {
+                                        if (targetScale < 1f) {
+                                            reset()
+                                        }
+                                    }
+
+                                    if (isExitPanning) {
+                                        if (targetTranslateY - targetNormalTranslateY < pullExitMiniTranslateY.toPx()) {
+                                            reset()
+                                        } else {
+                                            transitionTargetState = false
+                                        }
+                                    }
+
+                                    if (isPanning) {
+                                        val v = velocityTracker.calculateVelocity().x
+                                        flingJob = scope.launch {
+                                            val scrollScope = object : ScrollScope {
+                                                override fun scrollBy(pixels: Float): Float {
+                                                    return if (scrollXBy(pixels)) {
+                                                        pixels
+                                                    } else 0f
+                                                }
+                                            }
+                                            with(scrollScope) {
+                                                with(flingBehavior) {
+                                                    performFling(v)
                                                 }
                                             }
                                         }
-                                    }
-                                } while (event.changes.any { it.pressed })
-
-                                isGestureHandling = false
-                                if (isZooming) {
-                                    if (targetScale < 1f) {
-                                        reset()
-                                    }
-                                }
-
-                                if (isExitPanning) {
-                                    if (targetTranslateY - targetNormalTranslateY < pullExitMiniTranslateY.toPx()) {
-                                        reset()
-                                    } else {
-                                        transitionTargetState = false
                                     }
                                 }
                             }
@@ -537,20 +593,30 @@ fun PhotoContentWithAlphaTransition(
     ) {
         if (it) 1f else 0f
     }
-    val duration = if (isGestureHandling) 0 else transitionDurationMs
-    val scaleState = animateFloatAsState(
-        targetValue = scale,
-        animationSpec = tween(durationMillis = duration)
+    val rect = transition.animateRect(
+        transitionSpec = { tween(durationMillis = transitionDurationMs) },
+        label = "PhotoContentWithRectTransition"
+    ) {
+        if (it) {
+            Rect(
+                translateX,
+                translateY,
+                translateX + 100 * scale,
+                translateY + 100 * scale
+            )
+        } else Rect(
+            translateX,
+            translateY,
+            translateX + 100,
+            translateY + 100
+        )
+    }
+    content(
+        alphaState.value,
+        (rect.value.width / 100).coerceAtLeast(0f),
+        rect.value.left,
+        rect.value.top
     )
-    val translateXState = animateFloatAsState(
-        targetValue = translateX,
-        animationSpec = tween(durationMillis = duration)
-    )
-    val translateYState = animateFloatAsState(
-        targetValue = translateY,
-        animationSpec = tween(durationMillis = duration)
-    )
-    content(alphaState.value, scaleState.value, translateXState.value, translateYState.value)
 }
 
 @Composable
@@ -674,16 +740,16 @@ internal class GestureNestScrollConnection : NestedScrollConnection {
     }
 }
 
-private fun calculateImageSize(
+internal fun calculateContentSize(
     containerWidth: Dp,
     containerHeight: Dp,
-    imageRatio: Float,
-    isLongImage: Boolean
+    contentRatio: Float,
+    isLongContent: Boolean
 ): Pair<Dp, Dp> {
     val layoutRatio = containerWidth / containerHeight
     return when {
-        isLongImage || imageRatio <= 0f -> containerWidth to containerHeight
-        imageRatio >= layoutRatio -> containerWidth to (containerWidth / imageRatio)
-        else -> (containerHeight * imageRatio) to containerHeight
+        isLongContent || contentRatio <= 0f -> containerWidth to containerHeight
+        contentRatio >= layoutRatio -> containerWidth to (containerWidth / contentRatio)
+        else -> (containerHeight * contentRatio) to containerHeight
     }
 }
