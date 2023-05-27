@@ -78,6 +78,12 @@ fun SchemeDef.toComposeNavArg(): List<NamedNavArgument> {
             defaultValue = ""
         }
     )
+    ret.add(
+        navArgument(SchemeKeys.KEY_TRANSITION) {
+            type = NavType.IntType
+            defaultValue = transition
+        }
+    )
     return ret.also {
         schemeDefToNavArgCache[this] = it
     }

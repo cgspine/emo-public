@@ -23,6 +23,7 @@ import cn.qhplus.emo.MainActivity
 import cn.qhplus.emo.config.SchemeConst
 import cn.qhplus.emo.config.runQuietly
 import cn.qhplus.emo.config.schemeBuilder
+import cn.qhplus.emo.config.webSchemeBuilder
 import cn.qhplus.emo.scheme.ComposeScheme
 import cn.qhplus.emo.scheme.SchemeBoolArg
 import cn.qhplus.emo.scheme.SchemeFloatArg
@@ -30,15 +31,14 @@ import cn.qhplus.emo.scheme.SchemeIntArg
 import cn.qhplus.emo.scheme.SchemeLongArg
 import cn.qhplus.emo.scheme.SchemeStringArg
 import cn.qhplus.emo.scheme.SchemeTransition
+import cn.qhplus.emo.scheme.model
 import cn.qhplus.emo.ui.CommonItem
+import kotlinx.serialization.Serializable
 
 @ComposeScheme(
     action = SchemeConst.SCHEME_ACTION_SCHEME,
     alternativeHosts = [MainActivity::class],
-    enterTransition = SchemeTransition.SLIDE_IN_RIGHT,
-    exitTransition = SchemeTransition.STILL,
-    popEnterTransition = SchemeTransition.STILL,
-    popExitTransition = SchemeTransition.SLIDE_OUT_RIGHT
+    transition = SchemeTransition.PUSH_THEN_STILL
 )
 @Composable
 fun SchemePage() {
@@ -63,6 +63,14 @@ fun SchemePage() {
                     .arg("str", "hehe")
                     .arg("int", 100)
                     .arg("xxx", "xx")
+                    .runQuietly()
+            }
+        }
+
+        item {
+            CommonItem("With Model Argument") {
+                schemeBuilder(SchemeConst.SCHEME_ACTION_SCHEME_MODEL)
+                    .model(DataArg(str = "haha"))
                     .runQuietly()
             }
         }
@@ -107,12 +115,36 @@ fun SchemePage() {
             CommonItem("Batch") {
                 val schemes = listOf(
                     schemeBuilder(SchemeConst.SCHEME_ACTION_PHOTO).toString(),
-                    schemeBuilder(SchemeConst.SCHEME_ACTION_JS_BRIDGE).toString(),
+                    webSchemeBuilder("file:///android_asset/demo.html", "JsBridge").toString(),
                     schemeBuilder(SchemeConst.SCHEME_ACTION_MODAL).toString(),
                     schemeBuilder(SchemeConst.SCHEME_ACTION_SCHEME_ACTIVITY).toString(),
                     schemeBuilder(SchemeConst.SCHEME_ACTION_PERMISSION).toString()
                 )
                 EmoScheme.batchHandleQuietly(schemes)
+            }
+        }
+    }
+}
+
+@Serializable
+data class DataArg(
+    val i: Int = 3,
+    val l: Long = 4,
+    val b: Boolean = true,
+    val str: String = "xixi"
+)
+
+@ComposeScheme(
+    action = SchemeConst.SCHEME_ACTION_SCHEME_MODEL,
+    alternativeHosts = [MainActivity::class]
+)
+@Composable
+fun SchemeModelPage(arg: DataArg){
+    OnlyBackListPage(
+        title = "SchemeArg"
+    ) {
+        item {
+            CommonItem(arg.toString()) {
             }
         }
     }
@@ -176,10 +208,7 @@ fun SchemeHostArgPage(navBackStackEntry: NavBackStackEntry) {
 @ComposeScheme(
     action = SchemeConst.SCHEME_ACTION_SCHEME_ALPHA,
     alternativeHosts = [MainActivity::class],
-    enterTransition = SchemeTransition.SCALE_IN,
-    exitTransition = SchemeTransition.STILL,
-    popEnterTransition = SchemeTransition.STILL,
-    popExitTransition = SchemeTransition.SCALE_OUT
+    transition = SchemeTransition.SCALE
 )
 @Composable
 fun SchemeAlphaTransitionPage() {
@@ -192,10 +221,7 @@ fun SchemeAlphaTransitionPage() {
 @ComposeScheme(
     action = SchemeConst.SCHEME_ACTION_SCHEME_SLIDE_BOTTOM,
     alternativeHosts = [MainActivity::class],
-    enterTransition = SchemeTransition.SLIDE_IN_BOTTOM,
-    exitTransition = SchemeTransition.STILL,
-    popEnterTransition = SchemeTransition.STILL,
-    popExitTransition = SchemeTransition.SLIDE_OUT_BOTTOM
+    transition = SchemeTransition.PRESENT
 )
 @Composable
 fun SchemeSlideFromBottomPage() {

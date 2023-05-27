@@ -33,12 +33,13 @@ import kotlin.reflect.KClass
 class SchemeExecSingle(
     private val activity: Activity,
     private val storage: SchemeDefStorage,
-    private val transitionConverter: SchemeTransitionConverter
+    private val transitionProvider: (Int) -> SchemeTransitionProvider
 ) : SchemeTransaction {
 
     override fun exec(schemeParts: SchemeParts): Boolean {
         val schemeDef = storage.find(schemeParts) ?: return false
         val scheme = schemeParts.parse(schemeDef)
+        val transition = transitionProvider(schemeDef.transition)
         if (schemeDef.targetId != SchemeDef.COMPOSE_CLASS_SUFFIX) {
             val cls = Class.forName(schemeDef.targetId)
             val intent = Intent(activity, cls)
@@ -49,8 +50,8 @@ class SchemeExecSingle(
             intent.handleSchemeFlags(scheme)
             activity.startActivity(intent)
             activity.overridePendingTransition(
-                transitionConverter.enterRes(schemeDef.enterTransition),
-                transitionConverter.exitRes(schemeDef.exitTransition)
+                transition.activityEnterRes(),
+                transition.activityExitRes()
             )
             return true
         } else {
@@ -58,14 +59,7 @@ class SchemeExecSingle(
             if (!scheme.forceNewHost() && activity is ComposeHostActivity && schemeDef.alternativeHosts.contains(activity::class)) {
                 val navController = activity.navController ?: throw RuntimeException("Not call SchemeNavHost in method Content.")
                 if (scheme.isMatchToCurrentHost(activity::class, activity.intent)) {
-                    navController.navigate(routeValue) {
-                        anim {
-                            enter = transitionConverter.enterRes(schemeDef.enterTransition)
-                            exit = transitionConverter.exitRes(schemeDef.exitTransition)
-                            popEnter = transitionConverter.exitRes(schemeDef.popEnterTransition)
-                            popExit = transitionConverter.exitRes(schemeDef.popExitTransition)
-                        }
-                    }
+                    navController.navigate(routeValue)
                     return true
                 }
             }
@@ -73,8 +67,8 @@ class SchemeExecSingle(
             if (intent != null) {
                 activity.startActivity(intent.first)
                 activity.overridePendingTransition(
-                    transitionConverter.enterRes(schemeDef.enterTransition),
-                    transitionConverter.exitRes(schemeDef.exitTransition)
+                    transition.activityEnterRes(),
+                    transition.activityExitRes()
                 )
                 return true
             }
@@ -90,7 +84,7 @@ class SchemeExecSingle(
 class SchemeExecBatch(
     private val activity: Activity,
     private val storage: SchemeDefStorage,
-    private val transitionConverter: SchemeTransitionConverter
+    private val transitionProvider: (Int) -> SchemeTransitionProvider
 ) : SchemeTransaction {
 
     private val intentList: MutableList<Intent> = ArrayList()
@@ -124,14 +118,7 @@ class SchemeExecBatch(
             ) {
                 val navController = activity.navController ?: throw RuntimeException("Not call SchemeNavHost in method Content.")
                 if (scheme.isMatchToCurrentHost(activity::class, activity.intent)) {
-                    navController.navigate(routeValue) {
-                        anim {
-                            enter = transitionConverter.enterRes(schemeDef.enterTransition)
-                            exit = transitionConverter.exitRes(schemeDef.exitTransition)
-                            popEnter = transitionConverter.exitRes(schemeDef.popEnterTransition)
-                            popExit = transitionConverter.exitRes(schemeDef.popExitTransition)
-                        }
-                    }
+                    navController.navigate(routeValue)
                     return true
                 }
             }
@@ -163,7 +150,8 @@ class SchemeExecBatch(
         if (intentList.isNotEmpty()) {
             activity.startActivities(intentList.toTypedArray())
             lastSchemeDef?.apply {
-                activity.overridePendingTransition(transitionConverter.enterRes(enterTransition), transitionConverter.exitRes(exitTransition))
+                val transition = transitionProvider(transition)
+                activity.overridePendingTransition(transition.activityEnterRes(), transition.activityExitRes())
             }
         }
         return true
@@ -258,7 +246,7 @@ private fun Scheme.isMatchToCurrentHost(host: KClass<*>, intent: Intent): Boolea
 
 class AndroidSchemeExecTransactionFactory(
     val application: Application,
-    val transitionConverter: SchemeTransitionConverter
+    val transitionProvider: (Int) -> SchemeTransitionProvider
 ) : SchemeTransactionFactory {
 
     private var currentActivity: Activity? = null
@@ -310,9 +298,9 @@ class AndroidSchemeExecTransactionFactory(
     override fun factory(storage: SchemeDefStorage, batch: Boolean): SchemeTransaction {
         val activity = currentActivity ?: throw RuntimeException("current activity is null")
         if (batch) {
-            return SchemeExecBatch(activity, storage, transitionConverter)
+            return SchemeExecBatch(activity, storage, transitionProvider)
         }
-        return SchemeExecSingle(activity, storage, transitionConverter)
+        return SchemeExecSingle(activity, storage, transitionProvider)
     }
 
     protected fun finalize() {

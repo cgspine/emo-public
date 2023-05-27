@@ -34,6 +34,7 @@ android {
 dependencies {
     implementation(libs.androidx.core.ktx)
     api(libs.accompanist.navigation)
+    api(libs.kotlinx.serialization.core)
     api(project(":ui-core"))
     api(project(":scheme-runtime"))
 }

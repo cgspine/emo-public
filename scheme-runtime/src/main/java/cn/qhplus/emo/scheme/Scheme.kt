@@ -18,6 +18,7 @@ package cn.qhplus.emo.scheme
 
 const val SCHEME_ARG_INTENT_FLAG = "__emo_intent_flag__"
 const val SCHEME_ARG_FORCE_NEW_HOST = "__emo_force_new_host__"
+const val SCHEME_ARG_BAD = "__emo_bad__"
 
 data class Scheme(
     val def: SchemeDef,
@@ -26,9 +27,6 @@ data class Scheme(
     val args: Map<String, Any>,
     val origin: String
 ) {
-    fun toBuilder(): SchemeBuilder {
-        return SchemeBuilder(protocol, action).arg(args)
-    }
 
     fun getIntentFlag(): Int {
         val v = args[SCHEME_ARG_INTENT_FLAG] ?: return 0
@@ -48,7 +46,15 @@ data class Scheme(
     }
 
     fun forceNewHost(): Boolean {
-        val v = args[SCHEME_ARG_FORCE_NEW_HOST] ?: return false
+        return checkBoolValue(SCHEME_ARG_FORCE_NEW_HOST)
+    }
+
+    fun isBad(): Boolean {
+        return checkBoolValue(SCHEME_ARG_BAD)
+    }
+
+    private fun checkBoolValue(name: String): Boolean {
+        val v = args[name] ?: return false
         return when (v) {
             is Boolean -> v
             is Int -> v > 0
@@ -109,73 +115,3 @@ fun String.parse(): SchemeParts {
     return SchemeParts(protocol, action, queries, this)
 }
 
-class SchemeBuilder(val protocol: String, val action: String) {
-    private val args = mutableMapOf<String, Any>()
-
-    fun arg(name: String, value: Boolean): SchemeBuilder {
-        args[name] = if (value) 1 else 0
-        return this
-    }
-
-    fun arg(name: String, value: Int): SchemeBuilder {
-        args[name] = value
-        return this
-    }
-
-    fun arg(name: String, value: Long): SchemeBuilder {
-        args[name] = value
-        return this
-    }
-
-    fun arg(name: String, value: Float): SchemeBuilder {
-        args[name] = value
-        return this
-    }
-
-    fun arg(name: String, value: Double): SchemeBuilder {
-        args[name] = value
-        return this
-    }
-
-    fun arg(name: String, value: String): SchemeBuilder {
-        args[name] = value
-        return this
-    }
-
-    fun forceNewHost(): SchemeBuilder {
-        args[SCHEME_ARG_FORCE_NEW_HOST] = 1
-        return this
-    }
-
-    fun flagsIfNewActivity(flags: Int): SchemeBuilder {
-        args[SCHEME_ARG_INTENT_FLAG] = flags
-        return this
-    }
-
-    internal fun arg(map: Map<String, Any>): SchemeBuilder {
-        args.putAll(map)
-        return this
-    }
-
-    override fun toString(): String {
-        return StringBuilder(protocol)
-            .append("://")
-            .append(action)
-            .run {
-                if (args.isNotEmpty()) {
-                    append("?")
-                    var first = true
-                    args.forEach { (name, value) ->
-                        if (!first) {
-                            append("&")
-                        }
-                        append(name)
-                        append("=")
-                        append(value)
-                        first = false
-                    }
-                }
-                toString()
-            }
-    }
-}

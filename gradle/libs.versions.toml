@@ -1,11 +1,11 @@
 [versions]
 androidDesugarJdkLibs = "2.0.0"
-androidGradlePlugin = "8.0.1"
+androidGradlePlugin = "8.0.2"
 kotlin = "1.8.21"
 ksp = "1.8.21-1.0.11"
 kotlinxCoroutines = "1.7.1"
 kotlinxDatetime = "0.4.0"
-kotlinxSerialization = "1.5.0"
+kotlinxSerialization = "1.5.1"
 ktlint = "0.46.0"
 kotlinxCollectionsImmutable = "0.3.5"
 accompanist = "0.30.1"
@@ -14,7 +14,7 @@ androidxComposeBom = "2023.05.00"
 androidxActivity = "1.7.1"
 androidxAppCompat = "1.6.1"
 androidxAnnotation = "1.6.0"
-androidxCore = "1.10.0"
+androidxCore = "1.10.1"
 androidxEspresso = "3.5.0"
 androidxLifecycle = "2.6.1"
 benchmark = "1.1.1"
@@ -28,11 +28,11 @@ androidxTestExt = "1.1.4"
 androidxUiAutomator = "2.2.0"
 androidxWork = "2.8.1"
 androidxConstraintLayoutCompose="1.1.0-alpha07"
-coil = "2.3.0"
+coil = "2.4.0"
 jacoco = "0.8.7"
 junit4 = "4.13.2"
 material3 = "1.0.1"
-okhttp = "4.10.0"
+okhttp = "4.11.0"
 retrofit = "2.9.0"
 retrofitKotlinxSerializationJson = "1.0.0"
 room = "2.5.1"
@@ -105,6 +105,7 @@ kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-cor
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
 kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinxDatetime" }
+kotlinx-serialization-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-core", version.ref = "kotlinxSerialization" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 kotlinx-serialization-protobuf = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-protobuf", version.ref = "kotlinxSerialization" }
 kotlinx-collections-immutable = { group = "org.jetbrains.kotlinx", name = "kotlinx-collections-immutable", version.ref = "kotlinxCollectionsImmutable"}

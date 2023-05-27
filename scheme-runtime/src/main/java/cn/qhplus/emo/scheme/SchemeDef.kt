@@ -31,10 +31,7 @@ data class SchemeDef(
     val alternativeHosts: List<KClass<*>>,
     val args: List<SchemeArgDefine<*>>,
     val targetId: String,
-    val enterTransition: Int,
-    val exitTransition: Int,
-    val popEnterTransition: Int,
-    val popExitTransition: Int
+    val transition: Int
 ) {
 
     companion object {

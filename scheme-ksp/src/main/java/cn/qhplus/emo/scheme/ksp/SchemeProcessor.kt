@@ -42,6 +42,7 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.Nullability
 import java.io.OutputStream
 
 class SchemeProcessor(
@@ -106,7 +107,7 @@ class SchemeProcessor(
                         writeLine(
                             "add(SchemeDef(${nextSchemeId++}, \"${it.action}\", " +
                                 "emptyList(), $args, \"${cls.qualifiedName!!.asString()}\"," +
-                                "${it.enterTransition}, ${it.exitTransition}, ${it.enterTransition}, ${it.exitTransition}))"
+                                "${it.transition}))"
                         )
                     }
                 }
@@ -121,10 +122,7 @@ class SchemeProcessor(
                     schemes.forEach {
                         val action = it.arguments.find { arg -> arg.name!!.asString() == "action" }!!.value as String
                         val host = it.arguments.find { arg -> arg.name!!.asString() == "alternativeHosts" }!!.value as List<*>
-                        val enterTransition = it.arguments.find { arg -> arg.name!!.asString() == "enterTransition" }!!.value as Int
-                        val exitTransition = it.arguments.find { arg -> arg.name!!.asString() == "exitTransition" }!!.value as Int
-                        val popEnterTransition = it.arguments.find { arg -> arg.name!!.asString() == "popEnterTransition" }!!.value as Int
-                        val popExitTransition = it.arguments.find { arg -> arg.name!!.asString() == "popExitTransition" }!!.value as Int
+                        val transition = it.arguments.find { arg -> arg.name!!.asString() == "transition" }!!.value as Int
                         if (host.isEmpty()) {
                             throw RuntimeException("ComposeScheme.alternativeHosts for ${fn.simpleName.getShortName()} can not be empty")
                         }
@@ -134,7 +132,7 @@ class SchemeProcessor(
                         writeLine(
                             "add(SchemeDef($nextSchemeId, \"${action}\", " +
                                 "listOf($alternativeHosts), $args, \"${SchemeDef.COMPOSE_CLASS_SUFFIX}\", " +
-                                "$enterTransition, $exitTransition, $popEnterTransition, $popExitTransition))"
+                                "$transition))"
                         )
                         host.forEach { h ->
                             composeGraph.add(ComposeGraphItem(fn, h as KSType, nextSchemeId))
@@ -204,7 +202,8 @@ class SchemeProcessor(
             os.writeLine("import cn.qhplus.emo.scheme.impl.toComposeRouteDefine")
             os.writeLine("import cn.qhplus.emo.scheme.impl.toComposeNavArg")
             os.writeLine("import cn.qhplus.emo.scheme.impl.ComposeSchemeNavGraphBuilder")
-            os.writeLine("import cn.qhplus.emo.scheme.impl.SchemeTransitionConverter")
+            os.writeLine("import cn.qhplus.emo.scheme.impl.SchemeTransitionProviders")
+            os.writeLine("import cn.qhplus.emo.scheme.parseModelData")
             os.writeLine("@Keep")
             os.write("class $clsName: ComposeSchemeNavGraphBuilder")
             os.writeBlock {
@@ -212,26 +211,47 @@ class SchemeProcessor(
                 os.write(
                     "override fun build(" +
                         "client: SchemeClient, " +
-                        "navGraphBuilder: NavGraphBuilder, " +
-                        "transitionConverter: SchemeTransitionConverter)"
+                        "navGraphBuilder: NavGraphBuilder)"
                 )
                 os.writeBlock {
                     items.forEach { item ->
                         os.write("client.storage.findById(${item.schemeId})!!.let")
                         os.writeBlock {
+                            os.writeLine("val transition = SchemeTransitionProviders.get(it.transition)")
                             os.write(
                                 "navGraphBuilder.composable(" +
                                     "it.toComposeRouteDefine()," +
                                     "it.toComposeNavArg()," +
-                                    "enterTransition = transitionConverter.enterTransition(it.enterTransition)," +
-                                    "exitTransition = transitionConverter.exitTransition(it.exitTransition)," +
-                                    "popEnterTransition = transitionConverter.enterTransition(it.popEnterTransition)," +
-                                    "popExitTransition = transitionConverter.exitTransition(it.popExitTransition)" +
+                                    "enterTransition = transition.enterTransition()," +
+                                    "exitTransition = transition.exitTransition()," +
+                                    "popEnterTransition = transition.popEnterTransition()," +
+                                    "popExitTransition = transition.popExitTransition()" +
                                     "){"
                             )
                             if (item.fn.parameters.size == 1) {
                                 os.writeLine(" entry ->")
-                                os.writeLine("${item.fn.qualifiedName!!.asString()}(entry)")
+                                val param = item.fn.parameters[0].type.resolve()
+                                val name = param.declaration.qualifiedName!!.asString()
+                                if(name == "androidx.navigation.NavBackStackEntry"){
+                                    os.writeLine("${item.fn.qualifiedName!!.asString()}(entry)")
+                                }else{
+                                    os.writeLine("val model = entry.parseModelData<${name}>()")
+                                    if(param.nullability == Nullability.NOT_NULL){
+                                        os.writeLine("${item.fn.qualifiedName!!.asString()}(model!!)")
+                                    }else{
+                                        os.writeLine("${item.fn.qualifiedName!!.asString()}(model)")
+                                    }
+                                }
+                            } else if(item.fn.parameters.size == 2){
+                                os.writeLine(" entry ->")
+                                val param = item.fn.parameters[1].type.resolve()
+                                val name = param.declaration.qualifiedName!!.asString()
+                                os.writeLine("val model = entry.parseModelData<${name}>()")
+                                if(param.nullability == Nullability.NOT_NULL){
+                                    os.writeLine("${item.fn.qualifiedName!!.asString()}(entry, model!!)")
+                                }else{
+                                    os.writeLine("${item.fn.qualifiedName!!.asString()}(entry, model)")
+                                }
                             } else if (item.fn.parameters.isEmpty()) {
                                 os.writeLine("${item.fn.qualifiedName!!.asString()}()")
                             } else {

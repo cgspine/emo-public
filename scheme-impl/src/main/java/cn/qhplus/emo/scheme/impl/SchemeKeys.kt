@@ -21,4 +21,5 @@ object SchemeKeys {
     const val KEY_START_ARGUMENTS = "__emo_start_arguments__"
     const val KEY_BATCH_SCHEME_LIST = "__emo_batch_scheme_list__"
     const val KEY_ORIGIN = "__emo_origin__"
+    const val KEY_TRANSITION = "__emo__transition__"
 }

@@ -22,8 +22,7 @@ import kotlin.reflect.KClass
 @Target(AnnotationTarget.CLASS)
 annotation class ActivityScheme(
     val action: String,
-    val enterTransition: Int = SchemeTransition.SLIDE_IN_RIGHT,
-    val exitTransition: Int = SchemeTransition.SLIDE_OUT_LEFT
+    val transition: Int = SchemeTransition.PUSH
 )
 
 @Retention(AnnotationRetention.SOURCE)
@@ -31,10 +30,7 @@ annotation class ActivityScheme(
 annotation class ComposeScheme(
     val action: String,
     val alternativeHosts: Array<KClass<*>>,
-    val enterTransition: Int = SchemeTransition.SLIDE_IN_RIGHT,
-    val exitTransition: Int = SchemeTransition.SLIDE_OUT_LEFT,
-    val popEnterTransition: Int = SchemeTransition.SLIDE_IN_LEFT,
-    val popExitTransition: Int = SchemeTransition.SLIDE_OUT_RIGHT
+    val transition: Int = SchemeTransition.PUSH
 )
 
 @Retention(AnnotationRetention.RUNTIME)

@@ -89,7 +89,7 @@ android {
 dependencies {
     implementation(project(":ui-core"))
     implementation(project(":photo-coil"))
-//    implementation(project(":photo-pdf"))
+    implementation(project(":photo-pdf"))
     implementation(project(":modal"))
     implementation(project(":network"))
     implementation(project(":permission"))

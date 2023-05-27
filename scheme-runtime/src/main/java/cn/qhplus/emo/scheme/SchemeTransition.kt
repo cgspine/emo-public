@@ -17,17 +17,8 @@
 package cn.qhplus.emo.scheme
 
 object SchemeTransition {
-    const val STILL = 0
-
-    const val SLIDE_IN_LEFT = 1
-    const val SLIDE_IN_RIGHT = 2
-    const val SLIDE_IN_BOTTOM = 3
-    const val SLIDE_IN_TOP = 4
-    const val SCALE_IN = 5
-
-    const val SLIDE_OUT_LEFT = 1
-    const val SLIDE_OUT_RIGHT = 2
-    const val SLIDE_OUT_BOTTOM = 3
-    const val SLIDE_OUT_TOP = 4
-    const val SCALE_OUT = 5
+    const val PUSH = -1000
+    const val PRESENT = -1001
+    const val SCALE = -1002
+    const val PUSH_THEN_STILL = -1003
 }
