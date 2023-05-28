@@ -123,3 +123,15 @@ inline fun <reified T> NavBackStackEntry.parseModelData(): T?{
         null
     }
 }
+
+fun NavBackStackEntry.readOriginScheme(): String? {
+    return arguments?.getString(SchemeKeys.KEY_ORIGIN)
+}
+
+fun NavBackStackEntry.readTransition(): Int {
+    return arguments?.getInt(SchemeKeys.KEY_TRANSITION, SchemeTransition.UNDEFINED) ?: SchemeTransition.UNDEFINED
+}
+
+fun NavBackStackEntry.readAction(): String? {
+    return arguments?.getString(SchemeKeys.KEY_ACTION)
+}

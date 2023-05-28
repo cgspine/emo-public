@@ -16,6 +16,7 @@
 
 package cn.qhplus.emo.ui.page
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavBackStackEntry
 import cn.qhplus.emo.EmoScheme
@@ -32,6 +33,8 @@ import cn.qhplus.emo.scheme.SchemeLongArg
 import cn.qhplus.emo.scheme.SchemeStringArg
 import cn.qhplus.emo.scheme.SchemeTransition
 import cn.qhplus.emo.scheme.model
+import cn.qhplus.emo.scheme.readAction
+import cn.qhplus.emo.scheme.readTransition
 import cn.qhplus.emo.ui.CommonItem
 import kotlinx.serialization.Serializable
 
@@ -41,7 +44,8 @@ import kotlinx.serialization.Serializable
     transition = SchemeTransition.PUSH_THEN_STILL
 )
 @Composable
-fun SchemePage() {
+fun SchemePage(navBackStackEntry: NavBackStackEntry) {
+    Log.i("SchemePage", "action = ${navBackStackEntry.readAction()}, transition = ${navBackStackEntry.readTransition()}")
     OnlyBackListPage(
         title = "Scheme"
     ) {

@@ -17,6 +17,7 @@
 package cn.qhplus.emo.scheme
 
 object SchemeTransition {
+    const val UNDEFINED = 0
     const val PUSH = -1000
     const val PRESENT = -1001
     const val SCALE = -1002

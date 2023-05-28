@@ -24,7 +24,7 @@ object SchemeTransitionProviders {
         put(SchemeTransition.PUSH_THEN_STILL, PushThenStillSchemeTransitionProvider())
     }
     fun put(type: Int, converter: SchemeTransitionProvider){
-        if(type < 0){
+        if(type <= 0){
             throw RuntimeException("type must be a positive number.")
         }
         map[type] = converter
