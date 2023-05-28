@@ -114,4 +114,3 @@ fun String.parse(): SchemeParts {
         .toMap()
     return SchemeParts(protocol, action, queries, this)
 }
-

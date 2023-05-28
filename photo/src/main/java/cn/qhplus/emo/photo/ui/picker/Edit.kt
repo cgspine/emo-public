@@ -28,14 +28,12 @@ import cn.qhplus.emo.photo.ui.saveEditBitmapToStore
 import cn.qhplus.emo.photo.vm.PhotoPickerViewModel
 import kotlinx.coroutines.launch
 
-
 @Composable
 fun PhotoPickerEditPage(
     navController: NavHostController,
     viewModel: PhotoPickerViewModel,
     id: Long
 ) {
-
     val item = remember(id) {
         viewModel.photoPickerDataFlow.value.data
             ?.find { it.id == MediaPhotoBucketAllId }
@@ -55,8 +53,8 @@ fun PhotoPickerEditPage(
             onBack = {
                 navController.popBackStack()
             }
-        ) { drawable, editLayers ->  
-            if(!editLayers.isEmpty()){
+        ) { drawable, editLayers ->
+            if (!editLayers.isEmpty()) {
                 navController.popBackStack()
                 return@EditBox
             }
@@ -65,7 +63,7 @@ fun PhotoPickerEditPage(
                     drawable,
                     editLayers,
                     "edit-${System.currentTimeMillis()}",
-                    view.width,
+                    view.width
                 )
                 viewModel.loadData()
                 navController.popBackStack()

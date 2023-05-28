@@ -232,24 +232,24 @@ class SchemeProcessor(
                                 os.writeLine(" entry ->")
                                 val param = item.fn.parameters[0].type.resolve()
                                 val name = param.declaration.qualifiedName!!.asString()
-                                if(name == "androidx.navigation.NavBackStackEntry"){
+                                if (name == "androidx.navigation.NavBackStackEntry") {
                                     os.writeLine("${item.fn.qualifiedName!!.asString()}(entry)")
-                                }else{
-                                    os.writeLine("val model = entry.parseModelData<${name}>()")
-                                    if(param.nullability == Nullability.NOT_NULL){
-                                        os.writeLine("${item.fn.qualifiedName!!.asString()}(model!!)")
-                                    }else{
+                                } else {
+                                    os.writeLine("val model = entry.parseModelData<$name>()")
+                                    if (param.nullability == Nullability.NOT_NULL) {
+                                        os.writeLine("if(model != null){${item.fn.qualifiedName!!.asString()}(model)}")
+                                    } else {
                                         os.writeLine("${item.fn.qualifiedName!!.asString()}(model)")
                                     }
                                 }
-                            } else if(item.fn.parameters.size == 2){
+                            } else if (item.fn.parameters.size == 2) {
                                 os.writeLine(" entry ->")
                                 val param = item.fn.parameters[1].type.resolve()
                                 val name = param.declaration.qualifiedName!!.asString()
-                                os.writeLine("val model = entry.parseModelData<${name}>()")
-                                if(param.nullability == Nullability.NOT_NULL){
-                                    os.writeLine("${item.fn.qualifiedName!!.asString()}(entry, model!!)")
-                                }else{
+                                os.writeLine("val model = entry.parseModelData<$name>()")
+                                if (param.nullability == Nullability.NOT_NULL) {
+                                    os.writeLine("if(model!=null){${item.fn.qualifiedName!!.asString()}(entry, model)}")
+                                } else {
                                     os.writeLine("${item.fn.qualifiedName!!.asString()}(entry, model)")
                                 }
                             } else if (item.fn.parameters.isEmpty()) {

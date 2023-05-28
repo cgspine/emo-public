@@ -23,7 +23,6 @@ import androidx.compose.animation.core.animateRect
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.PressGestureScope
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableDefaults
@@ -35,13 +34,10 @@ import androidx.compose.foundation.gestures.calculatePan
 import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -60,7 +56,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.input.pointer.util.VelocityTracker
@@ -71,7 +66,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFirstOrNull
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -405,9 +399,9 @@ fun GesturePhoto(
                                                         if (panChange.y < 0) {
                                                             val h = imageHeightPx * targetScale
                                                             val fixEgeBottom = (
-                                                                    panEdgeProtection.bottom +
-                                                                            imagePaddingFix.second * targetScale
-                                                                    )
+                                                                panEdgeProtection.bottom +
+                                                                    imagePaddingFix.second * targetScale
+                                                                )
                                                             if (targetTranslateY + h > fixEgeBottom) {
                                                                 targetTranslateY = (targetTranslateY + panChange.y).coerceAtLeast(
                                                                     fixEgeBottom - h

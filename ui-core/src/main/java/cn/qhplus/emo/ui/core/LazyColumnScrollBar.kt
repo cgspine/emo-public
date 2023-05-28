@@ -1,6 +1,21 @@
+/*
+ * Copyright 2022 emo Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package cn.qhplus.emo.ui.core
 
-import android.widget.Space
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
@@ -47,19 +62,22 @@ fun BoxWithConstraintsScope.LazyListScrollBar(
     thumbBgColor: Color,
     thumbLineColor: Color,
     thumbShape: Shape = CircleShape
-){
+) {
     val needShow by remember {
         derivedStateOf {
-            (listState.canScrollBackward ||
-                    listState.canScrollForward) &&
-                    listState.layoutInfo.totalItemsCount > 3
+            (
+                listState.canScrollBackward ||
+                    listState.canScrollForward
+                ) &&
+                listState.layoutInfo.totalItemsCount > 3
         }
     }
-    if(needShow){
+    if (needShow) {
         InternalLazyColumnScrollBar(
             listState,
             insetTop, insetBottom, insetRight,
-            thumbWidth, thumbHeight, thumbBgColor, thumbLineColor, thumbShape)
+            thumbWidth, thumbHeight, thumbBgColor, thumbLineColor, thumbShape
+        )
     }
 }
 
@@ -73,8 +91,8 @@ private fun BoxWithConstraintsScope.InternalLazyColumnScrollBar(
     thumbHeight: Dp,
     thumbBgColor: Color,
     thumbLineColor: Color,
-    thumbShape: Shape = CircleShape,
-){
+    thumbShape: Shape = CircleShape
+) {
     val coroutineScope = rememberCoroutineScope()
 
     val reverseLayout by remember { derivedStateOf { listState.layoutInfo.reverseLayout } }
@@ -93,8 +111,9 @@ private fun BoxWithConstraintsScope.InternalLazyColumnScrollBar(
     val normalOffset by remember {
         derivedStateOf {
             listState.layoutInfo.let {
-                if (it.totalItemsCount == 0 || it.visibleItemsInfo.isEmpty())
+                if (it.totalItemsCount == 0 || it.visibleItemsInfo.isEmpty()) {
                     return@let 0f
+                }
 
                 val firstItem = realFirstVisibleItem ?: return@let 0f
                 firstItem.run { index.toFloat() + fractionHiddenTop() } / it.totalItemsCount.toFloat()
@@ -108,11 +127,11 @@ private fun BoxWithConstraintsScope.InternalLazyColumnScrollBar(
         mutableStateOf(0f)
     }
 
-    val space = with(LocalDensity.current){
+    val space = with(LocalDensity.current) {
         (maxHeight - insetTop - insetBottom - thumbHeight).toPx()
     }
-    if(!isDragging){
-        offset = space * if(reverseLayout){
+    if (!isDragging) {
+        offset = space * if (reverseLayout) {
             (1 - normalOffset)
         } else {
             normalOffset
@@ -123,13 +142,11 @@ private fun BoxWithConstraintsScope.InternalLazyColumnScrollBar(
         derivedStateOf { offset }
     }
 
-
-
     val dragState = rememberDraggableState { delta ->
         val displace = if (reverseLayout) -delta else delta
         offset = (offset + displace).coerceIn(0f, space)
         var percent = offset / space
-        if(reverseLayout){
+        if (reverseLayout) {
             percent = 1 - percent
         }
         val totalItemsCount = listState.layoutInfo.totalItemsCount.toFloat()
@@ -147,27 +164,30 @@ private fun BoxWithConstraintsScope.InternalLazyColumnScrollBar(
         }
     }
 
-    Column(modifier = Modifier
-        .align(Alignment.TopEnd)
-        .graphicsLayer {
-            translationY = derivedOffset.value
-        }
-        .padding(top = insetTop, bottom = insetBottom)
-        .draggable(state = dragState,
-            orientation = Orientation.Vertical,
-            startDragImmediately = true,
-            onDragStarted = {
-                isDragging = true
-            },
-            onDragStopped = {
-                isDragging = false
-            })
-        .padding(start = insetRight, end = insetRight)
-        .width(thumbWidth)
-        .height(thumbHeight)
-        .background(thumbBgColor, thumbShape),
+    Column(
+        modifier = Modifier
+            .align(Alignment.TopEnd)
+            .graphicsLayer {
+                translationY = derivedOffset.value
+            }
+            .padding(top = insetTop, bottom = insetBottom)
+            .draggable(
+                state = dragState,
+                orientation = Orientation.Vertical,
+                startDragImmediately = true,
+                onDragStarted = {
+                    isDragging = true
+                },
+                onDragStopped = {
+                    isDragging = false
+                }
+            )
+            .padding(start = insetRight, end = insetRight)
+            .width(thumbWidth)
+            .height(thumbHeight)
+            .background(thumbBgColor, thumbShape),
         verticalArrangement = Arrangement.Center
-    ){
+    ) {
         ScrollBarLine(thumbLineColor)
         Spacer(modifier = Modifier.height(4.dp))
         ScrollBarLine(thumbLineColor)
@@ -177,6 +197,6 @@ private fun BoxWithConstraintsScope.InternalLazyColumnScrollBar(
 @Composable
 private fun ScrollBarLine(
     color: Color
-){
+) {
     Box(modifier = Modifier.padding(horizontal = 4.dp).fillMaxWidth().height(2.dp).background(color, CircleShape))
 }

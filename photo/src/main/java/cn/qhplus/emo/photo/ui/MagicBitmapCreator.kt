@@ -1,3 +1,19 @@
+/*
+ * Copyright 2022 emo Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package cn.qhplus.emo.photo.ui
 
 import android.graphics.Bitmap
@@ -34,25 +50,28 @@ suspend fun View.createMagicBitmap(
     height: Int,
     content: @Composable () -> Unit
 ): Bitmap? {
-    if(width <= 0 || height <= 0){
+    if (width <= 0 || height <= 0) {
         return null
     }
     val contentLayout = rootView.findViewById<FrameLayout>(Window.ID_ANDROID_CONTENT) ?: return null
     return suspendCancellableCoroutine { continuation ->
-        contentLayout.addView(ComposeView(context).apply {
-            setContent(content)
-            OneShotPreDrawListener.add(this){
-                post {
-                    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-                    val canvas = Canvas(bitmap)
-                    draw(canvas)
-                    contentLayout.removeView(this)
-                    continuation.resume(bitmap)
+        contentLayout.addView(
+            ComposeView(context).apply {
+                setContent(content)
+                OneShotPreDrawListener.add(this) {
+                    post {
+                        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+                        val canvas = Canvas(bitmap)
+                        draw(canvas)
+                        contentLayout.removeView(this)
+                        continuation.resume(bitmap)
+                    }
                 }
+            },
+            FrameLayout.LayoutParams(width, height).apply {
+                leftMargin = 100000
             }
-        }, FrameLayout.LayoutParams(width, height).apply {
-            leftMargin = 100000
-        })
+        )
     }
 }
 
@@ -65,23 +84,23 @@ suspend fun View.saveEditBitmapToStore(
     compressFormat: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG,
     compressQuality: Int = 100
 ): Uri? {
-    if(drawable.intrinsicWidth <= 0 || drawable.intrinsicHeight <= 0){
+    if (drawable.intrinsicWidth <= 0 || drawable.intrinsicHeight <= 0) {
         return null
     }
     val mini = drawable.intrinsicWidth.coerceAtLeast(drawable.intrinsicHeight)
     var w = drawable.intrinsicWidth
     var h = drawable.intrinsicHeight
-    if(mini < shortSideMin){
+    if (mini < shortSideMin) {
         val scale = shortSideMin * 1f / mini
         w = (w * scale).toInt()
         h = (h * scale).toInt()
     }
     val source = drawable.toBitmap().let {
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && it.config == Bitmap.Config.HARDWARE){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && it.config == Bitmap.Config.HARDWARE) {
             it.copy(Bitmap.Config.ARGB_8888, false)
         } else it
     }
-    val bitmap = createMagicBitmap(w, h){
+    val bitmap = createMagicBitmap(w, h) {
         BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
             Image(
                 modifier = Modifier.fillMaxSize(),

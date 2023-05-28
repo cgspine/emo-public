@@ -1,3 +1,19 @@
+/*
+ * Copyright 2022 emo Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package cn.qhplus.emo.photo.ui.edit
 
 import android.graphics.drawable.Drawable
@@ -79,15 +95,19 @@ import kotlinx.coroutines.coroutineScope
 
 @Stable
 sealed class EditScene
+
 @Stable
 object EditSceneNormal : EditScene()
+
 @Stable
 class EditScenePaint(val paint: PaintOption) : EditScene()
+
 @Stable
 class EditSceneText(val editLayer: TextEditLayer) : EditScene()
 
 fun EditScene.isPaintScene(): Boolean = this is EditScenePaint
 fun EditScene.isTextScene(): Boolean = this is EditSceneText
+
 @Stable
 class EditState(
     val config: PhotoEditConfig
@@ -107,14 +127,13 @@ class EditState(
     val textEditLayers = mutableStateListOf<TextEditLayer>()
 }
 
-
 @Composable
 fun EditBox(
     modifier: Modifier = Modifier,
     photoProvider: PhotoProvider,
     state: EditState,
     onBack: () -> Unit,
-    onEnsure:(Drawable, PersistentList<EditLayer>) -> Unit
+    onEnsure: (Drawable, PersistentList<EditLayer>) -> Unit
 ) {
     val systemUiController = rememberSystemUiController()
     SideEffect {
@@ -125,7 +144,7 @@ fun EditBox(
 
     val backHandler = remember(onBack) {
         {
-            if(state.scene.value.isTextScene()){
+            if (state.scene.value.isTextScene()) {
                 state.scene.value = EditSceneNormal
             } else {
                 onBack()
@@ -187,7 +206,7 @@ fun EditBox(
                         (state.paintEditLayers + state.textEditLayers).map { it.toImmutable() }.toPersistentList()
                     )
                 }
-            },
+            }
         )
     }
 }
@@ -203,22 +222,23 @@ private fun BoxWithConstraintsScope.EditArea(
         return
     }
     val viewportRatio = maxWidth / maxHeight
-    BoxWithConstraints(modifier = Modifier
-        .let {
-            if (ratio >= viewportRatio) {
-                it
-                    .width(maxWidth)
-                    .height(maxWidth / ratio)
-            }else {
-                it
-                    .width(maxHeight * ratio)
-                    .height(maxHeight)
+    BoxWithConstraints(
+        modifier = Modifier
+            .let {
+                if (ratio >= viewportRatio) {
+                    it
+                        .width(maxWidth)
+                        .height(maxWidth / ratio)
+                } else {
+                    it
+                        .width(maxHeight * ratio)
+                        .height(maxHeight)
+                }
             }
-        }
-        .align(Alignment.Center)
-        .graphicsLayer {
-            clip = true
-        }
+            .align(Alignment.Center)
+            .graphicsLayer {
+                clip = true
+            }
     ) {
         EditLayerList(state)
         EditGraffitiBoard(state, gestureContentState)
@@ -231,7 +251,7 @@ fun EditGraffitiBoard(
     gestureContentState: GestureContentState
 ) {
     val scene = state.scene.value
-    if(scene is EditScenePaint){
+    if (scene is EditScenePaint) {
         val size = gestureContentState.layoutInfo?.px?.let { Size(it.contentWidth, it.contentHeight) } ?: return
         GraffitiBoard(
             scene.paint,
@@ -243,7 +263,8 @@ fun EditGraffitiBoard(
             },
             onTouchEnd = {
                 state.toolBarVisibility.value = true
-            })
+            }
+        )
     }
 }
 
@@ -331,8 +352,6 @@ fun BoxWithConstraintsScope.EditCtrl(
         )
     }
 
-
-
     AnimatedVisibility(
         visible = isTextEditing,
         modifier = Modifier
@@ -386,11 +405,10 @@ fun BoxWithConstraintsScope.EditCtrl(
     }
 }
 
-
 @Composable
 private fun PaintSelector(
     state: EditState
-){
+) {
     val isPaintScene by remember {
         derivedStateOf {
             state.scene.value.isPaintScene()
@@ -403,7 +421,7 @@ private fun PaintSelector(
         config = state.config,
         checked = isPaintScene
     ) {
-        if(state.scene.value.isPaintScene()){
+        if (state.scene.value.isPaintScene()) {
             state.scene.value = EditSceneNormal
         } else {
             state.scene.value = EditScenePaint(state.selectedPaintOption.value)
@@ -418,8 +436,10 @@ private fun EditCtrlToolBar(
     gestureContentState: GestureContentState,
     onEnsureClick: () -> Unit
 ) {
-    Column(modifier = modifier
-        .fillMaxWidth()) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+    ) {
         EditPaintOptions(state, state.config.optionSelectorSize)
         Row(
             modifier = modifier
@@ -436,7 +456,8 @@ private fun EditCtrlToolBar(
                 res = R.drawable.ic_edit_text
             ) {
                 val layoutInfo = gestureContentState.layoutInfo ?: return@EditImageButton
-                val layer = state.selectedTextOption.value.newTextLayer(state.textConfigReversed.value,
+                val layer = state.selectedTextOption.value.newTextLayer(
+                    state.textConfigReversed.value,
                     gestureContentState.targetScale,
                     gestureContentState.targetTranslateX,
                     gestureContentState.targetTranslateY,
@@ -456,7 +477,7 @@ private fun EditCtrlToolBar(
                 enabled = true,
                 config = state.config,
                 text = "确定",
-                onClick = onEnsureClick,
+                onClick = onEnsureClick
             )
         }
     }
@@ -472,7 +493,7 @@ private fun ColumnScope.EditPaintOptions(
             state.scene.value.isPaintScene()
         }
     }
-    if(isPaintScene){
+    if (isPaintScene) {
         EditImageButton(
             modifier = Modifier
                 .padding(20.dp)
@@ -503,7 +524,7 @@ private fun ColumnScope.EditPaintOptions(
 
 @Composable
 private fun BoxWithConstraintsScope.EditLayerList(
-    state: EditState,
+    state: EditState
 ) {
     EditPaintLayerList(state = state)
     EditTextLayerList(state = state)
@@ -511,11 +532,11 @@ private fun BoxWithConstraintsScope.EditLayerList(
 
 @Composable
 private fun BoxWithConstraintsScope.EditPaintLayerList(
-    state: EditState,
+    state: EditState
 ) {
-    state.paintEditLayers.forEach {layer ->
+    state.paintEditLayers.forEach { layer ->
         key(layer) {
-            with(layer){
+            with(layer) {
                 Content()
             }
         }
@@ -524,11 +545,11 @@ private fun BoxWithConstraintsScope.EditPaintLayerList(
 
 @Composable
 private fun BoxWithConstraintsScope.EditTextLayerList(
-    state: EditState,
+    state: EditState
 ) {
-    state.textEditLayers.forEach {layer ->
+    state.textEditLayers.forEach { layer ->
         key(layer) {
-            with(layer){
+            with(layer) {
                 Content()
             }
         }
@@ -537,15 +558,14 @@ private fun BoxWithConstraintsScope.EditTextLayerList(
 
 @Composable
 fun BoxWithConstraintsScope.EditLayerList(list: PersistentList<EditLayer>) {
-    list.forEach {layer ->
+    list.forEach { layer ->
         key(layer) {
-            with(layer){
+            with(layer) {
                 Content()
             }
         }
     }
 }
-
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -554,22 +574,25 @@ fun EditTextCtrl(
     onBack: () -> Unit
 ) {
     val scene = state.scene.value
-    if(scene is EditSceneText){
-        Column(modifier = Modifier
-            .fillMaxSize()
-            .background(state.config.textEditMaskColor)
-            .throttleNoIndicationClick {
-                onBack()
-            }
-            .windowInsetsPadding(
-                WindowInsets.navigationBarsIgnoringVisibility
-                    .union(WindowInsets.ime)
-                    .union(WindowInsets.statusBarsIgnoringVisibility)
-                    .union(WindowInsets.displayCutout)
-            )) {
-            Box(modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
+    if (scene is EditSceneText) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(state.config.textEditMaskColor)
+                .throttleNoIndicationClick {
+                    onBack()
+                }
+                .windowInsetsPadding(
+                    WindowInsets.navigationBarsIgnoringVisibility
+                        .union(WindowInsets.ime)
+                        .union(WindowInsets.statusBarsIgnoringVisibility)
+                        .union(WindowInsets.displayCutout)
+                )
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
                 contentAlignment = Alignment.Center
             ) {
                 val focusRequester = remember { FocusRequester() }
@@ -595,8 +618,8 @@ fun EditTextCtrl(
                         .width(IntrinsicSize.Min)
                         .focusRequester(focusRequester),
                     textStyle = TextEditStyle.copy(
-                        color = if(scene.editLayer.reversed) {
-                            if(scene.editLayer.color == Color.White) Color.Black else Color.White
+                        color = if (scene.editLayer.reversed) {
+                            if (scene.editLayer.color == Color.White) Color.Black else Color.White
                         } else scene.editLayer.color
                     ),
                     cursorBrush = SolidColor(state.config.primaryColor),
@@ -610,14 +633,13 @@ fun EditTextCtrl(
                         KeyboardActions(onDone = {
                             onBack()
                         })
-                    },
+                    }
                 )
             }
             EditTextOptions(state, state.config.optionSelectorSize)
         }
     }
 }
-
 
 @Composable
 private fun EditTextOptions(
@@ -632,7 +654,7 @@ private fun EditTextOptions(
     ) {
         EditImageButton(
             config = state.config,
-            res = if(state.textConfigReversed.value) R.drawable.ic_edit_text_reversed else R.drawable.ic_edit_text,
+            res = if (state.textConfigReversed.value) R.drawable.ic_edit_text_reversed else R.drawable.ic_edit_text,
             modifier = Modifier.padding(16.dp)
         ) {
             val reversed = !state.textConfigReversed.value

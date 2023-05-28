@@ -1,6 +1,21 @@
+/*
+ * Copyright 2022 emo Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package cn.qhplus.emo.photo.ui
 
-import android.util.Log
 import androidx.compose.animation.core.animateRect
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
@@ -67,7 +82,6 @@ class GestureContentState(
 
     internal val nestedScrollConnection = GestureNestScrollConnection()
 
-
     fun reset() {
         targetScale = 1f
         targetTranslateX = 0f
@@ -94,9 +108,11 @@ class GestureContentState(
             return false
         }
         val fixed = fixTranslate(
-            layoutInfo.containerWidth, layoutInfo.contentWidth,
+            layoutInfo.containerWidth,
+            layoutInfo.contentWidth,
             x,
-            layoutInfo.panArea.left, layoutInfo.panArea.right
+            layoutInfo.panArea.left,
+            layoutInfo.panArea.right
         )
         if (fixed == targetTranslateX) {
             return false
@@ -110,9 +126,11 @@ class GestureContentState(
             return false
         }
         val fixed = fixTranslate(
-            layoutInfo.containerHeight, layoutInfo.contentHeight,
+            layoutInfo.containerHeight,
+            layoutInfo.contentHeight,
             y,
-            layoutInfo.panArea.top, layoutInfo.panArea.bottom
+            layoutInfo.panArea.top,
+            layoutInfo.panArea.bottom
         )
         if (fixed == targetTranslateY) {
             return false
@@ -179,7 +197,7 @@ data class LayoutInfo(
         val viewport = max - min
         val contentScale = contentSize * scale
         val containerScale = containerSize * scale
-        if(contentScale < viewport){
+        if (contentScale < viewport) {
             return (viewport - contentScale) / 2
         }
         val gap = (containerScale - contentScale) / 2
@@ -232,59 +250,60 @@ private fun BoxWithConstraintsScope.GestureContentInner(
         transitionSpec = { tween(durationMillis = state.transitionDurationMs) },
         label = "gestureContentTransition"
     ) {
-        if(it){
+        if (it) {
             Rect(
                 state.targetTranslateX,
                 state.targetTranslateY,
                 state.targetTranslateX + 100 * state.targetScale,
-                state.targetTranslateY + 100 * state.targetScale,
+                state.targetTranslateY + 100 * state.targetScale
             )
         } else {
-            Rect(0f, 0f, 100f, 100f,)
+            Rect(0f, 0f, 100f, 100f)
         }
     }
-    Box(modifier = Modifier
-        .width(layoutInfo.containerWidth)
-        .height(layoutInfo.containerHeight)
-        .nestedScroll(state.nestedScrollConnection)
-        .graphicsLayer {
-            transformOrigin = TransformOrigin(0f, 0f)
-            translationX = rect.value.left
-            translationY = rect.value.top
-            val scale = rect.value.width / 100
-            scaleX = scale
-            scaleY = scale
-        }
-        .pointerInput(state, scope, layoutInfo, onTap, onLongPress, canTransformStart) {
-            coroutineScope {
-                launch {
-                    detectTapGestures(
-                        onTap = {
-                            onTap?.invoke(it)
-                        },
-                        onLongPress = {
-                            onLongPress?.invoke(it)
-                        },
-                        onDoubleTap = {
-                            if (state.targetScale == 1f) {
-                                var scale = 2f
-                                val cropScale = layoutInfo.cropScale()
-                                if (cropScale > 1.25 && cropScale < scale) {
-                                    scale = cropScale
+    Box(
+        modifier = Modifier
+            .width(layoutInfo.containerWidth)
+            .height(layoutInfo.containerHeight)
+            .nestedScroll(state.nestedScrollConnection)
+            .graphicsLayer {
+                transformOrigin = TransformOrigin(0f, 0f)
+                translationX = rect.value.left
+                translationY = rect.value.top
+                val scale = rect.value.width / 100
+                scaleX = scale
+                scaleY = scale
+            }
+            .pointerInput(state, scope, layoutInfo, onTap, onLongPress, canTransformStart) {
+                coroutineScope {
+                    launch {
+                        detectTapGestures(
+                            onTap = {
+                                onTap?.invoke(it)
+                            },
+                            onLongPress = {
+                                onLongPress?.invoke(it)
+                            },
+                            onDoubleTap = {
+                                if (state.targetScale == 1f) {
+                                    var scale = 2f
+                                    val cropScale = layoutInfo.cropScale()
+                                    if (cropScale > 1.25 && cropScale < scale) {
+                                        scale = cropScale
+                                    }
+                                    state.setScale(layoutInfo.px, scale, it)
+                                } else {
+                                    state.reset()
                                 }
-                                state.setScale(layoutInfo.px, scale, it)
-                            } else {
-                                state.reset()
                             }
-                        }
-                    )
-                }
+                        )
+                    }
 
-                launch {
-                    transformTouch(state, scope, layoutInfo.px, canTransformStart, flingBehavior)
+                    launch {
+                        transformTouch(state, scope, layoutInfo.px, canTransformStart, flingBehavior)
+                    }
                 }
             }
-        }
     ) {
         content {
             state.contentRatio = it

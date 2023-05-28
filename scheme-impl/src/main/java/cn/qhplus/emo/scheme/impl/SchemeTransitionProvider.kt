@@ -1,3 +1,19 @@
+/*
+ * Copyright 2022 emo Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package cn.qhplus.emo.scheme.impl
 
 import androidx.compose.animation.AnimatedContentScope
@@ -23,11 +39,11 @@ object SchemeTransitionProviders {
         put(SchemeTransition.SCALE, ScaleSchemeTransitionProvider())
         put(SchemeTransition.PUSH_THEN_STILL, PushThenStillSchemeTransitionProvider())
     }
-    fun put(type: Int, converter: SchemeTransitionProvider){
-        if(type <= 0){
+    fun put(type: Int, provider: SchemeTransitionProvider) {
+        if (type <= 0) {
             throw RuntimeException("type must be a positive number.")
         }
-        map[type] = converter
+        map[type] = provider
     }
 
     fun get(type: Int): SchemeTransitionProvider {
@@ -51,6 +67,7 @@ val SlideInRight: AnimatedContentScope<NavBackStackEntry>.() -> EnterTransition 
         slideIn(tween(durationMillis = 300)) { IntOffset(it.width, 0) }
     }
 }
+
 @OptIn(ExperimentalAnimationApi::class)
 val SlideInLeft: AnimatedContentScope<NavBackStackEntry>.() -> EnterTransition by lazy {
     {
@@ -61,9 +78,12 @@ val SlideInLeft: AnimatedContentScope<NavBackStackEntry>.() -> EnterTransition b
 @OptIn(ExperimentalAnimationApi::class)
 val SlideInBottom: AnimatedContentScope<NavBackStackEntry>.() -> EnterTransition by lazy {
     {
+        targetState
+
         slideIn(tween(durationMillis = 300)) { IntOffset(0, it.height) }
     }
 }
+
 @OptIn(ExperimentalAnimationApi::class)
 val SlideInTop: AnimatedContentScope<NavBackStackEntry>.() -> EnterTransition by lazy {
     {
@@ -117,7 +137,8 @@ val SlideOutTop: AnimatedContentScope<NavBackStackEntry>.() -> ExitTransition by
 val ScaleOut: AnimatedContentScope<NavBackStackEntry>.() -> ExitTransition by lazy {
     {
         scaleOut(
-            tween(durationMillis = 300, delayMillis = 50), 0.8f
+            tween(durationMillis = 300, delayMillis = 50),
+            0.8f
         ) + fadeOut(tween(durationMillis = 300, delayMillis = 50), 0f)
     }
 }
@@ -210,7 +231,6 @@ open class PresentSchemeTransitionProvider : SchemeTransitionProvider {
         return R.anim.slide_still
     }
 
-
     override fun enterTransition(): (AnimatedContentScope<NavBackStackEntry>.() -> EnterTransition?)? {
         return SlideInBottom
     }
@@ -238,7 +258,6 @@ open class ScaleSchemeTransitionProvider : SchemeTransitionProvider {
     override fun activityExitRes(): Int {
         return R.anim.slide_still
     }
-
 
     override fun enterTransition(): (AnimatedContentScope<NavBackStackEntry>.() -> EnterTransition?)? {
         return ScaleIn

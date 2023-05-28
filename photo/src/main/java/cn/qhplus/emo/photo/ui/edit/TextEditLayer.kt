@@ -1,9 +1,23 @@
+/*
+ * Copyright 2022 emo Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package cn.qhplus.emo.photo.ui.edit
 
-import android.util.Base64
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
@@ -22,10 +36,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -42,7 +54,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import cn.qhplus.emo.photo.R
-import cn.qhplus.emo.ui.core.modifier.throttleClick
 import cn.qhplus.emo.ui.core.modifier.throttleNoIndicationClick
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -67,7 +78,7 @@ private fun TextLayout(
     bgColor: Color = Color.Transparent,
     focus: () -> Boolean,
     onDelete: () -> Unit
-){
+) {
     val focusPointSize = with(LocalDensity.current) {
         6.dp.toPx()
     }
@@ -91,7 +102,6 @@ private fun TextLayout(
                     }
                 }
                 .drawWithContent {
-
                     drawContent()
 
                     if (isFocused) {
@@ -124,7 +134,7 @@ private fun TextLayout(
                 }
                 .padding(horizontal = 16.dp, vertical = 8.dp)
         )
-        if(isFocused){
+        if (isFocused) {
             Image(
                 painter = painterResource(R.drawable.ic_edit_del),
                 contentDescription = "",
@@ -138,7 +148,6 @@ private fun TextLayout(
             )
         }
     }
-
 }
 
 @Stable
@@ -152,7 +161,7 @@ class TextEditLayer(
     val parentOffsetY: Float,
     val onEdit: ((TextEditLayer) -> Unit)? = null,
     val onDelete: ((TextEditLayer) -> Unit)? = null
-): EditLayer {
+) : EditLayer {
     internal var color by mutableStateOf(initColor)
     internal var text by mutableStateOf(TextFieldValue(initText, TextRange(initText.length)))
     internal var offset by mutableStateOf(Offset.Zero)
@@ -162,7 +171,7 @@ class TextEditLayer(
     internal var reversed by mutableStateOf(initReversed)
 
     override fun toImmutable(): EditLayer {
-        if(onEdit == null || onDelete == null){
+        if (onEdit == null || onDelete == null) {
             return this
         }
         return TextEditLayer(text.text, reversed, color, size, parentScale, parentOffsetX, parentOffsetY).also {
@@ -193,11 +202,12 @@ class TextEditLayer(
     @Composable
     override fun BoxWithConstraintsScope.Content() {
         val viewportScale = constraints.maxWidth / size.width
-        if(isFocus){
-            Box(modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.2f))
-                .throttleNoIndicationClick { isFocus = false }
+        if (isFocus) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.2f))
+                    .throttleNoIndicationClick { isFocus = false }
             )
         }
         TextLayout(
@@ -211,7 +221,7 @@ class TextEditLayer(
                     rotationZ = rotation
                 }
                 .let {
-                    if(onEdit == null || onDelete == null){
+                    if (onEdit == null || onDelete == null) {
                         it
                     } else {
                         it.pointerInput(this@TextEditLayer, isFocus) {
@@ -243,10 +253,10 @@ class TextEditLayer(
                 },
             text = text.text,
             style = TextEditStyle,
-            color = if(reversed) {
-                if(color == Color.White) Color.Black else Color.White
+            color = if (reversed) {
+                if (color == Color.White) Color.Black else Color.White
             } else color,
-            bgColor = if(reversed) color else Color.Transparent,
+            bgColor = if (reversed) color else Color.Transparent,
             focus = { isFocus },
             onDelete = {
                 onDelete?.invoke(this@TextEditLayer)
@@ -256,13 +266,13 @@ class TextEditLayer(
 
     override fun serialize(): ByteArray {
         val content = text.text.toByteArray()
-        val capacity = Byte.SIZE_BYTES +  // type
-                Short.SIZE_BYTES +        // version
-                Float.SIZE_BYTES * 5 +    // size, parentScale, parentOffsetX, parentOffsetY
-                Long.SIZE_BYTES +         // color
-                Float.SIZE_BYTES * 4 +    // scale, offset, rotation
-                Int.SIZE_BYTES +          // reversed
-                Int.SIZE_BYTES + content.size
+        val capacity = Byte.SIZE_BYTES + // type
+            Short.SIZE_BYTES + // version
+            Float.SIZE_BYTES * 5 + // size, parentScale, parentOffsetX, parentOffsetY
+            Long.SIZE_BYTES + // color
+            Float.SIZE_BYTES * 4 + // scale, offset, rotation
+            Int.SIZE_BYTES + // reversed
+            Int.SIZE_BYTES + content.size
         val byteArray = ByteArray(capacity)
         val byteBuffer = ByteBuffer.wrap(byteArray)
         byteBuffer.put(EditTypeText.toByte())
@@ -277,7 +287,7 @@ class TextEditLayer(
         byteBuffer.putFloat(offset.x)
         byteBuffer.putFloat(offset.y)
         byteBuffer.putFloat(rotation)
-        byteBuffer.putInt(if(reversed) 1 else 0)
+        byteBuffer.putInt(if (reversed) 1 else 0)
         byteBuffer.putInt(content.size)
         byteBuffer.put(content)
         return byteArray

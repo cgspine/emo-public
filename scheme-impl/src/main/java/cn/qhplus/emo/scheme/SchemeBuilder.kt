@@ -1,3 +1,19 @@
+/*
+ * Copyright 2022 emo Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package cn.qhplus.emo.scheme
 
 import androidx.navigation.NavBackStackEntry
@@ -50,8 +66,8 @@ class SchemeBuilder(val protocol: String, val action: String) {
     fun <T> model(serializer: SerializationStrategy<T>, data: T): SchemeBuilder {
         try {
             modelData = QueryFormat.encodeToString(serializer, data)
-        }catch (e: Throwable){
-            if(EmoConfig.debug){
+        } catch (e: Throwable) {
+            if (EmoConfig.debug) {
                 throw e
             }
             EmoLog.e("scheme", "serialize model data failed. data = $data", e)
@@ -82,16 +98,15 @@ class SchemeBuilder(val protocol: String, val action: String) {
                     }
                     var notFirst = false
                     args.forEach { (name, value) ->
-                        if(notFirst){
+                        if (notFirst) {
                             append("&")
-                        }else{
+                        } else {
                             notFirst = true
                         }
                         append(name)
                         append("=")
                         append(value)
                     }
-
                 }
                 toString()
             }
@@ -106,17 +121,17 @@ fun Scheme.toBuilder(): SchemeBuilder {
     return SchemeBuilder(protocol, action).arg(args)
 }
 
-inline fun <reified T> NavBackStackEntry.parseModelData(): T?{
+inline fun <reified T> NavBackStackEntry.parseModelData(): T? {
     val origin = arguments?.getString(SchemeKeys.KEY_ORIGIN) ?: return null
     val queryStart = origin.indexOf("?")
-    if(queryStart < 0 || queryStart == origin.length - 1){
+    if (queryStart < 0 || queryStart == origin.length - 1) {
         return null
     }
     val queries = origin.substring(queryStart + 1)
     return try {
         QueryFormat.decodeFromString<T>(queries)
-    }catch (e: Throwable){
-        if(EmoConfig.debug){
+    } catch (e: Throwable) {
+        if (EmoConfig.debug) {
             throw e
         }
         EmoLog.e("scheme", "parse model data failed. origin = $origin", e)

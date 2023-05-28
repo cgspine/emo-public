@@ -161,7 +161,7 @@ interface SchemeInterceptor {
 
 object CoreSchemeHandler : SchemeHandler {
     override suspend fun run(env: SchemeTransaction, schemeParts: SchemeParts): Boolean {
-        if(schemeParts.queries[SCHEME_ARG_BAD] == "1"){
+        if (schemeParts.queries[SCHEME_ARG_BAD] == "1") {
             return false
         }
         return env.exec(schemeParts)

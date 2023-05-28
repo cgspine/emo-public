@@ -29,18 +29,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.view.WindowCompat
-import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
-import cn.qhplus.emo.core.EmoConfig
-import cn.qhplus.emo.core.EmoLog
-import cn.qhplus.emo.scheme.QueryFormat
 import cn.qhplus.emo.scheme.SchemeClient
 import cn.qhplus.emo.scheme.SchemeDef
-import cn.qhplus.emo.scheme.parse
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
-import kotlinx.serialization.decodeFromString
 
 open class ComposeFixActivity : ComponentActivity() {
     override fun setContentView(view: View?) {

@@ -17,6 +17,7 @@
 package cn.qhplus.emo.scheme.impl
 
 import android.app.Application
+import cn.qhplus.emo.core.EmoConfig
 import cn.qhplus.emo.scheme.CoreSchemeHandler
 import cn.qhplus.emo.scheme.GeneratedSchemeDefStorageDelegate
 import cn.qhplus.emo.scheme.InterceptorSchemeHandler
@@ -25,14 +26,12 @@ import cn.qhplus.emo.scheme.SchemeDefStorage
 import cn.qhplus.emo.scheme.SchemeHandler
 import cn.qhplus.emo.scheme.SchemeInterceptor
 
-
 class SchemeClientBuilder(val application: Application) {
 
     private val interceptors = mutableListOf<SchemeInterceptor>()
     var storage: SchemeDefStorage = GeneratedSchemeDefStorageDelegate
     var blockSameSchemeTimeout = 500L
-    var debug: Boolean = false
-       fun addInterceptor(interceptor: SchemeInterceptor): SchemeClientBuilder {
+    fun addInterceptor(interceptor: SchemeInterceptor): SchemeClientBuilder {
         interceptors.add(interceptor)
         return this
     }
@@ -44,9 +43,9 @@ class SchemeClientBuilder(val application: Application) {
         return SchemeClient(
             blockSameSchemeTimeout,
             storage,
-            debug,
+            EmoConfig.debug,
             handler,
-            AndroidSchemeExecTransactionFactory(application){
+            AndroidSchemeExecTransactionFactory(application) {
                 SchemeTransitionProviders.get(it)
             }
         )

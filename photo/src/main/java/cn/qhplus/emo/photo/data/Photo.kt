@@ -28,7 +28,6 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
@@ -91,7 +90,7 @@ class PhotoShot(
     }
 }
 
-class BitmapPhoto(val bitmap: Bitmap): Photo {
+class BitmapPhoto(val bitmap: Bitmap) : Photo {
     @Composable
     override fun Compose(
         contentScale: ContentScale,
@@ -106,14 +105,13 @@ class BitmapPhoto(val bitmap: Bitmap): Photo {
             contentScale = contentScale
         )
         val resource = LocalView.current.resources
-        LaunchedEffect(this, resource){
+        LaunchedEffect(this, resource) {
             onSuccess?.invoke(PhotoResult(bitmap, BitmapDrawable(resource, bitmap)))
         }
     }
-
 }
 
-class BitmapPhotoProvider(val bitmap: Bitmap): PhotoProvider {
+class BitmapPhotoProvider(val bitmap: Bitmap) : PhotoProvider {
     override fun id(): Any {
         return UUID.randomUUID()
     }
@@ -134,7 +132,6 @@ class BitmapPhotoProvider(val bitmap: Bitmap): PhotoProvider {
     override fun recoverCls(): Class<out PhotoShotRecover>? {
         return null
     }
-
 }
 
 interface PhotoShotRecover {

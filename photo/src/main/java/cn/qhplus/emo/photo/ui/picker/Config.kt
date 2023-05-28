@@ -21,9 +21,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import cn.qhplus.emo.photo.ui.edit.PhotoEditConfig
 import cn.qhplus.emo.ui.core.TopBarItem
 import kotlinx.coroutines.flow.StateFlow

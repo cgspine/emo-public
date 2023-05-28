@@ -67,7 +67,6 @@ class EmoApp : Application(), ImageLoaderFactory {
         super.onCreate()
         EmoConfig.debug = BuildConfig.DEBUG
         EmoScheme = schemeClient(this) {
-            debug = BuildConfig.DEBUG
             addInterceptor(object : SchemeInterceptor {
                 override suspend fun intercept(env: SchemeTransaction, schemeParts: SchemeParts, next: SchemeHandler): Boolean {
                     Log.i("EmoDemo", "begin handle scheme: ${schemeParts.origin}")

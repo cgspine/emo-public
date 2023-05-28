@@ -125,7 +125,7 @@ fun SearchBar(
     shape: Shape = RoundedCornerShape(50),
     textStyle: TextStyle = LocalTextStyle.current,
     cursorColor: Color = MaterialTheme.colorScheme.primary,
-    textFieldColors: TextFieldColors = TextFieldDefaults.textFieldColors(
+    textFieldColors: TextFieldColors = TextFieldDefaults.colors(
         focusedIndicatorColor = Color.Transparent,
         unfocusedIndicatorColor = Color.Transparent,
         disabledIndicatorColor = Color.Transparent

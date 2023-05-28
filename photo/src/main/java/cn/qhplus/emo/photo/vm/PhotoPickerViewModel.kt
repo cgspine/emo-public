@@ -18,8 +18,6 @@ package cn.qhplus.emo.photo.vm
 
 import android.app.Application
 import android.net.Uri
-import androidx.annotation.Keep
-import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -85,8 +83,7 @@ class PhotoPickerViewModel constructor(
         photoProviderFactory = Class.forName(photoProviderFactoryClsName).newInstance() as MediaPhotoProviderFactory
     }
 
-
-    suspend fun loadData(){
+    suspend fun loadData() {
         try {
             val data = withContext(Dispatchers.IO) {
                 dataProvider.provide(application, supportedMimeTypes).map { bucket ->

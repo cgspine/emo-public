@@ -23,7 +23,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -31,12 +30,7 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -265,7 +259,7 @@ open class PhotoPickerActivity : ComponentActivity() {
                     enterTransition = { fadeIn(tween()) },
                     exitTransition = { fadeOut(tween()) },
                     popEnterTransition = { fadeIn(tween()) },
-                    popExitTransition = { fadeOut(tween()) + scaleOut(targetScale = 0.8f) },
+                    popExitTransition = { fadeOut(tween()) + scaleOut(targetScale = 0.8f) }
                 ) { backStack ->
                     val bucketId = backStack.arguments?.getString("bucketId") ?: MediaPhotoBucketAllId
                     val currentId = backStack.arguments?.getLong("currentId") ?: -1
@@ -276,7 +270,7 @@ open class PhotoPickerActivity : ComponentActivity() {
                     "${Route.EDIT}/{id}",
                     arguments = listOf(navArgument("id") { type = NavType.LongType }),
                     enterTransition = { fadeIn(tween()) },
-                    popExitTransition = { fadeOut(tween()) },
+                    popExitTransition = { fadeOut(tween()) }
                 ) { backStack ->
                     val id = backStack.arguments?.getLong("id") ?: -1
                     PickerEdit(navController, viewModel, id)

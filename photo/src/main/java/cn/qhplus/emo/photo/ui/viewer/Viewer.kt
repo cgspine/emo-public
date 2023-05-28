@@ -17,7 +17,6 @@
 package cn.qhplus.emo.photo.ui.viewer
 
 import android.graphics.drawable.Drawable
-import android.util.Log
 import androidx.compose.animation.core.Transition
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -49,7 +48,6 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import cn.qhplus.emo.photo.activity.MutableDrawableCache
 import cn.qhplus.emo.photo.data.PhotoLoadStatus
-import cn.qhplus.emo.photo.data.PhotoProvider
 import cn.qhplus.emo.photo.data.PhotoResult
 import cn.qhplus.emo.photo.data.PhotoShot
 import cn.qhplus.emo.photo.ui.GesturePhoto

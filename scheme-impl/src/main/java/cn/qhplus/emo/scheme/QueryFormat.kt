@@ -1,9 +1,26 @@
+/*
+ * Copyright 2022 emo Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package cn.qhplus.emo.scheme
 
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.StringFormat
+import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.AbstractDecoder
 import kotlinx.serialization.encoding.AbstractEncoder
@@ -17,26 +34,30 @@ class QueryEncoder(override val serializersModule: SerializersModule) : Abstract
     private val sb = StringBuilder()
 
     override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
+        val elementDescriptor = descriptor.getElementDescriptor(index)
+        if (elementDescriptor.kind !is PrimitiveKind) {
+            throw RuntimeException("The type(${elementDescriptor.kind}) of ${descriptor.getElementName(index)} is not supported.")
+        }
         sb.append(descriptor.getElementName(index))
         sb.append("=")
         return true
     }
 
     override fun encodeValue(value: Any) {
-        throw RuntimeException("The type is not supported.")
+        throw RuntimeException("The type(${value::class.java.simpleName}) is not supported.")
     }
 
     override fun encodeNull() {
         val index = sb.lastIndexOf("&")
-        if(index <= 0){
+        if (index <= 0) {
             sb.clear()
-        } else if(index < sb.length - 1){
+        } else if (index < sb.length - 1) {
             sb.delete(index + 1, sb.length)
         }
     }
 
     override fun encodeBoolean(value: Boolean) {
-        sb.append(if(value) 1 else 0)
+        sb.append(if (value) 1 else 0)
         sb.append("&")
     }
 
@@ -60,7 +81,7 @@ class QueryEncoder(override val serializersModule: SerializersModule) : Abstract
         sb.append("&")
     }
 
-    fun getResult(): String{
+    fun getResult(): String {
         return sb.toString().dropLast(1)
     }
 }
@@ -69,7 +90,7 @@ class QueryEncoder(override val serializersModule: SerializersModule) : Abstract
 class QueryDecoder(
     content: String,
     override val serializersModule: SerializersModule
-): AbstractDecoder() {
+) : AbstractDecoder() {
     val list = content.split("&")
         .asSequence()
         .map { it.split("=").let { pair -> pair[0] to pair[1] } }
@@ -114,7 +135,6 @@ class QueryDecoder(
 }
 
 object QueryFormat : StringFormat {
-
 
     override val serializersModule: SerializersModule = EmptySerializersModule()
     override fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T): String {
