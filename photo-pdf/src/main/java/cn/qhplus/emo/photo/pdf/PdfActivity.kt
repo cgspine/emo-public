@@ -1,8 +1,25 @@
+/*
+ * Copyright 2022 emo Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package cn.qhplus.emo.photo.pdf
 
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -65,10 +82,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 interface BundlePdfDataSourceFactory {
-    fun factory(bundle: Bundle): PdfDataSource
+    fun factory(context: Context, bundle: Bundle): PdfDataSource
 }
 
-open class PdfActivity: ComponentActivity() {
+open class PdfActivity : ComponentActivity() {
     companion object {
         private const val PDF_KEY_META = "pdf_key_meta"
         private const val PDF_KEY_FACTORY_CLS = "pdf_key_factory_cls"
@@ -88,7 +105,6 @@ open class PdfActivity: ComponentActivity() {
             return intent
         }
     }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -119,27 +135,33 @@ open class PdfActivity: ComponentActivity() {
         }
     }
 
+    protected open fun createDataSource(): PdfDataSource {
+        val bundle = intent.getBundleExtra(PDF_KEY_META) ?: throw RuntimeException("pdf meta is not provided.")
+        val factoryCls = intent.getStringExtra(PDF_KEY_FACTORY_CLS) ?: throw RuntimeException("factory class is not provided.")
+        val instance = Class.forName(factoryCls).newInstance() as BundlePdfDataSourceFactory
+        return instance.factory(this, bundle)
+    }
+
+    protected open fun onSaveEditLayerFailed(e: Throwable) {
+        Toast.makeText(this@PdfActivity, "保存失败，请重试", Toast.LENGTH_SHORT).show()
+    }
+
     @Composable
     protected open fun PageContent() {
         val editingPage = remember {
             mutableStateOf<PdfPage?>(null)
         }
 
-
         val isFullPageState = remember {
             mutableStateOf(false)
         }
-
 
         var loadStatus by remember {
             mutableStateOf(PhotoLoadStatus.Loading)
         }
 
         val dataSource = remember {
-            val bundle = intent.getBundleExtra(PDF_KEY_META) ?: throw RuntimeException("pdf meta is not provided.")
-            val factoryCls = intent.getStringExtra(PDF_KEY_FACTORY_CLS) ?: throw RuntimeException("factory class is not provided.")
-            val instance = Class.forName(factoryCls).newInstance() as BundlePdfDataSourceFactory
-            instance.factory(bundle)
+            createDataSource()
         }
 
         val context = LocalContext.current.applicationContext
@@ -158,7 +180,7 @@ open class PdfActivity: ComponentActivity() {
             listState = listState,
             isFullState = { isFullPageState.value },
             isEditing = { editingPage.value != null },
-            updateFullState = {isFullPageState.value = it}
+            updateFullState = { isFullPageState.value = it }
         )
 
         BackHandler(editingPage.value != null) {
@@ -178,7 +200,7 @@ open class PdfActivity: ComponentActivity() {
                     listState.layoutInfo.visibleItemsInfo.find {
                         it.offset < offset.y && it.offset + it.size > offset.y
                     }?.index?.let {
-                        if(dataSource.supportEdit(it)){
+                        if (dataSource.supportEdit(it)) {
                             pdfDrawable.value?.list?.getOrNull(it)?.let { page ->
                                 editingPage.value = page
                             }
@@ -200,14 +222,16 @@ open class PdfActivity: ComponentActivity() {
                     },
                     onError = {
                         loadStatus = PhotoLoadStatus.Failed
-                    })
+                    }
+                )
             }
 
-            if(loadStatus == PhotoLoadStatus.Loading){
+            if (loadStatus == PhotoLoadStatus.Loading) {
                 Loading(
                     modifier = Modifier.align(Alignment.Center),
-                    lineColor = LocalPdfConfig.current.tipColor)
-            } else if(loadStatus == PhotoLoadStatus.Failed){
+                    lineColor = LocalPdfConfig.current.tipColor
+                )
+            } else if (loadStatus == PhotoLoadStatus.Failed) {
                 Text(
                     text = "加载失败",
                     modifier = Modifier.align(Alignment.Center),
@@ -215,7 +239,7 @@ open class PdfActivity: ComponentActivity() {
                 )
             }
             PdfScrollBar(listState)
-            TopBarLayoutAnimate(dataSource, listState, {isFullPageState.value}){
+            TopBarLayoutAnimate(dataSource, listState, { isFullPageState.value }) {
                 finish()
             }
         }
@@ -224,26 +248,25 @@ open class PdfActivity: ComponentActivity() {
             pageGetter = { editingPage.value },
             onBack = { editingPage.value = null }
         )
-
     }
 
     @Composable
-    fun EditingPage(dataSource: PdfDataSource, pageGetter: () -> PdfPage?, onBack: () -> Unit){
+    fun EditingPage(dataSource: PdfDataSource, pageGetter: () -> PdfPage?, onBack: () -> Unit) {
         val page = pageGetter()
-        if(page != null){
+        if (page != null) {
             val provider = page.bitmap.value?.get()?.let {
-                BitmapPhotoProvider(it)
+                BitmapPhotoProvider(it, Color.White)
             }
-            if(provider != null) {
+            if (provider != null) {
                 val config = LocalPdfConfig.current.editConfig
                 val editState = remember(config) {
                     EditState(config).apply {
                         page.editLayers.value.asSequence().map {
                             it.toMutable(this)
                         }.forEach {
-                            if(it is PathEditLayer){
+                            if (it is PathEditLayer) {
                                 paintEditLayers.add(it)
-                            } else if(it is TextEditLayer){
+                            } else if (it is TextEditLayer) {
                                 textEditLayers.add(it)
                             }
                         }
@@ -258,16 +281,18 @@ open class PdfActivity: ComponentActivity() {
                     onEnsure = { _, editLayers ->
                         page.editLayers.value = editLayers
                         scope.launch {
-                            withContext(Dispatchers.IO){
-                                dataSource.saveEditLayers(page.page, editLayers)
+                            try {
+                                withContext(Dispatchers.IO) {
+                                    dataSource.saveEditLayers(page.page, editLayers)
+                                }
+                                onBack()
+                            } catch (e: Throwable) {
+                                onSaveEditLayerFailed(e)
                             }
-                            onBack()
                         }
-
                     }
                 )
             }
-
         }
     }
 
@@ -276,10 +301,11 @@ open class PdfActivity: ComponentActivity() {
         listState: LazyListState,
         isFullState: () -> Boolean,
         isEditing: () -> Boolean,
-        updateFullState: (Boolean) -> Unit){
+        updateFullState: (Boolean) -> Unit
+    ) {
         val systemUiController = rememberSystemUiController()
         val statusBarDarkContent = LocalPdfConfig.current.statusBarDarkContent
-        LaunchedEffect(statusBarDarkContent){
+        LaunchedEffect(statusBarDarkContent) {
             systemUiController.statusBarDarkContentEnabled = statusBarDarkContent
         }
         val isFullPage = isFullState()
@@ -291,23 +317,22 @@ open class PdfActivity: ComponentActivity() {
                 !isEditing() && listState.isScrollInProgress
             }
         }
-        if(isScrollInProgress.value){
-            if(listState.canScrollBackward != isFullPage){
+        if (isScrollInProgress.value) {
+            if (listState.canScrollBackward != isFullPage) {
                 updateFullState(listState.canScrollBackward)
             }
-
         }
     }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun BoxWithConstraintsScope.PdfScrollBar(listState: LazyListState){
+fun BoxWithConstraintsScope.PdfScrollBar(listState: LazyListState) {
     val systemBars = WindowInsets.systemBarsIgnoringVisibility
-    val topInset = with(LocalDensity.current){
+    val topInset = with(LocalDensity.current) {
         systemBars.getTop(LocalDensity.current).toDp()
     }
-    val bottomInset = with(LocalDensity.current){
+    val bottomInset = with(LocalDensity.current) {
         systemBars.getBottom(LocalDensity.current).toDp()
     }
     LazyListScrollBar(
@@ -328,7 +353,7 @@ fun TopBarLayoutAnimate(
     listState: LazyListState,
     isFullPage: () -> Boolean,
     onBack: () -> Unit
-){
+) {
     AnimatedVisibility(
         visible = !isFullPage(),
         enter = slideInVertically(initialOffsetY = { -it }),
@@ -343,7 +368,7 @@ fun TopBarLayout(
     dataSource: PdfDataSource,
     listState: LazyListState,
     onBack: () -> Unit
-){
+) {
     val context = LocalContext.current.applicationContext
     val contentColor = LocalPdfConfig.current.barContentColor
     val catalogText = remember {
@@ -351,13 +376,13 @@ fun TopBarLayout(
             val layoutInfo = listState.layoutInfo
             val totalCount = layoutInfo.totalItemsCount
             val visibleItemsInfo = layoutInfo.visibleItemsInfo
-            if(totalCount == 0 || visibleItemsInfo.isEmpty()){
+            if (totalCount == 0 || visibleItemsInfo.isEmpty()) {
                 ""
             } else {
                 val index = visibleItemsInfo.fastFirstOrNull {
                     it.offset >= layoutInfo.viewportStartOffset && it.offset + it.size <= layoutInfo.viewportEndOffset
                 }?.index ?: visibleItemsInfo.fastFirstOrNull {
-                    val visibleSize = if(it.offset >= layoutInfo.viewportStartOffset){
+                    val visibleSize = if (it.offset >= layoutInfo.viewportStartOffset) {
                         layoutInfo.viewportEndOffset - it.offset
                     } else {
                         it.offset + it.size - layoutInfo.viewportStartOffset
@@ -366,7 +391,6 @@ fun TopBarLayout(
                 }?.index ?: visibleItemsInfo.first().index
                 "${index + 1} / $totalCount"
             }
-
         }
     }
     val topBarLeftItems = remember(contentColor) {
@@ -379,13 +403,12 @@ fun TopBarLayout(
     val topBarRightItems = remember(contentColor) {
         persistentListOf(
             TopBarTextItem(text = { catalogText.value }, color = contentColor) {
-
             }
         )
     }
     val separatorColor = LocalPdfConfig.current.barDividerColor
     TopBar(
-        title = { dataSource.readTitle(context) },
+        title = { dataSource.title.value },
         separatorHeight = OnePx(),
         separatorColor = { separatorColor },
         paddingEnd = 16.dp,
@@ -393,7 +416,7 @@ fun TopBarLayout(
         leftItems = topBarLeftItems,
         rightItems = topBarRightItems,
         titleLayout = remember {
-            object: TopBarTitleLayout {
+            object : TopBarTitleLayout {
                 @Composable
                 override fun Compose(titleGetter: () -> CharSequence, subTitleGetter: () -> CharSequence, alignTitleCenter: Boolean) {
                     val title = titleGetter()
@@ -408,7 +431,6 @@ fun TopBarLayout(
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
-
             }
         }
     )

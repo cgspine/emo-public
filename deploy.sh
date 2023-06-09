@@ -36,6 +36,7 @@ buildFs="./gradlew.bat :fs:clean :fs:build :fs:$2"
 buildModal="./gradlew.bat :modal:clean :modal:build :modal:$2"
 buildPhoto="./gradlew.bat :photo:clean :photo:build :photo:$2"
 buildPhotoCoil="./gradlew.bat :photo-coil:clean :photo-coil:build :photo-coil:$2"
+buildPhotoPdf="./gradlew.bat :photo-pdf:clean :photo-pdf:build :photo-pdf:$2"
 buildNetwork="./gradlew.bat :network:clean :network:build :network:$2"
 buildPermission="./gradlew.bat :permission:clean :permission:build :permission:$2"
 buildJsBridge="./gradlew.bat :js-bridge:clean :js-bridge:build :js-bridge:$2"
@@ -75,6 +76,7 @@ elif [[ "photo" == "$1" ]]
 then
     $buildPhoto
     $buildPhotoCoil
+    $buildPhotoPdf
 elif [[ "report" == "$1" ]]
 then
     $buildReport
@@ -105,6 +107,7 @@ then
     $buildModal
     $buildPhoto
     $buildPhotoCoil
+    $buildPhotoPdf
     $buildJsBridge
     $buildReport
     $buildConfigRuntime

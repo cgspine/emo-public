@@ -24,13 +24,13 @@ import cn.qhplus.emo.photo.ui.edit.PhotoEditConfig
 
 data class PdfConfig(
     val statusBarDarkContent: Boolean = true,
-    val scrollBarBgColor: Color = Color.Black.copy(alpha=0.2f),
-    val scrollBarLineColor: Color = Color.White.copy(alpha=0.4f),
+    val scrollBarBgColor: Color = Color.Black.copy(alpha = 0.2f),
+    val scrollBarLineColor: Color = Color.White.copy(alpha = 0.4f),
     val bgColor: Color = Color.LightGray,
     val tipColor: Color = Color.DarkGray,
     val barBgColor: Color = Color.White,
     val barContentColor: Color = Color.Black,
-    val barDividerColor: Color = Color.Black.copy(alpha=0.05f),
+    val barDividerColor: Color = Color.Black.copy(alpha = 0.05f),
     val editConfig: PhotoEditConfig = PhotoEditConfig()
 )
 

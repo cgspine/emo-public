@@ -1,3 +1,19 @@
+/*
+ * Copyright 2022 emo Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package cn.qhplus.emo.photo.pdf
 
 import android.content.Context
@@ -10,7 +26,6 @@ import android.graphics.pdf.PdfRenderer
 import android.net.Uri
 import android.os.Bundle
 import android.os.ParcelFileDescriptor
-import android.util.Log
 import android.util.LruCache
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -29,6 +44,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,6 +61,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.graphics.drawable.toDrawable
 import cn.qhplus.emo.core.LogTag
 import cn.qhplus.emo.core.closeQuietly
 import cn.qhplus.emo.photo.data.Photo
@@ -67,7 +84,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.lang.ref.WeakReference
-
 
 @Stable
 class PdfPage(
@@ -96,17 +112,14 @@ class PdfPage(
 
 class PdfBitmapMsg(val width: Int, val page: PdfPage)
 
-class PdfDrawable(val source: PdfDataSource, val list: PersistentList<PdfPage>): Drawable() {
+class PdfDrawable(val source: PdfDataSource, val list: PersistentList<PdfPage>) : Drawable() {
     override fun draw(canvas: Canvas) {
-
     }
 
     override fun setAlpha(alpha: Int) {
-
     }
 
     override fun setColorFilter(colorFilter: ColorFilter?) {
-
     }
 
     override fun getOpacity(): Int {
@@ -116,9 +129,10 @@ class PdfDrawable(val source: PdfDataSource, val list: PersistentList<PdfPage>):
 
 @Stable
 interface PdfDataSource {
+
+    val title: State<String>
     fun readInitIndex(context: Context): Int
     fun readInitOffset(context: Context): Int
-    fun readTitle(context: Context): String
     suspend fun getFileDescriptor(context: Context): ParcelFileDescriptor?
     suspend fun saveIndexAndOffset(index: Int, offset: Int)
 
@@ -129,16 +143,15 @@ interface PdfDataSource {
 
 data class DefaultUriPdfDataSource(private val uri: Uri) : PdfDataSource {
 
+    override val title: State<String>
+        get() = mutableStateOf("")
+
     override fun readInitIndex(context: Context): Int {
         return 0
     }
 
     override fun readInitOffset(context: Context): Int {
         return 0
-    }
-
-    override fun readTitle(context: Context): String {
-        return ""
     }
 
     override suspend fun getFileDescriptor(context: Context): ParcelFileDescriptor? {
@@ -149,10 +162,9 @@ data class DefaultUriPdfDataSource(private val uri: Uri) : PdfDataSource {
         // default do nothing.
     }
 
-    override fun supportEdit(page: Int): Boolean  = false
+    override fun supportEdit(page: Int): Boolean = false
 
     override suspend fun saveEditLayers(page: Int, layers: PersistentList<EditLayer>) {
-
     }
 
     override suspend fun loadEditLayers(page: Int): PersistentList<EditLayer> {
@@ -165,7 +177,7 @@ fun PdfContent(
     listState: LazyListState,
     pages: PersistentList<PdfPage>,
     firstPagePaddingForTopBar: Boolean = false
-){
+) {
     BoxWithConstraints(Modifier.fillMaxSize()) {
         LazyColumn(
             state = listState,
@@ -174,8 +186,8 @@ fun PdfContent(
                 .background(Color.LightGray),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            itemsIndexed(pages, key = { _, page -> page.page }) {index, page ->
-                PdfPage(width = maxWidth, page, if(index == 0) firstPagePaddingForTopBar else false)
+            itemsIndexed(pages, key = { _, page -> page.page }) { index, page ->
+                PdfPage(width = maxWidth, page, if (index == 0) firstPagePaddingForTopBar else false)
             }
         }
     }
@@ -188,7 +200,7 @@ fun PdfBox(
     firstPagePaddingForTopBar: Boolean = false,
     onSuccess: ((PdfDrawable) -> Unit)?,
     onError: ((Throwable) -> Unit)?
-){
+) {
     val scope = rememberCoroutineScope()
     val pdfPages = remember {
         mutableStateOf(persistentListOf<PdfPage>())
@@ -205,7 +217,7 @@ fun PdfBox(
                     PdfRenderer(fd).use { pdfRender ->
                         val caches = LruCache<Int, Bitmap>(5)
                         val channel = Channel<PdfBitmapMsg>()
-                        val list = if(pdfRender.pageCount == 0) {
+                        val list = if (pdfRender.pageCount == 0) {
                             persistentListOf()
                         } else {
                             val checkIndex = listState.firstVisibleItemIndex.coerceAtMost(pdfRender.pageCount - 1)
@@ -221,9 +233,9 @@ fun PdfBox(
                         for (msg in channel) {
                             try {
                                 val cache = caches.get(msg.page.page)
-                                if(cache != null){
+                                if (cache != null) {
                                     msg.page.bitmap.value = WeakReference(cache)
-                                }else{
+                                } else {
                                     val page = pdfRender.openPage(msg.page.page)
                                     msg.page.ratio.value = page.width * 1f / page.height
                                     val ratio = msg.width * 1f / page.width
@@ -258,11 +270,11 @@ fun PdfBox(
 }
 
 @Composable
-fun PdfRecordIndex(dataSource: PdfDataSource, listState: LazyListState){
+fun PdfRecordIndex(dataSource: PdfDataSource, listState: LazyListState) {
     val recordInfo = remember {
         derivedStateOf { listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset }
     }
-    LaunchedEffect(recordInfo.value){
+    LaunchedEffect(recordInfo.value) {
         dataSource.saveIndexAndOffset(recordInfo.value.first, recordInfo.value.second)
     }
 }
@@ -281,7 +293,6 @@ fun PdfPage(
     if (bitmap == null) {
         LaunchedEffect(page.page, widthPx) {
             page.load(widthPx)
-
         }
     }
     BoxWithConstraints(
@@ -298,7 +309,7 @@ fun PdfPage(
                 }
             }
             .height(width / page.ratio.value)
-    ){
+    ) {
         if (bitmap != null) {
             Image(
                 painter = BitmapPainter(bitmap.asImageBitmap()),
@@ -321,7 +332,6 @@ fun PdfPage(
                         fontSize = 15.sp
                     )
                 }
-
             } else {
                 Loading(modifier = Modifier.align(Alignment.Center))
             }
@@ -330,10 +340,76 @@ fun PdfPage(
 }
 
 @Composable
-private fun BoxWithConstraintsScope.PdfLayerList(pdfPage: PdfPage){
+private fun BoxWithConstraintsScope.PdfLayerList(pdfPage: PdfPage) {
     val list = pdfPage.editLayers.value
-    if(list.isNotEmpty()){
+    if (list.isNotEmpty()) {
         EditLayerList(list = list)
+    }
+}
+
+open class PdfThumbPhoto(
+    val dataSource: PdfDataSource
+) : Photo {
+    @Composable
+    override fun Compose(
+        contentScale: ContentScale,
+        isContainerDimenExactly: Boolean,
+        onSuccess: ((PhotoResult) -> Unit)?,
+        onError: ((Throwable) -> Unit)?
+    ) {
+        val context = LocalContext.current.applicationContext
+        val scope = rememberCoroutineScope()
+        val bm = remember {
+            mutableStateOf<Bitmap?>(null)
+        }
+        BoxWithConstraints(
+            Modifier
+                .fillMaxSize()
+                .background(Color.White)
+        ) {
+            DisposableEffect(dataSource, constraints.maxWidth) {
+                val job = scope.launch {
+                    withContext(Dispatchers.IO) {
+                        var fd: ParcelFileDescriptor? = null
+                        try {
+                            fd = dataSource.getFileDescriptor(context) ?: throw RuntimeException(
+                                "openFileDescriptor failed for dataSource: $dataSource"
+                            )
+                            PdfRenderer(fd).use { pdfRender ->
+                                if (pdfRender.pageCount > 0) {
+                                    val firstPage = pdfRender.openPage(0)
+                                    val ratio = firstPage.width * 1f / firstPage.height
+                                    val height = constraints.maxWidth / ratio
+                                    val bitmap = Bitmap.createBitmap(constraints.maxWidth, height.toInt(), Bitmap.Config.ARGB_8888)
+                                    firstPage.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+                                    firstPage.close()
+                                    bm.value = bitmap
+                                    onSuccess?.invoke(PhotoResult(dataSource, bitmap.toDrawable(context.resources)))
+                                }
+                            }
+                        } catch (e: Throwable) {
+                            fd?.closeQuietly()
+                            if (e !is CancellationException) {
+                                onError?.invoke(e)
+                            }
+                        }
+                    }
+                }
+                onDispose {
+                    job.cancel()
+                }
+            }
+
+            val bitmap = bm.value
+            if (bitmap != null) {
+                Image(
+                    painter = BitmapPainter(bitmap.asImageBitmap()),
+                    contentDescription = "",
+                    contentScale = contentScale,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+        }
     }
 }
 
@@ -402,7 +478,6 @@ open class PdfPhotoProvider(
         return PdfPhotoShotRecover::class.java
     }
 }
-
 
 class PdfPhotoShotRecover : PhotoShotRecover {
 
