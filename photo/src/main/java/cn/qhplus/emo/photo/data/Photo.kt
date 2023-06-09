@@ -17,7 +17,6 @@
 package cn.qhplus.emo.photo.data
 
 import android.graphics.Bitmap
-import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import androidx.compose.foundation.Image
@@ -28,13 +27,17 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toSize
-import java.util.UUID
+import androidx.core.graphics.drawable.toDrawable
+import java.util.*
 
 interface Photo {
     @Composable
@@ -90,7 +93,7 @@ class PhotoShot(
     }
 }
 
-class BitmapPhoto(val bitmap: Bitmap) : Photo {
+class BitmapPhoto(val bitmap: Bitmap, val background: Color) : Photo {
     @Composable
     override fun Compose(
         contentScale: ContentScale,
@@ -102,16 +105,17 @@ class BitmapPhoto(val bitmap: Bitmap) : Photo {
             modifier = Modifier.fillMaxSize(),
             painter = BitmapPainter(bitmap.asImageBitmap()),
             contentDescription = "",
-            contentScale = contentScale
+            contentScale = contentScale,
+            colorFilter = if (background == Color.Transparent) null else ColorFilter.tint(background, BlendMode.DstOver)
         )
         val resource = LocalView.current.resources
         LaunchedEffect(this, resource) {
-            onSuccess?.invoke(PhotoResult(bitmap, BitmapDrawable(resource, bitmap)))
+            onSuccess?.invoke(PhotoResult(bitmap, bitmap.toDrawable(resource)))
         }
     }
 }
 
-class BitmapPhotoProvider(val bitmap: Bitmap) : PhotoProvider {
+class BitmapPhotoProvider(val bitmap: Bitmap, val background: Color = Color.Transparent) : PhotoProvider {
     override fun id(): Any {
         return UUID.randomUUID()
     }
@@ -122,7 +126,7 @@ class BitmapPhotoProvider(val bitmap: Bitmap) : PhotoProvider {
     }
 
     override fun photo(): Photo? {
-        return BitmapPhoto(bitmap)
+        return BitmapPhoto(bitmap, background)
     }
 
     override fun meta(): Bundle? {
