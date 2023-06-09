@@ -32,7 +32,9 @@ fun File.sha256(): ByteArray {
 }
 
 fun ByteArray.toHexString(): String {
-    return joinToString("") { it.toString(radix = 16).padStart(2, '0') }
+    return joinToString("") {
+        it.toUByte().toString(radix = 16).padStart(2, '0')
+    }
 }
 
 fun InputStream.digest(algorithm: String): ByteArray {
