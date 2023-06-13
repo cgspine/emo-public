@@ -16,6 +16,8 @@
 
 package cn.qhplus.emo.photo.ui
 
+import android.annotation.SuppressLint
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
@@ -29,6 +31,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
@@ -48,28 +51,70 @@ import kotlin.coroutines.resume
 suspend fun View.createMagicBitmap(
     width: Int,
     height: Int,
-    content: @Composable () -> Unit
+    content: @Composable (fullDrawnReporter: () -> Unit) -> Unit
 ): Bitmap? {
-    if (width <= 0 || height <= 0) {
+    if (width <= 0) {
         return null
     }
     val contentLayout = rootView.findViewById<FrameLayout>(Window.ID_ANDROID_CONTENT) ?: return null
     return suspendCancellableCoroutine { continuation ->
         contentLayout.addView(
-            ComposeView(context).apply {
-                setContent(content)
-                OneShotPreDrawListener.add(this) {
-                    post {
-                        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-                        val canvas = Canvas(bitmap)
-                        draw(canvas)
-                        contentLayout.removeView(this)
-                        continuation.resume(bitmap)
+            MagicBitmapContainer(context, width, height).apply {
+                composeView.setContent {
+                    content {
+                        OneShotPreDrawListener.add(this) {
+                            post {
+                                val bitmap = Bitmap.createBitmap(composeView.width, composeView.height, Bitmap.Config.ARGB_8888)
+                                val canvas = Canvas(bitmap)
+                                draw(canvas)
+                                contentLayout.removeView(this)
+                                continuation.resume(bitmap)
+                            }
+                        }
+                        invalidate()
                     }
                 }
             },
-            FrameLayout.LayoutParams(width, height).apply {
+            FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
+            ).apply {
                 leftMargin = 100000
+            }
+        )
+    }
+}
+
+@SuppressLint("ViewConstructor")
+private class MagicBitmapContainer(
+    context: Context,
+    val w: Int,
+    val h: Int
+) : FrameLayout(context) {
+
+    val composeView = ComposeView(context)
+
+    init {
+        addView(
+            composeView,
+            LayoutParams(
+                LayoutParams.MATCH_PARENT,
+                if (h > 0) LayoutParams.MATCH_PARENT else LayoutParams.WRAP_CONTENT
+            )
+        )
+    }
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        super.onMeasure(
+            if (w > 0) {
+                MeasureSpec.makeMeasureSpec(w, MeasureSpec.EXACTLY)
+            } else {
+                widthMeasureSpec
+            },
+            if (h > 0) {
+                MeasureSpec.makeMeasureSpec(h, MeasureSpec.EXACTLY)
+            } else {
+                MeasureSpec.makeMeasureSpec(6000, MeasureSpec.AT_MOST)
             }
         )
     }
@@ -100,7 +145,7 @@ suspend fun View.saveEditBitmapToStore(
             it.copy(Bitmap.Config.ARGB_8888, false)
         } else it
     }
-    val bitmap = createMagicBitmap(w, h) {
+    val bitmap = createMagicBitmap(w, h) { fullDrawnReporter ->
         BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
             Image(
                 modifier = Modifier.fillMaxSize(),
@@ -109,6 +154,9 @@ suspend fun View.saveEditBitmapToStore(
                 contentScale = ContentScale.Fit
             )
             EditLayerList(editLayers)
+        }
+        LaunchedEffect(Unit) {
+            fullDrawnReporter()
         }
     } ?: return null
     return withContext(Dispatchers.IO) {
