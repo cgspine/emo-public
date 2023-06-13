@@ -39,6 +39,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -73,11 +74,13 @@ import cn.qhplus.emo.ui.core.modifier.windowInsetsCommonTopPadding
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 
+@Stable
 fun interface TopBarItem {
     @Composable
     fun Compose(topBarHeight: Dp)
 }
 
+@Stable
 interface TopBarTitleLayout {
     @Composable
     fun Compose(titleGetter: () -> CharSequence, subTitleGetter: () -> CharSequence, alignTitleCenter: Boolean)
@@ -270,28 +273,30 @@ fun TopBarWithLazyListScrollState(
     rightItems: PersistentList<TopBarItem> = persistentListOf(),
     titleLayout: TopBarTitleLayout = remember { DefaultTopBarTitleLayout() }
 ) {
-    val percentGetter: Density.() -> Float = {
-        if (scrollState.layoutInfo.reverseLayout) {
-            val last = scrollState.layoutInfo.visibleItemsInfo.maxByOrNull { it.index }
-            if (last == null) {
-                0f
-            } else if (last.index < scrollState.layoutInfo.totalItemsCount - 1) {
-                1f
-            } else {
-                val bottomOffset = last.offset + last.size
-                val changeOffset = scrollAlphaChangeMaxOffset.toPx()
-                if (bottomOffset > scrollState.layoutInfo.viewportSize.height + changeOffset) {
+    val percentGetter: Density.() -> Float = remember(scrollState, scrollAlphaChangeMaxOffset) {
+        {
+            if (scrollState.layoutInfo.reverseLayout) {
+                val last = scrollState.layoutInfo.visibleItemsInfo.maxByOrNull { it.index }
+                if (last == null) {
+                    0f
+                } else if (last.index < scrollState.layoutInfo.totalItemsCount - 1) {
                     1f
                 } else {
-                    ((bottomOffset - scrollState.layoutInfo.viewportSize.height) / changeOffset).coerceAtLeast(0f)
+                    val bottomOffset = last.offset + last.size
+                    val changeOffset = scrollAlphaChangeMaxOffset.toPx()
+                    if (bottomOffset > scrollState.layoutInfo.viewportSize.height + changeOffset) {
+                        1f
+                    } else {
+                        ((bottomOffset - scrollState.layoutInfo.viewportSize.height) / changeOffset).coerceAtLeast(0f)
+                    }
                 }
+            } else {
+                if (scrollState.firstVisibleItemIndex > 0 ||
+                    scrollState.firstVisibleItemScrollOffset.toDp() > scrollAlphaChangeMaxOffset
+                ) {
+                    1f
+                } else scrollState.firstVisibleItemScrollOffset.toDp() / scrollAlphaChangeMaxOffset
             }
-        } else {
-            if (scrollState.firstVisibleItemIndex > 0 ||
-                scrollState.firstVisibleItemScrollOffset.toDp() > scrollAlphaChangeMaxOffset
-            ) {
-                1f
-            } else scrollState.firstVisibleItemScrollOffset.toDp() / scrollAlphaChangeMaxOffset
         }
     }
     TopBarWithPercent(
@@ -325,28 +330,30 @@ fun TopBarWithLazyGridScrollState(
     rightItems: PersistentList<TopBarItem> = persistentListOf(),
     titleLayout: TopBarTitleLayout = remember { DefaultTopBarTitleLayout() }
 ) {
-    val percentGetter: Density.() -> Float = {
-        if (scrollState.layoutInfo.reverseLayout) {
-            val last = scrollState.layoutInfo.visibleItemsInfo.maxByOrNull { it.index }
-            if (last == null) {
-                0f
-            } else if (last.index < scrollState.layoutInfo.totalItemsCount - 1) {
-                1f
-            } else {
-                val bottomOffset = last.offset.y + last.size.height
-                val changeOffset = scrollAlphaChangeMaxOffset.toPx()
-                if (bottomOffset > scrollState.layoutInfo.viewportSize.height + changeOffset) {
+    val percentGetter: Density.() -> Float = remember(scrollState, scrollAlphaChangeMaxOffset) {
+        {
+            if (scrollState.layoutInfo.reverseLayout) {
+                val last = scrollState.layoutInfo.visibleItemsInfo.maxByOrNull { it.index }
+                if (last == null) {
+                    0f
+                } else if (last.index < scrollState.layoutInfo.totalItemsCount - 1) {
                     1f
                 } else {
-                    ((bottomOffset - scrollState.layoutInfo.viewportSize.height) / changeOffset).coerceAtLeast(0f)
+                    val bottomOffset = last.offset.y + last.size.height
+                    val changeOffset = scrollAlphaChangeMaxOffset.toPx()
+                    if (bottomOffset > scrollState.layoutInfo.viewportSize.height + changeOffset) {
+                        1f
+                    } else {
+                        ((bottomOffset - scrollState.layoutInfo.viewportSize.height) / changeOffset).coerceAtLeast(0f)
+                    }
                 }
+            } else {
+                if (scrollState.firstVisibleItemIndex > 0 ||
+                    scrollState.firstVisibleItemScrollOffset.toDp() > scrollAlphaChangeMaxOffset
+                ) {
+                    1f
+                } else scrollState.firstVisibleItemScrollOffset.toDp() / scrollAlphaChangeMaxOffset
             }
-        } else {
-            if (scrollState.firstVisibleItemIndex > 0 ||
-                scrollState.firstVisibleItemScrollOffset.toDp() > scrollAlphaChangeMaxOffset
-            ) {
-                1f
-            } else scrollState.firstVisibleItemScrollOffset.toDp() / scrollAlphaChangeMaxOffset
         }
     }
     TopBarWithPercent(
@@ -380,10 +387,12 @@ fun TopBarWithScrollState(
     rightItems: PersistentList<TopBarItem> = persistentListOf(),
     titleLayout: TopBarTitleLayout = remember { DefaultTopBarTitleLayout() }
 ) {
-    val percentGetter: Density.() -> Float = {
-        if (scrollState.value.toDp() >= scrollAlphaChangeMaxOffset) {
-            1f
-        } else scrollState.value.toDp() / scrollAlphaChangeMaxOffset
+    val percentGetter: Density.() -> Float = remember(scrollState, scrollAlphaChangeMaxOffset) {
+        {
+            if (scrollState.value.toDp() >= scrollAlphaChangeMaxOffset) {
+                1f
+            } else scrollState.value.toDp() / scrollAlphaChangeMaxOffset
+        }
     }
     TopBarWithPercent(
         percentGetter, title, subTitle, alignTitleCenter, height,
@@ -416,7 +425,7 @@ fun TopBarWithPercent(
     titleLayout: TopBarTitleLayout = remember { DefaultTopBarTitleLayout() }
 ) {
     val density = LocalDensity.current
-    val percent by remember {
+    val percent by remember(percentGetter) {
         derivedStateOf {
             with(density) {
                 percentGetter()
@@ -587,7 +596,9 @@ fun TopBarContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 leftItems.forEach {
-                    it.Compose(height)
+                    key(it) {
+                        it.Compose(height)
+                    }
                 }
             }
 
@@ -608,7 +619,9 @@ fun TopBarContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 rightItems.forEach {
-                    it.Compose(height)
+                    key(it) {
+                        it.Compose(height)
+                    }
                 }
             }
         },
