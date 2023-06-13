@@ -208,7 +208,11 @@ fun ConfigItemValueAccessory(
     TextField(
         modifier = Modifier
             .widthIn(0.dp, 100.dp),
-        colors = TextFieldDefaults.textFieldColors(containerColor = Color.Transparent),
+        colors = TextFieldDefaults.colors(
+            focusedContainerColor = Color.Transparent,
+            unfocusedContainerColor = Color.Transparent,
+            disabledContainerColor = Color.Transparent
+        ),
         keyboardOptions = keyboardOptions,
         value = value,
         textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End),

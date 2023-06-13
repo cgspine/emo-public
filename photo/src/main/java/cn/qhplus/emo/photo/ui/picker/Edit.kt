@@ -54,7 +54,7 @@ fun PhotoPickerEditPage(
                 navController.popBackStack()
             }
         ) { drawable, editLayers ->
-            if (!editLayers.isEmpty()) {
+            if (editLayers.isEmpty()) {
                 navController.popBackStack()
                 return@EditBox
             }

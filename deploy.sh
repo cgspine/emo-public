@@ -51,6 +51,14 @@ buildSchemeKsp="./gradlew.bat :scheme-ksp:clean :scheme-ksp:build :scheme-ksp:$2
 buildSchemeImpl="./gradlew.bat :scheme-impl:clean :scheme-impl:build :scheme-impl:$2"
 buildKv="./gradlew.bat :kv:clean :kv:build :kv:$2"
 
+./gradlew.bat :core:spotlessApply :ui-core:spotlessApply :fs:spotlessApply \
+:photo:spotlessApply :photo-coil:spotlessApply :photo-pdf:spotlessApply \
+:modal:spotlessApply :network:spotlessApply :permission:spotlessApply \
+:js-bridge:spotlessApply :report:spotlessApply :device:spotlessApply \
+:config-runtime:spotlessApply :config-mmkv:spotlessApply :config-ksp:spotlessApply :config-panel:spotlessApply \
+:scheme-runtime:spotlessApply :scheme-ksp:spotlessApply :scheme-impl:spotlessApply \
+:kv:spotlessApply
+
 if [[ "core" == "$1" ]]
 then
     $buildCore

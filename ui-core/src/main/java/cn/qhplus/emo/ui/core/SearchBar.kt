@@ -178,7 +178,7 @@ fun SearchBar(
         maxLines = 1,
         decorationBox = @Composable { innerTextField ->
             // places leading icon, text field with label and placeholder, trailing icon
-            TextFieldDefaults.TextFieldDecorationBox(
+            TextFieldDefaults.DecorationBox(
                 value = state.searchText,
                 visualTransformation = VisualTransformation.None,
                 innerTextField = innerTextField,
