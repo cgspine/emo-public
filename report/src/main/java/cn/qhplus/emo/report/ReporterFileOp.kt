@@ -109,17 +109,13 @@ fun <T> File.createReportSink(bufferLength: Long = 150 * 1024): ReporterFileSink
         if (!exists()) {
             createNewFile()
         }
-        val randomAccessFile = RandomAccessFile(this, "rw")
-        try {
+        RandomAccessFile(this, "rw").use { randomAccessFile ->
             val mappedByteBuffer = randomAccessFile.channel.map(
                 FileChannel.MapMode.READ_WRITE,
                 length(),
                 bufferLength
             )
             return ReporterMappedByteBufferSink(mappedByteBuffer, randomAccessFile)
-        } catch (e: Throwable) {
-            randomAccessFile.close()
-            throw e
         }
     } catch (e: Throwable) {
         EmoLog.e("createReportSink", "createReportSink failed", e)
