@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import cn.qhplus.emo.core.EmoLog
+import cn.qhplus.emo.fs.ShareFiles
 import cn.qhplus.emo.photo.R
 import cn.qhplus.emo.photo.data.PhotoClipperDelivery
 import cn.qhplus.emo.photo.data.PhotoProvider
@@ -237,9 +238,10 @@ open class PhotoClipperActivity : ComponentActivity() {
     }
 
     protected open suspend fun onClipFinished(bm: Bitmap) {
-        val uri = withContext(Dispatchers.IO) {
-            bm.saveToLocal(PhotoHelper.getAppShareDir(this@PhotoClipperActivity.applicationContext))
+        val file = withContext(Dispatchers.IO) {
+            bm.saveToLocal(PhotoHelper.getAppShareDir(applicationContext))
         }
+        val uri = ShareFiles.getShareFileUri(this, file)
         setResult(
             RESULT_OK,
             Intent().apply {

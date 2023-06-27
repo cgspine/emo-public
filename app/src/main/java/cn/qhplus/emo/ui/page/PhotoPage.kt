@@ -69,6 +69,8 @@ import coil.compose.AsyncImage
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromByteArray
 import kotlinx.serialization.encodeToByteArray
@@ -484,8 +486,11 @@ fun PhotoClipperPage() {
 
 class TestPdfDataSource(val context: Context, val uri: Uri): PdfDataSource {
 
-    override val title: State<String>
-        get() = mutableStateOf(uri.fileName(context) ?: "")
+    override val title: StateFlow<String>
+        get() = MutableStateFlow(uri.fileName(context) ?: "")
+
+    override val downloadProgress: StateFlow<Int>
+        get() = MutableStateFlow(-1)
 
 
     override fun readInitIndex(context: Context): Int {

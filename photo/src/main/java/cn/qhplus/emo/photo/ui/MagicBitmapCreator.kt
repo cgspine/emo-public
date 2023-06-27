@@ -48,6 +48,8 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.resume
 
+const val MAX_BITMAP_SIZE = 1024 * 1024 * 20
+
 suspend fun View.createMagicBitmap(
     width: Int,
     height: Int,
@@ -105,8 +107,9 @@ private class MagicBitmapContainer(
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val ws = if (w > 0) w else MeasureSpec.getSize(widthMeasureSpec)
         super.onMeasure(
-            if (w > 0) {
+            if (ws > 0) {
                 MeasureSpec.makeMeasureSpec(w, MeasureSpec.EXACTLY)
             } else {
                 widthMeasureSpec
@@ -114,7 +117,7 @@ private class MagicBitmapContainer(
             if (h > 0) {
                 MeasureSpec.makeMeasureSpec(h, MeasureSpec.EXACTLY)
             } else {
-                MeasureSpec.makeMeasureSpec(6000, MeasureSpec.AT_MOST)
+                MeasureSpec.makeMeasureSpec(MAX_BITMAP_SIZE / ws, MeasureSpec.AT_MOST)
             }
         )
     }

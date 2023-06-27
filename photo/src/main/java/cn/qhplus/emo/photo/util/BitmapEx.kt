@@ -18,8 +18,6 @@ package cn.qhplus.emo.photo.util
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.net.Uri
-import androidx.core.net.toUri
 import cn.qhplus.emo.core.EmoLog
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -66,7 +64,7 @@ fun Bitmap.saveToLocal(
     dir: File,
     compressFormat: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG,
     compressQuality: Int = 80
-): Uri {
+): File {
     val suffix = when (compressFormat) {
         Bitmap.CompressFormat.JPEG -> "jpeg"
         Bitmap.CompressFormat.PNG -> "png"
@@ -78,7 +76,7 @@ fun Bitmap.saveToLocal(
     destFile.outputStream().buffered().use {
         compress(compressFormat, compressQuality, it)
     }
-    return destFile.toUri()
+    return destFile
 }
 
 fun Bitmap.compressByShortEdgeWidthAndByteSize(

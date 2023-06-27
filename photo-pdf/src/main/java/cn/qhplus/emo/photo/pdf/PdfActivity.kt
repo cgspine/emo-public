@@ -27,12 +27,15 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsIgnoringVisibility
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.Text
@@ -57,6 +60,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cn.qhplus.emo.photo.data.BitmapPhotoProvider
 import cn.qhplus.emo.photo.data.PhotoLoadStatus
 import cn.qhplus.emo.photo.ui.GestureContent
@@ -227,10 +231,16 @@ open class PdfActivity : ComponentActivity() {
             }
 
             if (loadStatus == PhotoLoadStatus.Loading) {
-                Loading(
+                Column(
                     modifier = Modifier.align(Alignment.Center),
-                    lineColor = LocalPdfConfig.current.tipColor
-                )
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Loading(
+                        lineColor = LocalPdfConfig.current.tipColor
+                    )
+                    DownloadProgress(dataSource)
+                }
             } else if (loadStatus == PhotoLoadStatus.Failed) {
                 Text(
                     text = "加载失败",
@@ -248,6 +258,18 @@ open class PdfActivity : ComponentActivity() {
             pageGetter = { editingPage.value },
             onBack = { editingPage.value = null }
         )
+    }
+
+    @Composable
+    protected open fun DownloadProgress(dataSource: PdfDataSource) {
+        val progress by dataSource.downloadProgress.collectAsStateWithLifecycle()
+        if (progress in 0..99) {
+            Text(
+                modifier = Modifier.padding(top = 8.dp),
+                text = "下载中 $progress%",
+                color = LocalPdfConfig.current.tipColor
+            )
+        }
     }
 
     @Composable
@@ -369,7 +391,6 @@ fun TopBarLayout(
     listState: LazyListState,
     onBack: () -> Unit
 ) {
-    val context = LocalContext.current.applicationContext
     val contentColor = LocalPdfConfig.current.barContentColor
     val catalogText = remember {
         derivedStateOf {
@@ -407,8 +428,9 @@ fun TopBarLayout(
         )
     }
     val separatorColor = LocalPdfConfig.current.barDividerColor
+    val topBarTitle = dataSource.title.collectAsStateWithLifecycle()
     TopBar(
-        title = { dataSource.title.value },
+        title = { topBarTitle.value },
         separatorHeight = OnePx(),
         separatorColor = { separatorColor },
         paddingEnd = 16.dp,

@@ -44,7 +44,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -81,6 +80,8 @@ import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.lang.ref.WeakReference
@@ -130,7 +131,9 @@ class PdfDrawable(val source: PdfDataSource, val list: PersistentList<PdfPage>) 
 @Stable
 interface PdfDataSource {
 
-    val title: State<String>
+    val title: StateFlow<String>
+
+    val downloadProgress: StateFlow<Int>
     fun readInitIndex(context: Context): Int
     fun readInitOffset(context: Context): Int
     suspend fun getFileDescriptor(context: Context): ParcelFileDescriptor?
@@ -143,8 +146,11 @@ interface PdfDataSource {
 
 data class DefaultUriPdfDataSource(private val uri: Uri) : PdfDataSource {
 
-    override val title: State<String>
-        get() = mutableStateOf("")
+    override val title: StateFlow<String>
+        get() = MutableStateFlow("")
+
+    override val downloadProgress: StateFlow<Int>
+        get() = MutableStateFlow(-1)
 
     override fun readInitIndex(context: Context): Int {
         return 0
